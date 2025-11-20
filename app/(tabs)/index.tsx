@@ -1,98 +1,185 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Image } from "expo-image";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
+  const router = useRouter();
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <SafeAreaView style={styles.container} edges={["top"]}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.content}>
+          {/* Logo */}
+          <Image
+            source={require("@/assets/images/logo.png")}
+            style={styles.logo}
+            contentFit="cover"
+          />
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+          {/* Welcome Content */}
+          <View style={styles.welcomeSection}>
+            <Text style={styles.welcomeTitle}>Welcome to Swiss-belhotel</Text>
+            <Text style={styles.welcomeDescription}>
+              Choose whether you want to book a stay or access your member
+              loyalty benefits.
+            </Text>
+          </View>
+
+          {/* Cards */}
+          <View style={styles.cardsContainer}>
+            {/* Hotel Booking Card */}
+            <View style={styles.card}>
+              <ImageBackground
+                source={require("@/assets/images/hotel-booking-bg.png")}
+                style={styles.cardImage}
+                imageStyle={styles.cardImageStyle}
+                resizeMode="cover"
+              />
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>Hotel Booking</Text>
+                <Text style={styles.cardDescription}>
+                  Browse rooms, explore facilities, and book your stay.
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => router.push("/booking-webview")}
+              >
+                <Text style={styles.buttonText}>Booking Now</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Member Loyalty Card */}
+            <View style={styles.card}>
+              <ImageBackground
+                source={require("@/assets/images/member-loyalty-bg.png")}
+                style={styles.cardImage}
+                imageStyle={styles.cardImageStyle}
+                resizeMode="cover"
+              />
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>Member Loyalty</Text>
+                <Text style={styles.cardDescription}>
+                  View your points, rewards, and exclusive member benefits.
+                </Text>
+              </View>
+              <TouchableOpacity style={styles.button}>
+                <Text style={styles.buttonText}>Check Reward</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Image
+              source={require("@/assets/images/footer-logo.png")}
+              style={styles.footerLogo}
+              contentFit="cover"
+            />
+            <Text style={styles.footerText}>Powerd by Swiss-belhotel</Text>
+          </View>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "space-between",
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingTop: 71,
+  },
+  logo: {
+    width: 56,
+    height: 56,
+  },
+  welcomeSection: {
+    marginTop: 79,
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  welcomeTitle: {
+    color: "#1F1F1F",
+    fontSize: 18,
+    fontWeight: "600",
+    lineHeight: 21.78,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  welcomeDescription: {
+    color: "#8A8A8A",
+    fontSize: 14,
+    lineHeight: 19,
+  },
+  cardsContainer: {
+    flexDirection: "row",
+    gap: 16,
+    marginTop: 62,
+  },
+  card: {
+    flex: 1,
+    gap: 9,
+  },
+  cardImage: {
+    width: "100%",
+    height: 121,
+  },
+  cardImageStyle: {
+    borderRadius: 8,
+  },
+  cardContent: {
+    gap: 8,
+  },
+  cardTitle: {
+    color: "#1F1F1F",
+    fontSize: 14,
+    fontWeight: "500",
+    lineHeight: 16.94,
+  },
+  cardDescription: {
+    color: "#8A8A8A",
+    fontSize: 12,
+    lineHeight: 14.52,
+  },
+  button: {
+    backgroundColor: "#F04E30",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    alignSelf: "flex-start",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "500",
+    lineHeight: 20,
+  },
+  footer: {
+    alignItems: "center",
+    marginTop: 60,
+    paddingBottom: 32,
+    gap: 8,
+  },
+  footerLogo: {
+    width: 50,
+    height: 38.56,
+  },
+  footerText: {
+    color: "#1F1F1F",
+    fontSize: 12,
+    textAlign: "center",
+    lineHeight: 19,
   },
 });
