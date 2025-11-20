@@ -1,185 +1,93 @@
 import { Image } from "expo-image";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ImageBackground,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, Text, TouchableOpacity, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function HomeScreen() {
   const router = useRouter();
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.content}>
+    <SafeAreaView className="flex-1 bg-white">
+      <View className="flex-1 justify-between py-8 p-4">
+        {/* Welcome Content */}
+        <View className="pt-8">
           {/* Logo */}
           <Image
             source={require("@/assets/images/logo.png")}
-            style={styles.logo}
+            style={{ width: 56, height: 56 }}
             contentFit="cover"
           />
+          <Text className="text-xl font-semibold mt-6">
+            Welcome to Swiss-belhotel
+          </Text>
+          <Text className="text-[#8A8A8A] mt-2 leading-relaxed">
+            Choose whether you want to book a stay or access your member loyalty
+            benefits.
+          </Text>
+        </View>
 
-          {/* Welcome Content */}
-          <View style={styles.welcomeSection}>
-            <Text style={styles.welcomeTitle}>Welcome to Swiss-belhotel</Text>
-            <Text style={styles.welcomeDescription}>
-              Choose whether you want to book a stay or access your member
-              loyalty benefits.
-            </Text>
-          </View>
-
-          {/* Cards */}
-          <View style={styles.cardsContainer}>
-            {/* Hotel Booking Card */}
-            <View style={styles.card}>
-              <ImageBackground
-                source={require("@/assets/images/hotel-booking-bg.png")}
-                style={styles.cardImage}
-                imageStyle={styles.cardImageStyle}
-                resizeMode="cover"
-              />
-              <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>Hotel Booking</Text>
-                <Text style={styles.cardDescription}>
-                  Browse rooms, explore facilities, and book your stay.
-                </Text>
-              </View>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => router.push("/booking-webview")}
-              >
-                <Text style={styles.buttonText}>Booking Now</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Member Loyalty Card */}
-            <View style={styles.card}>
-              <ImageBackground
-                source={require("@/assets/images/member-loyalty-bg.png")}
-                style={styles.cardImage}
-                imageStyle={styles.cardImageStyle}
-                resizeMode="cover"
-              />
-              <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>Member Loyalty</Text>
-                <Text style={styles.cardDescription}>
-                  View your points, rewards, and exclusive member benefits.
-                </Text>
-              </View>
-              <TouchableOpacity style={styles.button}>
-                <Text style={styles.buttonText}>Check Reward</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Footer */}
-          <View style={styles.footer}>
-            <Image
-              source={require("@/assets/images/footer-logo.png")}
-              style={styles.footerLogo}
-              contentFit="cover"
+        {/* Cards */}
+        <View className="flex-row gap-4">
+          {/* Hotel Booking Card */}
+          <View className="flex-1 gap-[9px]">
+            <ImageBackground
+              source={require("@/assets/images/hotel-booking-bg.png")}
+              style={{ width: "100%", height: 121 }}
+              imageStyle={{ borderRadius: 8 }}
+              resizeMode="cover"
             />
-            <Text style={styles.footerText}>Powerd by Swiss-belhotel</Text>
+            <View className="mt-2.5">
+              <Text className="font-medium">Hotel Booking</Text>
+              <Text className="text-sm text-[#8A8A8A] mt-2">
+                Browse rooms, explore facilities, and book your stay.
+              </Text>
+            </View>
+            <TouchableOpacity
+              className="bg-[#F04E30] rounded-lg px-[10px] py-[6px] self-start"
+              onPress={() => router.push("/booking-webview")}
+            >
+              <Text className="text-white font-medium py-1 px-1.5">
+                Booking Now
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* Member Loyalty Card */}
+          <View className="flex-1 gap-[9px]">
+            <ImageBackground
+              source={require("@/assets/images/member-loyalty-bg.png")}
+              style={{ width: "100%", height: 121 }}
+              imageStyle={{ borderRadius: 8 }}
+              resizeMode="cover"
+            />
+            <View className="mt-2.5">
+              <Text className="font-medium">Member Loyalty</Text>
+              <Text className="text-sm text-[#8A8A8A] mt-2">
+                View your points, rewards, and exclusive member benefits.
+              </Text>
+            </View>
+            <TouchableOpacity
+              className="bg-[#F04E30] rounded-lg px-[10px] py-[6px] self-start"
+              onPress={() => router.push("/member-loyalty-webview")}
+            >
+              <Text className="text-white font-medium py-1 px-1.5">
+                Check Reward
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </ScrollView>
+
+        {/* Footer */}
+        <View className="items-center mt-[60px] gap-2">
+          <Image
+            source={require("@/assets/images/footer-logo.png")}
+            style={{ width: 50, height: 38.56 }}
+            contentFit="cover"
+          />
+          <Text className="text-[#1F1F1F] text-xs text-center leading-[19px]">
+            © 2025 All Rights Reserved | Swiss-Belhotel Internationa
+          </Text>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  scrollContent: {
-    flexGrow: 1,
-    justifyContent: "space-between",
-  },
-  content: {
-    paddingHorizontal: 16,
-    paddingTop: 71,
-  },
-  logo: {
-    width: 56,
-    height: 56,
-  },
-  welcomeSection: {
-    marginTop: 79,
-    gap: 8,
-  },
-  welcomeTitle: {
-    color: "#1F1F1F",
-    fontSize: 18,
-    fontWeight: "600",
-    lineHeight: 21.78,
-  },
-  welcomeDescription: {
-    color: "#8A8A8A",
-    fontSize: 14,
-    lineHeight: 19,
-  },
-  cardsContainer: {
-    flexDirection: "row",
-    gap: 16,
-    marginTop: 62,
-  },
-  card: {
-    flex: 1,
-    gap: 9,
-  },
-  cardImage: {
-    width: "100%",
-    height: 121,
-  },
-  cardImageStyle: {
-    borderRadius: 8,
-  },
-  cardContent: {
-    gap: 8,
-  },
-  cardTitle: {
-    color: "#1F1F1F",
-    fontSize: 14,
-    fontWeight: "500",
-    lineHeight: 16.94,
-  },
-  cardDescription: {
-    color: "#8A8A8A",
-    fontSize: 12,
-    lineHeight: 14.52,
-  },
-  button: {
-    backgroundColor: "#F04E30",
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    alignSelf: "flex-start",
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "500",
-    lineHeight: 20,
-  },
-  footer: {
-    alignItems: "center",
-    marginTop: 60,
-    paddingBottom: 32,
-    gap: 8,
-  },
-  footerLogo: {
-    width: 50,
-    height: 38.56,
-  },
-  footerText: {
-    color: "#1F1F1F",
-    fontSize: 12,
-    textAlign: "center",
-    lineHeight: 19,
-  },
-});
