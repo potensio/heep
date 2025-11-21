@@ -9,6 +9,8 @@ import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
 } from "react-native-reanimated";
+import { useEffect } from "react";
+import { OneSignal } from "react-native-onesignal";
 import "../global.css";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -21,6 +23,28 @@ configureReanimatedLogger({
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    // OneSignal Initialization
+    OneSignal.initialize("cf9e7276-32f7-4b1c-9859-cf09d2ff0779");
+
+    // Request notification permissions
+    OneSignal.Notifications.requestPermission(true);
+
+    // Optional: Handle notification events
+    OneSignal.Notifications.addEventListener("click", (event) => {
+      console.log("OneSignal: notification clicked:", event);
+    });
+
+    OneSignal.Notifications.addEventListener(
+      "foregroundWillDisplay",
+      (event) => {
+        console.log("OneSignal: notification will show in foreground:", event);
+        event.preventDefault();
+        event.getNotification().display();
+      }
+    );
+  }, []);
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>

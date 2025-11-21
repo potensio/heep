@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "117555841550",
+    "project_id": "swiss-bellhotel-app",
+    "storage_bucket": "swiss-bellhotel-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117555841550:android:a074ce00da7e88dd94ca5f",
+        "android_client_info": {
+          "package_name": "com.sbi.swissbelhotelapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPQXV4nW34g9yl_r9c8KLXZWt98C_s8TQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
