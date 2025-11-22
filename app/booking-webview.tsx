@@ -27,6 +27,8 @@ export default function BookingWebView() {
         domStorageEnabled={true}
         javaScriptEnabled={true}
         startInLoadingState={true}
+        cacheEnabled={true}
+        incognito={false}
       />
     </View>
   );
