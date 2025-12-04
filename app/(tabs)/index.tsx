@@ -2,21 +2,46 @@ import { Image } from "expo-image";
 import { View, Text, TouchableOpacity, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Svg, { Path } from "react-native-svg";
+
+const BellIcon = () => (
+  <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M18 8A6 6 0 1 0 6 8c0 7-3 9-3 9h18s-3-2-3-9ZM13.73 21a2 2 0 0 1-3.46 0"
+      stroke="#1F1F1F"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
 
 export default function HomeScreen() {
   const router = useRouter();
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 justify-between py-8 p-4">
-        {/* Welcome Content */}
-        <View className="pt-8">
+        {/* Header with Bell Icon */}
+        <View className="flex-row justify-between items-start">
           {/* Logo */}
           <Image
             source={require("@/assets/images/logo.png")}
             style={{ width: 56, height: 56 }}
             contentFit="cover"
           />
-          <Text className="text-xl font-semibold mt-6">
+          {/* Bell Icon */}
+          <TouchableOpacity
+            onPress={() => router.push("/notifications")}
+            className="relative p-2"
+          >
+            <BellIcon />
+            <View className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F04F31]" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Welcome Content */}
+        <View className="pt-4">
+          <Text className="text-xl font-semibold mt-2">
             Welcome to Swiss-belhotel
           </Text>
           <Text className="text-[#8A8A8A] mt-2 leading-relaxed">

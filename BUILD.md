@@ -55,3 +55,9 @@ Rebuild (`npx expo run:android`) kalo:
 - Update native dependencies
 
 Kalo cuma edit code JS/TS → gak perlu rebuild, hot reload aja.
+
+# For Preview
+`eas build --profile preview --platform android`
+
+ # For Production
+`eas build --profile production --platform android`
