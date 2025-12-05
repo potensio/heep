@@ -143,7 +143,7 @@ function SlideContent({
         {/* Illustration */}
         <ExpoImage
           source={item.illustration}
-          style={{ width: 320, height: 225 }}
+          style={{ width: 320, aspectRatio: 7 / 5, borderRadius: 12 }}
           contentFit="contain"
         />
 

@@ -42,7 +42,7 @@ export default function HomeScreen() {
         {/* Welcome Content */}
         <View className="pt-4">
           <Text className="text-xl font-semibold mt-2">
-            Welcome to Swiss-belhotel
+            Welcome to Swiss-Belhotel International
           </Text>
           <Text className="text-[#8A8A8A] mt-2 leading-relaxed">
             Choose whether you want to book a stay or access your member loyalty
@@ -109,7 +109,7 @@ export default function HomeScreen() {
             contentFit="cover"
           />
           <Text className="text-[#1F1F1F] text-xs text-center leading-[19px]">
-            © 2025 All Rights Reserved | Swiss-Belhotel Internationa
+            © 2025 All Rights Reserved | Swiss-Belhotel International
           </Text>
         </View>
       </View>
