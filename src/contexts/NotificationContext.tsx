@@ -1,3 +1,21 @@
+/**
+ * @deprecated This context is deprecated and will be removed in a future version.
+ * Use the TanStack Query hooks instead:
+ * - `useNotifications` from `@/src/hooks` for fetching notifications
+ * - `useMarkAsRead` from `@/src/hooks` for marking notifications as read
+ *
+ * Migration guide:
+ * 1. Remove NotificationProvider from your component tree
+ * 2. Replace `useNotifications()` from this context with `useNotifications()` from `@/src/hooks`
+ * 3. Use `useMarkAsRead()` hook for marking notifications as read
+ *
+ * The new hooks provide:
+ * - Automatic retries with exponential backoff
+ * - Optimistic updates for mark-as-read
+ * - Real-time Firestore synchronization
+ * - Better error handling with retry functionality
+ */
+
 import React, {
   createContext,
   useContext,
@@ -7,13 +25,14 @@ import React, {
   useMemo,
   ReactNode,
 } from "react";
-import { Notification } from "@/types/notification";
+import { Notification } from "@/src/types/notification";
 import {
   subscribeToNotifications,
   markAsRead as markAsReadService,
-} from "@/services/notification-service";
+} from "@/src/services/notification-service";
 
 /**
+ * @deprecated Use `UseNotificationsReturn` from `@/src/hooks/use-notifications` instead.
  * NotificationContext type definition.
  * Provides notifications state and actions for the app.
  */
@@ -39,6 +58,7 @@ interface NotificationProviderProps {
 }
 
 /**
+ * @deprecated Use TanStack Query hooks from `@/src/hooks` instead.
  * NotificationProvider component.
  * Subscribes to Firestore notifications on mount and provides state to children.
  */
@@ -68,7 +88,6 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
           }
         });
       } catch (err) {
-        console.warn("Firebase subscription failed:", err);
         if (isMounted) {
           setLoading(false);
           setError(
@@ -98,13 +117,8 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
 
   // Mark notification as read
   const markAsRead = useCallback(async (notificationId: string) => {
-    try {
-      await markAsReadService(notificationId);
-      // Note: The real-time subscription will automatically update the notifications state
-    } catch (err) {
-      console.error("Error marking notification as read:", err);
-      throw err;
-    }
+    await markAsReadService(notificationId);
+    // Note: The real-time subscription will automatically update the notifications state
   }, []);
 
   const value: NotificationContextType = {
@@ -123,6 +137,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
 }
 
 /**
+ * @deprecated Use `useNotifications` from `@/src/hooks` instead.
  * Hook to access the NotificationContext.
  * Must be used within a NotificationProvider.
  */

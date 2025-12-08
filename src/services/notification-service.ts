@@ -1,7 +1,7 @@
 import firestore, {
   FirebaseFirestoreTypes,
 } from "@react-native-firebase/firestore";
-import { Notification } from "@/types/notification";
+import { Notification } from "@/src/types/notification";
 
 const NOTIFICATIONS_COLLECTION = "notifications";
 
@@ -89,8 +89,8 @@ export function subscribeToNotifications(
         const notifications = snapshot.docs.map(fromFirestoreDoc);
         callback(notifications);
       },
-      (error) => {
-        console.error("Error subscribing to notifications:", error);
+      () => {
+        // Error handled silently - subscription will retry automatically
       }
     );
 

@@ -21,7 +21,8 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.sbi.swissbelhotelapp"
+      "package": "com.sbi.swissbelhotelapp",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -36,6 +37,7 @@
     "plugins": [
       "expo-router",
       "expo-splash-screen",
+      "@react-native-firebase/app",
       [
         "onesignal-expo-plugin",
         {

@@ -16,7 +16,7 @@ module.exports = {
     ],
   },
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-  collectCoverageFrom: ["services/**/*.ts", "contexts/**/*.tsx", "!**/*.d.ts"],
+  collectCoverageFrom: ["src/services/**/*.ts", "src/contexts/**/*.tsx", "!**/*.d.ts"],
   // Ignore React Native specific modules that can't run in Node
   transformIgnorePatterns: [
     "node_modules/(?!(@react-native|react-native|@react-native-firebase)/)",
