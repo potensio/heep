@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Image, ImageProps } from "expo-image";
 import Carousel, { ICarouselInstance } from "react-native-reanimated-carousel";
+import { OneSignal } from "react-native-onesignal";
 
 // Workaround for expo-image type incompatibility with React 19
 const ExpoImage = Image as unknown as ComponentType<ImageProps>;
@@ -14,24 +15,17 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const SLIDES = [
   {
     id: 1,
-    illustration: require("@/assets/images/onboarding-1-illustration-631234.png"),
-    title: "Seamless hotel booking",
-    description:
-      "Enjoy a smoother and faster way to plan your stay. Browse room options, explore hotel facilities, and unlock exclusive offers directly through your app.",
-  },
-  {
-    id: 2,
-    illustration: require("@/assets/images/onboarding-2-illustration-5e770b.png"),
-    title: "Access a world of exclusive Swiss-Belexecutive member benefits",
-    description:
-      "Track your visits, monitor your tier progress, and enjoy access to over 1000 member-only vouchers along with personalized offers crafted to elevate your stay.",
-  },
-  {
-    id: 3,
     illustration: require("@/assets/images/onboarding-3-illustration-3420cb.png"),
     title: "One app, two experiences",
     description:
       "Access both hotel booking and the Swiss-Belexecutive Member Zone in a single platform. Choose your journey right after signing in.",
+  },
+  {
+    id: 2,
+    illustration: require("@/assets/images/onboarding-3-illustration-3420cb.png"),
+    title: "Enable Notification",
+    description:
+      "Stay updated with exclusive offers, booking confirmations, and important updates. Never miss a moment.",
   },
 ];
 
@@ -40,11 +34,23 @@ export default function OnboardingScreen() {
   const carouselRef = useRef<ICarouselInstance>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const requestNotificationPermission = async (): Promise<void> => {
+    try {
+      console.log("Requesting notification permission...");
+      const result = await OneSignal.Notifications.requestPermission(true);
+      console.log("Permission result:", result);
+    } catch (error) {
+      console.error("Permission request error:", error);
+    } finally {
+      router.replace("/(tabs)");
+    }
+  };
+
   const handleNext = () => {
     if (currentIndex < SLIDES.length - 1) {
       carouselRef.current?.next();
     } else {
-      router.replace("/(tabs)");
+      requestNotificationPermission();
     }
   };
 
@@ -53,6 +59,7 @@ export default function OnboardingScreen() {
   };
 
   const isLastSlide = currentIndex === SLIDES.length - 1;
+  const buttonText = isLastSlide ? "I'm in" : "Next";
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -97,17 +104,17 @@ export default function OnboardingScreen() {
             onPress={handleNext}
           >
             <Text className="text-white font-medium leading-5">
-              {isLastSlide ? "Continue" : "Next"}
+              {buttonText}
             </Text>
           </TouchableOpacity>
 
-          {!isLastSlide && (
+          {isLastSlide && (
             <TouchableOpacity
               className="bg-white rounded-[10px] border border-primary p-4 items-center"
               onPress={handleSkip}
             >
               <Text className="text-primary text-sm font-medium leading-5">
-                Skip
+                Maybe later
               </Text>
             </TouchableOpacity>
           )}

@@ -16,3 +16,8 @@ export { HapticTab } from "./haptic-tab";
 export { HelloWave } from "./hello-wave";
 export { IconSymbol } from "./icon-symbol";
 export { default as ParallaxScrollView } from "./parallax-scroll-view";
+export {
+  NotificationToggle,
+  type NotificationToggleProps,
+} from "./NotificationToggle";
+export { EnableNotificationBanner } from "./EnableNotificationBanner";

@@ -1,3 +1,4 @@
+import { Stack } from "expo-router";
 import { WebViewScreen } from "@/src/components/ui";
 
 const HIDE_ELEMENT_SCRIPT = `
@@ -15,9 +16,12 @@ const HIDE_ELEMENT_SCRIPT = `
 
 export default function BookingWebView() {
   return (
-    <WebViewScreen
-      url="https://www.swiss-belhotel.com/"
-      injectedJavaScript={HIDE_ELEMENT_SCRIPT}
-    />
+    <>
+      <Stack.Screen options={{ gestureEnabled: false }} />
+      <WebViewScreen
+        url="https://www.swiss-belhotel.com/"
+        injectedJavaScript={HIDE_ELEMENT_SCRIPT}
+      />
+    </>
   );
 }

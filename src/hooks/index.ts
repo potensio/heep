@@ -17,3 +17,9 @@ export { useFirestoreSubscription } from "./use-firestore-subscription";
 // Theme hooks
 export { useColorScheme } from "./use-color-scheme";
 export { useThemeColor } from "./use-theme-color";
+
+// Notification preference hook
+export {
+  useNotificationPreference,
+  type UseNotificationPreferenceReturn,
+} from "./use-notification-preference";

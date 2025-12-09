@@ -1,0 +1,86 @@
+# Implementation Plan
+
+- [x] 1. Set up project dependencies and storage utilities
+  - [x] 1.1 Install required dependencies (fast-check for testing, @react-native-async-storage/async-storage)
+    - Add fast-check as dev dependency for property-based testing
+    - Add @react-native-async-storage/async-storage for preference persistence
+    - _Requirements: 3.4, 3.5_
+  - [x] 1.2 Create preference storage utility functions
+    - Create `src/utils/notification-preference-storage.ts`
+    - Implement `savePreference(enabled: boolean): Promise<void>` function
+    - Implement `loadPreference(): Promise<boolean | null>` function
+    - Use JSON serialization for boolean values
+    - _Requirements: 3.4, 3.5_
+  - [ ]\* 1.3 Write property test for preference serialization round-trip
+    - **Property 5: Preference serialization round-trip**
+    - **Validates: Requirements 3.4, 3.5**
+
+- [x] 2. Implement useNotificationPreference hook
+  - [x] 2.1 Create the useNotificationPreference hook
+    - Create `src/hooks/use-notification-preference.ts`
+    - Implement state management for isEnabled, isLoading, error
+    - Load preference from AsyncStorage on mount
+    - Default to enabled (true) when no stored preference exists
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [ ]\* 2.2 Write property test for stored preferences applied on initialization
+    - **Property 4: Stored preferences are applied on initialization**
+    - **Validates: Requirements 3.2**
+  - [x] 2.3 Implement togglePreference function with OneSignal integration
+    - Integrate with OneSignal SDK to enable/disable push notifications
+    - Implement optimistic update pattern
+    - Persist new preference to AsyncStorage
+    - _Requirements: 2.1, 2.2, 2.3_
+  - [ ]\* 2.4 Write property test for toggle action inverts state
+    - **Property 2: Toggle action inverts state**
+    - **Validates: Requirements 2.1, 2.2**
+  - [ ]\* 2.5 Write property test for state changes are persisted
+    - **Property 3: State changes are persisted**
+    - **Validates: Requirements 2.3**
+  - [x] 2.6 Implement error handling with rollback
+    - Revert to previous state on save failure
+    - Set error state for UI feedback
+    - _Requirements: 4.3, 4.4_
+  - [ ]\* 2.7 Write property test for state reverts on save failure
+    - **Property 6: State reverts on save failure**
+    - **Validates: Requirements 4.3**
+  - [x] 2.8 Export hook from hooks index
+    - Add export to `src/hooks/index.ts`
+    - _Requirements: 2.1_
+
+- [ ] 3. Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 4. Implement NotificationToggle component
+  - [x] 4.1 Create NotificationToggle component
+    - Create `src/components/ui/NotificationToggle.tsx`
+    - Implement Switch component with on/off visual states
+    - Add loading indicator during async operations
+    - Style to match app design (use theme colors)
+    - _Requirements: 1.2, 1.3, 1.4, 4.1, 4.2_
+  - [ ]\* 4.2 Write property test for toggle reflects current preference state
+    - **Property 1: Toggle reflects current preference state**
+    - **Validates: Requirements 1.2**
+  - [x] 4.3 Add accessibility attributes
+    - Add accessibilityLabel describing toggle purpose
+    - Add accessibilityRole="switch"
+    - Add accessibilityState for current value
+    - Ensure minimum 44x44 touch target
+    - _Requirements: 5.1, 5.2, 5.3_
+  - [x] 4.4 Export component from UI index
+    - Add export to `src/components/ui/index.ts`
+    - _Requirements: 1.1_
+
+- [x] 5. Integrate toggle into NotificationsScreen
+  - [x] 5.1 Add toggle to NotificationsScreen header
+    - Import useNotificationPreference hook
+    - Import NotificationToggle component
+    - Add toggle below the header title with label "Push Notifications"
+    - Wire up hook state and togglePreference to component
+    - _Requirements: 1.1, 2.4_
+  - [x] 5.2 Add error feedback UI
+    - Display error message when preference save fails
+    - Use existing error styling patterns from the screen
+    - _Requirements: 4.4_
+
+- [ ] 6. Final Checkpoint - Ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.

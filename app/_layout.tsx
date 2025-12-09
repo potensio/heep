@@ -34,8 +34,8 @@ export default function RootLayout() {
     if (appId) {
       OneSignal.initialize(appId);
 
-      // Request notification permissions
-      OneSignal.Notifications.requestPermission(true);
+      // NOTE: Permission request removed - now handled in OnboardingScreen
+      // when user taps "I'm in" button
 
       // Handle notification events
       OneSignal.Notifications.addEventListener("click", (event) => {

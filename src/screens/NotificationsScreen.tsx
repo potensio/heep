@@ -9,6 +9,7 @@ import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 import { useNotifications } from "@/src/hooks";
+import { EnableNotificationBanner } from "@/src/components/ui";
 import type { Notification } from "@/src/types/notification";
 
 /**
@@ -122,6 +123,9 @@ export default function NotificationsScreen() {
         </View>
         <View style={{ width: 24 }} />
       </View>
+
+      {/* Enable Notifications Banner - only shows when permission not granted */}
+      <EnableNotificationBanner />
 
       {/* Content */}
       {isLoading ? (
