@@ -155,7 +155,7 @@ function DotIndicator({
 
   return (
     <View
-      className={`h-1 rounded-full transition-all ${
+      className={`h-1 rounded-full ${
         isActive ? "w-8 bg-primary" : "w-5 bg-primary/30"
       }`}
     />
