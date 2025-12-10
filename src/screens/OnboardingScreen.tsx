@@ -63,7 +63,7 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 items-center justify-between py-12">
+      <View className="flex-1 items-center justify-between py-12 px-4">
         {/* Logo */}
         <ExpoImage
           source={require("@/assets/images/swissbel-logo.svg")}
