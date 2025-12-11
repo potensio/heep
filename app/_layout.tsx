@@ -29,13 +29,20 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   useEffect(() => {
-    // OneSignal Initialization
-    const appId = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
-    if (appId) {
+    const initOneSignal = async () => {
+      const appId = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
+      if (!appId) return;
+
       OneSignal.initialize(appId);
 
-      // NOTE: Permission request removed - now handled in OnboardingScreen
-      // when user taps "I'm in" button
+      // Check if permission already granted - if so, ensure device is registered
+      // This won't show popup if already granted, but ensures subscription is active
+      const hasPermission = await OneSignal.Notifications.getPermissionAsync();
+      if (hasPermission) {
+        // Re-register device without showing popup
+        OneSignal.User.pushSubscription.optIn();
+      }
+      // If not granted, OnboardingScreen will handle the permission request
 
       // Handle notification events
       OneSignal.Notifications.addEventListener("click", (event) => {
@@ -49,7 +56,9 @@ export default function RootLayout() {
           event.getNotification().display();
         }
       );
-    }
+    };
+
+    initOneSignal();
   }, []);
 
   return (

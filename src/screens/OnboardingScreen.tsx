@@ -36,9 +36,16 @@ export default function OnboardingScreen() {
 
   const requestNotificationPermission = async (): Promise<void> => {
     try {
-      console.log("Requesting notification permission...");
-      const result = await OneSignal.Notifications.requestPermission(true);
-      console.log("Permission result:", result);
+      // Check if permission already granted
+      const hasPermission = await OneSignal.Notifications.getPermissionAsync();
+
+      if (hasPermission) {
+        // Already granted - just ensure subscription is active
+        OneSignal.User.pushSubscription.optIn();
+      } else {
+        // Request permission - will show system popup
+        await OneSignal.Notifications.requestPermission(true);
+      }
     } catch (error) {
       console.error("Permission request error:", error);
     } finally {
