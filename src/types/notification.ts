@@ -13,6 +13,8 @@ export interface Notification {
   isRead: boolean;
   /** Timestamp when notification was created */
   createdAt: Date;
-  /** Optional additional payload data */
-  data?: Record<string, unknown>;
+  /** Deep link URL for redirection when notification is tapped */
+  url?: string;
+  /** OneSignal subscription ID - used to filter notifications per user */
+  subscriptionId?: string;
 }

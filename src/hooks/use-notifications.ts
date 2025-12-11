@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import firestore from "@react-native-firebase/firestore";
+import { OneSignal } from "react-native-onesignal";
 import { queryKeys } from "@/src/lib/query-keys";
 import { Notification } from "@/src/types/notification";
 import { fromFirestoreDoc } from "@/src/services/notification-service";
@@ -51,9 +52,29 @@ export function useNotifications(): UseNotificationsReturn {
     setIsLoading(true);
     setError(null);
 
+    // Get current user's OneSignal subscription ID
+    const subscriptionId =
+      OneSignal.User.pushSubscription.getPushSubscriptionId();
+
+    if (!subscriptionId) {
+      console.log(
+        "[useNotifications] No subscription ID found, showing empty list"
+      );
+      setNotifications([]);
+      setIsLoading(false);
+      return;
+    }
+
+    console.log(
+      "[useNotifications] Filtering by subscriptionId:",
+      subscriptionId
+    );
+
     try {
+      // Query notifications filtered by user's subscription ID
       const collectionRef = firestore()
         .collection(NOTIFICATIONS_COLLECTION)
+        .where("data.subscriptionId", "==", subscriptionId)
         .orderBy("createdAt", "desc");
 
       // Initial fetch untuk memastikan data ter-load

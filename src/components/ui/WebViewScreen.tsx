@@ -11,6 +11,25 @@ import { useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+// Script to remove target="_blank" from all links on page load and for dynamically added links
+const REMOVE_TARGET_BLANK_SCRIPT = `
+  (function() {
+    function removeTargetBlank() {
+      document.querySelectorAll('a[target="_blank"]').forEach(function(link) {
+        link.removeAttribute('target');
+      });
+    }
+    
+    // Run on initial load
+    removeTargetBlank();
+    
+    // Observe DOM changes for dynamically added links
+    const observer = new MutationObserver(removeTargetBlank);
+    observer.observe(document.body, { childList: true, subtree: true });
+  })();
+  true;
+`;
+
 interface WebViewScreenProps {
   url: string;
   injectedJavaScript?: string;
@@ -28,6 +47,11 @@ export function WebViewScreen({
   const handleNavigationStateChange = (navState: WebViewNavigation) => {
     setCanGoBack(navState.canGoBack);
   };
+
+  // Combine the target="_blank" removal script with any custom injected JS
+  const combinedInjectedJS = injectedJavaScript
+    ? `${REMOVE_TARGET_BLANK_SCRIPT}\n${injectedJavaScript}`
+    : REMOVE_TARGET_BLANK_SCRIPT;
 
   const handleGoBack = useCallback(() => {
     if (canGoBack && webViewRef.current) {
@@ -86,7 +110,7 @@ export function WebViewScreen({
         startInLoadingState={true}
         cacheEnabled={true}
         incognito={false}
-        injectedJavaScript={injectedJavaScript}
+        injectedJavaScript={combinedInjectedJS}
         onNavigationStateChange={handleNavigationStateChange}
       />
     </View>

@@ -22,7 +22,7 @@ const SLIDES = [
   },
   {
     id: 2,
-    illustration: require("@/assets/images/onboarding-3-illustration-3420cb.png"),
+    illustration: require("@/assets/images/onboarding-1-illustration-631234.png"),
     title: "Enable Notification",
     description:
       "Stay updated with exclusive offers, booking confirmations, and important updates. Never miss a moment.",

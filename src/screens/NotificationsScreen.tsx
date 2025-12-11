@@ -74,13 +74,27 @@ export default function NotificationsScreen() {
     markAsRead,
   } = useNotifications();
 
-  const handleNotificationPress = async (notification: Notification) => {
+  const handleNotificationPress = (notification: Notification) => {
+    // Mark as read in background (don't await)
     if (!notification.isRead) {
-      try {
-        await markAsRead(notification.id);
-      } catch {
+      markAsRead(notification.id).catch(() => {
         // Error is handled by the hook
-      }
+      });
+    }
+
+    // Redirect to webview if URL exists
+    if (notification.url) {
+      // Extract actual URL from deep link format
+      // Format: swissbelhotelapp://notification-webview?url=https://...
+      const urlMatch = notification.url.match(/[?&]url=([^&]+)/);
+      const targetUrl = urlMatch
+        ? decodeURIComponent(urlMatch[1])
+        : notification.url;
+
+      router.push({
+        pathname: "/notification-webview",
+        params: { url: targetUrl },
+      });
     }
   };
 

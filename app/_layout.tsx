@@ -44,10 +44,8 @@ export default function RootLayout() {
       }
       // If not granted, OnboardingScreen will handle the permission request
 
-      // Handle notification events
-      OneSignal.Notifications.addEventListener("click", (event) => {
-        // Notification clicked - handle navigation or action here
-      });
+      // Deep link from OneSignal launchURL will be handled automatically by Expo Router
+      // Format: swissbelhotelapp://notification-webview?url=https://example.com
 
       OneSignal.Notifications.addEventListener(
         "foregroundWillDisplay",
@@ -85,6 +83,10 @@ export default function RootLayout() {
               />
               <Stack.Screen
                 name="notifications"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="notification-webview"
                 options={{ headerShown: false }}
               />
               <Stack.Screen

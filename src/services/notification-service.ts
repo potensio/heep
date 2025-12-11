@@ -47,13 +47,21 @@ export function fromFirestoreDoc(
     createdAt = new Date();
   }
 
+  // Extract nested data fields
+  const nestedData =
+    data.data && typeof data.data === "object" ? data.data : {};
+
   return {
     id: doc.id,
     title: typeof data.title === "string" ? data.title : "",
     body: typeof data.body === "string" ? data.body : "",
     isRead: typeof data.isRead === "boolean" ? data.isRead : false,
     createdAt,
-    data: data.data && typeof data.data === "object" ? data.data : undefined,
+    url: typeof nestedData.url === "string" ? nestedData.url : undefined,
+    subscriptionId:
+      typeof nestedData.subscriptionId === "string"
+        ? nestedData.subscriptionId
+        : undefined,
   };
 }
 

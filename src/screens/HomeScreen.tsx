@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ImageBackground } from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
+import { useNotifications } from "@/src/hooks";
 
 const BellIcon = () => (
   <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -18,7 +19,8 @@ const BellIcon = () => (
 
 export default function HomeScreen() {
   const router = useRouter();
-  
+  const { unreadCount } = useNotifications();
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-1 justify-between py-8 p-4">
@@ -34,7 +36,9 @@ export default function HomeScreen() {
             className="relative p-2"
           >
             <BellIcon />
-            <View className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F04F31]" />
+            {unreadCount > 0 && (
+              <View className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F04F31]" />
+            )}
           </TouchableOpacity>
         </View>
 
