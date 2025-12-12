@@ -74,7 +74,7 @@ export default function HomeScreen() {
               onPress={() => router.push("/booking-webview")}
             >
               <Text className="text-white font-medium py-1 px-1.5">
-                Booking Now
+                Book Now
               </Text>
             </TouchableOpacity>
           </View>
@@ -90,7 +90,8 @@ export default function HomeScreen() {
             <View className="mt-2.5">
               <Text className="font-medium">Member Loyalty</Text>
               <Text className="text-sm text-[#8A8A8A] mt-2">
-                View your points, rewards, and exclusive member benefits.
+                Enjoy 10% to 35% discounts of rooms and dining plus over 1000
+                member-only vouchers.
               </Text>
             </View>
             <TouchableOpacity
