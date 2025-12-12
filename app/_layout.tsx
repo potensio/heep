@@ -35,14 +35,18 @@ export default function RootLayout() {
 
       OneSignal.initialize(appId);
 
-      // Check if permission already granted - if so, ensure device is registered
-      // This won't show popup if already granted, but ensures subscription is active
+      // Check current permission status
       const hasPermission = await OneSignal.Notifications.getPermissionAsync();
+
       if (hasPermission) {
-        // Re-register device without showing popup
+        // Already granted - ensure subscription is active
         OneSignal.User.pushSubscription.optIn();
+      } else {
+        // Request permission if not yet asked
+        // OneSignal tracks if permission was already requested, so this won't
+        // show the popup again if user already denied or dismissed it
+        await OneSignal.Notifications.requestPermission(true);
       }
-      // If not granted, OnboardingScreen will handle the permission request
 
       // Deep link from OneSignal launchURL will be handled automatically by Expo Router
       // Format: swissbelhotelapp://notification-webview?url=https://example.com
