@@ -39,6 +39,36 @@ pod 'FirebaseSharedSwift', :modular_headers => true
         `prepare_react_native_project!\n${firebaseFix}`
       );
 
+      // Add post_install hook to disable non-modular header warnings for RNFBApp
+      const postInstallFix = `
+  # Disable non-modular header warnings for React Native Firebase
+  installer.pods_project.targets.each do |target|
+    if target.name.start_with?('RNFB')
+      target.build_configurations.each do |config|
+        config.build_settings['OTHER_CFLAGS'] ||= ['$(inherited)']
+        config.build_settings['OTHER_CFLAGS'] << '-Wno-non-modular-include-in-framework-module'
+      end
+    end
+  end
+`;
+
+      // Insert the post_install fix before the closing 'end' of post_install block
+      if (podfileContent.includes("post_install do |installer|")) {
+        // Find the post_install block and add our fix before its end
+        podfileContent = podfileContent.replace(
+          /(post_install do \|installer\|[\s\S]*?)(^\s*end\s*$)/m,
+          (match, postInstallContent, endStatement) => {
+            // Check if our fix is already there
+            if (
+              postInstallContent.includes("Disable non-modular header warnings")
+            ) {
+              return match;
+            }
+            return postInstallContent + postInstallFix + endStatement;
+          }
+        );
+      }
+
       fs.writeFileSync(podfilePath, podfileContent);
       console.log("Added Firebase static frameworks fix to Podfile");
 
