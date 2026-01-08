@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Image, ImageProps } from "expo-image";
+import { storage } from "@/src/lib/storage";
 
 // Workaround for expo-image type incompatibility with React 19
 const ExpoImage = Image as unknown as ComponentType<ImageProps>;
@@ -10,7 +11,8 @@ const ExpoImage = Image as unknown as ComponentType<ImageProps>;
 export default function OnboardingScreen() {
   const router = useRouter();
 
-  const handleGetStarted = () => {
+  const handleGetStarted = async () => {
+    await storage.setOnboardingCompleted();
     router.replace("/(tabs)");
   };
 

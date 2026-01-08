@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { OneSignal } from "react-native-onesignal";
+import { storage } from "@/src/lib/storage";
 
 /**
  * A banner component that prompts users to enable notifications.
@@ -16,6 +17,14 @@ export function EnableNotificationBanner() {
   }, []);
 
   const checkPermission = async () => {
+    // Check if user has already seen the prompt
+    const hasSeenPrompt = await storage.hasSeenNotificationPrompt();
+    if (hasSeenPrompt) {
+      // Don't show banner if they've already seen it
+      setHasPermission(true);
+      return;
+    }
+
     const permission = await OneSignal.Notifications.getPermissionAsync();
     setHasPermission(permission);
   };
@@ -25,6 +34,8 @@ export function EnableNotificationBanner() {
     try {
       const result = await OneSignal.Notifications.requestPermission(true);
       setHasPermission(result);
+      // Mark as seen regardless of user's choice (grant/deny)
+      await storage.setNotificationPromptSeen();
     } catch (error) {
       console.error("Failed to request notification permission:", error);
     } finally {

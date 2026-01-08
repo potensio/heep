@@ -15,7 +15,10 @@
     },
     "production": {
       "autoIncrement": true,
-      "node": "22.9.0"
+      "node": "22.9.0",
+      "ios": {
+        "credentialsSource": "local"
+      }
     },
     "production-apk": {
       "autoIncrement": true,
@@ -26,6 +29,13 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "ranggapermana@swiss-belhotel.com",
+        "ascApiKeyPath": "./AuthKey_7JA5JSK6WY.p8",
+        "ascApiKeyIssuerId": "d53d3df2-b1ff-42d0-b195-f276de6b765c",
+        "ascApiKeyId": "7JA5JSK6WY"
+      }
+    }
   }
 }

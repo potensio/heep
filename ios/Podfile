@@ -26,6 +26,8 @@ pod 'FirebaseCore', :modular_headers => true
 pod 'FirebaseCoreExtension', :modular_headers => true
 pod 'FirebaseFirestoreInternal', :modular_headers => true
 
+
+
 target 'swissbelhotelapp' do
   use_expo_modules!
 
