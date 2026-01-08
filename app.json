@@ -11,7 +11,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sbi.swissbelhotelapp",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "appleTeamId": "VJ2SY6UNX6",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -44,7 +48,8 @@
         {
           "mode": "development"
         }
-      ]
+      ],
+      "./plugins/withFirebaseModularHeaders.js"
     ],
     "experiments": {
       "typedRoutes": true,
@@ -53,8 +58,26 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "c4c8fa50-6be4-4ab4-8ab2-b4a3924b6612"
+        "build": {
+          "experimental": {
+            "ios": {
+              "appExtensions": [
+                {
+                  "targetName": "OneSignalNotificationServiceExtension",
+                  "bundleIdentifier": "com.sbi.swissbelhotelapp.OneSignalNotificationServiceExtension",
+                  "entitlements": {
+                    "com.apple.security.application-groups": [
+                      "group.com.sbi.swissbelhotelapp.onesignal"
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        },
+        "projectId": "87f0b537-c218-40aa-808a-8d484139237b"
       }
-    }
+    },
+    "owner": "hanifski"
   }
 }
