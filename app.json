@@ -56,7 +56,8 @@
         {
           "mode": "development"
         }
-      ]
+      ],
+      "./plugins/withFirebaseModularHeaders.js"
     ],
     "experiments": {
       "typedRoutes": true,
