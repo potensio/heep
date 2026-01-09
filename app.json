@@ -11,7 +11,6 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sbi.swissbelhotelapp",
-      "googleServicesFile": "./GoogleService-Info.plist",
       "appleTeamId": "VJ2SY6UNX6",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -43,21 +42,11 @@
       "expo-router",
       "expo-splash-screen",
       [
-        "expo-build-properties",
-        {
-          "ios": {
-            "useFrameworks": "static"
-          }
-        }
-      ],
-      "@react-native-firebase/app",
-      [
         "onesignal-expo-plugin",
         {
           "mode": "development"
         }
-      ],
-      "./plugins/withFirebaseModularHeaders.js"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

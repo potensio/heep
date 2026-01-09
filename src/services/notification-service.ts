@@ -1,6 +1,15 @@
-import firestore, {
-  FirebaseFirestoreTypes,
-} from "@react-native-firebase/firestore";
+import {
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+  query,
+  orderBy,
+  onSnapshot,
+  DocumentSnapshot,
+  Unsubscribe,
+} from "firebase/firestore";
+import { db } from "@/src/lib/firebase";
 import { Notification } from "@/src/types/notification";
 
 const NOTIFICATIONS_COLLECTION = "notifications";
@@ -12,9 +21,7 @@ const NOTIFICATIONS_COLLECTION = "notifications";
  * @param doc - Firestore document snapshot
  * @returns Notification object with all fields populated
  */
-export function fromFirestoreDoc(
-  doc: FirebaseFirestoreTypes.DocumentSnapshot
-): Notification {
+export function fromFirestoreDoc(doc: DocumentSnapshot): Notification {
   const data = doc.data();
 
   if (!data) {
@@ -71,10 +78,11 @@ export function fromFirestoreDoc(
  * @returns Promise resolving to array of Notification objects
  */
 export async function getNotifications(): Promise<Notification[]> {
-  const snapshot = await firestore()
-    .collection(NOTIFICATIONS_COLLECTION)
-    .orderBy("createdAt", "desc")
-    .get();
+  const q = query(
+    collection(db, NOTIFICATIONS_COLLECTION),
+    orderBy("createdAt", "desc")
+  );
+  const snapshot = await getDocs(q);
 
   return snapshot.docs.map(fromFirestoreDoc);
 }
@@ -88,19 +96,22 @@ export async function getNotifications(): Promise<Notification[]> {
  */
 export function subscribeToNotifications(
   callback: (notifications: Notification[]) => void
-): () => void {
-  const unsubscribe = firestore()
-    .collection(NOTIFICATIONS_COLLECTION)
-    .orderBy("createdAt", "desc")
-    .onSnapshot(
-      (snapshot) => {
-        const notifications = snapshot.docs.map(fromFirestoreDoc);
-        callback(notifications);
-      },
-      () => {
-        // Error handled silently - subscription will retry automatically
-      }
-    );
+): Unsubscribe {
+  const q = query(
+    collection(db, NOTIFICATIONS_COLLECTION),
+    orderBy("createdAt", "desc")
+  );
+
+  const unsubscribe = onSnapshot(
+    q,
+    (snapshot) => {
+      const notifications = snapshot.docs.map(fromFirestoreDoc);
+      callback(notifications);
+    },
+    () => {
+      // Error handled silently - subscription will retry automatically
+    }
+  );
 
   return unsubscribe;
 }
@@ -111,8 +122,6 @@ export function subscribeToNotifications(
  * @param notificationId - The Firestore document ID of the notification to mark as read
  */
 export async function markAsRead(notificationId: string): Promise<void> {
-  await firestore()
-    .collection(NOTIFICATIONS_COLLECTION)
-    .doc(notificationId)
-    .update({ isRead: true });
+  const docRef = doc(db, NOTIFICATIONS_COLLECTION, notificationId);
+  await updateDoc(docRef, { isRead: true });
 }

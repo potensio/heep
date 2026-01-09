@@ -1,7 +1,18 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import firestore from "@react-native-firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  orderBy,
+  getDocs,
+  onSnapshot,
+  doc,
+  updateDoc,
+  Unsubscribe,
+} from "firebase/firestore";
 import { OneSignal } from "react-native-onesignal";
+import { db } from "@/src/lib/firebase";
 import { queryKeys } from "@/src/lib/query-keys";
 import { Notification } from "@/src/types/notification";
 import { fromFirestoreDoc } from "@/src/services/notification-service";
@@ -39,7 +50,7 @@ export function useNotifications(): UseNotificationsReturn {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const unsubscribeRef = useRef<(() => void) | null>(null);
+  const unsubscribeRef = useRef<Unsubscribe | null>(null);
   const hasInitialFetch = useRef(false);
 
   const setupSubscription = useCallback(() => {
@@ -72,15 +83,15 @@ export function useNotifications(): UseNotificationsReturn {
 
     try {
       // Query notifications filtered by user's subscription ID
-      const collectionRef = firestore()
-        .collection(NOTIFICATIONS_COLLECTION)
-        .where("data.subscriptionId", "==", subscriptionId)
-        .orderBy("createdAt", "desc");
+      const q = query(
+        collection(db, NOTIFICATIONS_COLLECTION),
+        where("data.subscriptionId", "==", subscriptionId),
+        orderBy("createdAt", "desc")
+      );
 
       // Initial fetch untuk memastikan data ter-load
       if (!hasInitialFetch.current) {
-        collectionRef
-          .get()
+        getDocs(q)
           .then((snapshot) => {
             const data = snapshot.docs.map(fromFirestoreDoc);
             console.log(
@@ -101,7 +112,8 @@ export function useNotifications(): UseNotificationsReturn {
       }
 
       // Setup real-time subscription
-      const unsubscribe = collectionRef.onSnapshot(
+      const unsubscribe = onSnapshot(
+        q,
         (snapshot) => {
           const data = snapshot.docs.map(fromFirestoreDoc);
           console.log(
@@ -164,10 +176,8 @@ export function useNotifications(): UseNotificationsReturn {
       );
 
       try {
-        await firestore()
-          .collection(NOTIFICATIONS_COLLECTION)
-          .doc(notificationId)
-          .update({ isRead: true });
+        const docRef = doc(db, NOTIFICATIONS_COLLECTION, notificationId);
+        await updateDoc(docRef, { isRead: true });
       } catch (err) {
         // Rollback on error
         console.error("[useNotifications] markAsRead error:", err);
