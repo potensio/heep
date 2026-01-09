@@ -14,14 +14,13 @@ function withFirebaseModularHeaders(config) {
       let podfileContent = fs.readFileSync(podfilePath, "utf8");
 
       // Skip if already modified
-      if (podfileContent.includes("# RNFB modular headers fix")) {
-        console.log("RNFB fix already present in Podfile");
+      if (podfileContent.includes("CLANG_ALLOW_NON_MODULAR_INCLUDES")) {
         return config;
       }
 
-      // Simple post_install fix
+      // Add post_install fix
       const postInstallFix = `
-    # RNFB modular headers fix
+    # Fix RNFB non-modular headers
     installer.pods_project.targets.each do |target|
       if target.name.start_with?('RNFB')
         target.build_configurations.each do |config|
@@ -36,10 +35,8 @@ function withFirebaseModularHeaders(config) {
           /post_install do \|installer\|/,
           `post_install do |installer|${postInstallFix}`
         );
+        fs.writeFileSync(podfilePath, podfileContent);
       }
-
-      fs.writeFileSync(podfilePath, podfileContent);
-      console.log("Added RNFB modular headers fix to Podfile");
 
       return config;
     },
