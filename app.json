@@ -13,7 +13,15 @@
       "bundleIdentifier": "com.sbi.swissbelhotelapp",
       "appleTeamId": "VJ2SY6UNX6",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": ["remote-notification"],
+        "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby hotels and provide personalized recommendations."
+      },
+      "entitlements": {
+        "aps-environment": "production",
+        "com.apple.security.application-groups": [
+          "group.com.sbi.swissbelhotelapp.onesignal"
+        ]
       }
     },
     "android": {
@@ -44,7 +52,7 @@
       [
         "onesignal-expo-plugin",
         {
-          "mode": "development"
+          "mode": "production"
         }
       ]
     ],

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Image, ImageProps } from "expo-image";
+import { OneSignal } from "react-native-onesignal";
 import { storage } from "@/src/lib/storage";
 
 // Workaround for expo-image type incompatibility with React 19
@@ -13,6 +14,14 @@ export default function OnboardingScreen() {
 
   const handleGetStarted = async () => {
     await storage.setOnboardingCompleted();
+
+    // Request notification permission after user interaction (iOS requirement)
+    try {
+      await OneSignal.Notifications.requestPermission(true);
+    } catch (error) {
+      console.log("[Onboarding] Permission request error:", error);
+    }
+
     router.replace("/(tabs)");
   };
 

@@ -11,7 +11,7 @@ import {
   ReanimatedLogLevel,
 } from "react-native-reanimated";
 import { useEffect } from "react";
-import { OneSignal } from "react-native-onesignal";
+import { OneSignal, LogLevel } from "react-native-onesignal";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import "../global.css";
 
@@ -33,20 +33,18 @@ export default function RootLayout() {
       const appId = process.env.EXPO_PUBLIC_ONESIGNAL_APP_ID;
       if (!appId) return;
 
+      // Enable verbose logging for debugging (remove in production)
+      OneSignal.Debug.setLogLevel(LogLevel.Verbose);
+
       OneSignal.initialize(appId);
 
-      // Check current permission status
+      // Check current permission status and opt-in if already granted
       const hasPermission = await OneSignal.Notifications.getPermissionAsync();
-
       if (hasPermission) {
-        // Already granted - ensure subscription is active
         OneSignal.User.pushSubscription.optIn();
-      } else {
-        // Request permission if not yet asked
-        // OneSignal tracks if permission was already requested, so this won't
-        // show the popup again if user already denied or dismissed it
-        await OneSignal.Notifications.requestPermission(true);
       }
+      // Note: Permission request is handled in OnboardingScreen after user interaction
+      // This is required for iOS to properly show the permission prompt
 
       // Deep link from OneSignal launchURL will be handled automatically by Expo Router
       // Format: swissbelhotelapp://notification-webview?url=https://example.com
