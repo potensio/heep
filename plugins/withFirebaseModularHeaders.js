@@ -14,9 +14,26 @@ function withFirebaseModularHeaders(config) {
       let podfileContent = fs.readFileSync(podfilePath, "utf8");
 
       // Skip if already modified
-      if (podfileContent.includes("CLANG_ALLOW_NON_MODULAR_INCLUDES")) {
+      if (podfileContent.includes("# Firebase modular headers fix")) {
         return config;
       }
+
+      // Find the target block and add modular headers inside it
+      const modularHeadersPods = `
+    # Firebase modular headers fix
+    pod 'GoogleUtilities', :modular_headers => true
+    pod 'FirebaseCore', :modular_headers => true
+    pod 'FirebaseCoreExtension', :modular_headers => true
+    pod 'FirebaseCoreInternal', :modular_headers => true
+    pod 'FirebaseFirestoreInternal', :modular_headers => true
+    pod 'FirebaseSharedSwift', :modular_headers => true
+`;
+
+      // Insert after use_native_modules! line inside target block
+      podfileContent = podfileContent.replace(
+        /(use_native_modules!\(config_command\))/,
+        `$1\n${modularHeadersPods}`
+      );
 
       // Add post_install fix
       const postInstallFix = `
@@ -30,14 +47,17 @@ function withFirebaseModularHeaders(config) {
     end
 `;
 
-      if (podfileContent.includes("post_install do |installer|")) {
+      if (
+        podfileContent.includes("post_install do |installer|") &&
+        !podfileContent.includes("Fix RNFB non-modular")
+      ) {
         podfileContent = podfileContent.replace(
           /post_install do \|installer\|/,
           `post_install do |installer|${postInstallFix}`
         );
-        fs.writeFileSync(podfilePath, podfileContent);
       }
 
+      fs.writeFileSync(podfilePath, podfileContent);
       return config;
     },
   ]);

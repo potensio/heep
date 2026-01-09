@@ -42,14 +42,21 @@
     "plugins": [
       "expo-router",
       "expo-splash-screen",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
       "@react-native-firebase/app",
       [
         "onesignal-expo-plugin",
         {
           "mode": "development"
         }
-      ],
-      "./plugins/withFirebaseModularHeaders.js"
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
