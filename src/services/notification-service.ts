@@ -32,7 +32,6 @@ export function fromFirestoreDoc(doc: DocumentSnapshot): Notification {
       body: "",
       isRead: false,
       createdAt: new Date(),
-      data: undefined,
     };
   }
 
