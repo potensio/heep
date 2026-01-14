@@ -221,6 +221,11 @@ function NotificationCard({ notification, onPress }: NotificationCardProps) {
       <Text className="text-xs text-[#767676] mt-2 leading-[14.5px]">
         {notification.body}
       </Text>
+      {notification.url && (
+        <Text className="text-xs text-[#00a8ff] mt-2 underline">
+          View Details
+        </Text>
+      )}
     </TouchableOpacity>
   );
 }
