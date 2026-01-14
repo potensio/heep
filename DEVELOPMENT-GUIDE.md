@@ -74,7 +74,7 @@ eas build --profile production --platform android
 eas build --profile production-apk --platform android
 
 # iOS
-eas build --profile production --platform ios
+eas build --profile production --platform ios --non-interactive
 ```
 
 ### Build Keduanya
@@ -120,20 +120,20 @@ npm run lint
 
 ## ⚠️ Kapan Perlu Rebuild?
 
-| Situasi | Command |
-|---------|---------|
-| Edit JS/TS code | Hot reload otomatis |
+| Situasi              | Command                |
+| -------------------- | ---------------------- |
+| Edit JS/TS code      | Hot reload otomatis    |
 | Tambah native module | `npx expo run:android` |
-| Update `app.json` | `npx expo run:android` |
-| Update native deps | `npx expo run:android` |
+| Update `app.json`    | `npx expo run:android` |
+| Update native deps   | `npx expo run:android` |
 
 ---
 
 ## 📁 Build Profiles (eas.json)
 
-| Profile | Kegunaan |
-|---------|----------|
-| `development` | Dev client dengan hot reload |
-| `preview` | Internal testing (APK/IPA) |
-| `production` | Store release (AAB) |
-| `production-apk` | Direct install APK |
+| Profile          | Kegunaan                     |
+| ---------------- | ---------------------------- |
+| `development`    | Dev client dengan hot reload |
+| `preview`        | Internal testing (APK/IPA)   |
+| `production`     | Store release (AAB)          |
+| `production-apk` | Direct install APK           |

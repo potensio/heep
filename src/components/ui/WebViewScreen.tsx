@@ -111,6 +111,7 @@ export function WebViewScreen({
         incognito={false}
         injectedJavaScript={combinedInjectedJS}
         onNavigationStateChange={handleNavigationStateChange}
+        onMessage={() => {}}
       />
     </View>
   );
