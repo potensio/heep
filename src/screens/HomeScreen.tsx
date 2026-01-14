@@ -105,14 +105,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* Test Button - Remove after debugging */}
-        <TouchableOpacity
-          className="bg-gray-500 rounded-lg px-4 py-3 self-center"
-          onPress={() => router.push("/test-webview")}
-        >
-          <Text className="text-white font-medium">🧪 Test Plain WebView</Text>
-        </TouchableOpacity>
-
         {/* Footer */}
         <View className="items-center mt-[60px] gap-2">
           <Image

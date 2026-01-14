@@ -7,13 +7,15 @@ import {
 
 const HIDE_ELEMENT_SCRIPT = `
   (function() {
-    function hideElement() {
-      var el = document.getElementById('ff093436');
-      if (el) el.style.display = 'none';
+    var style = document.createElement('style');
+    style.textContent = '#ff093436 { display: none !important; visibility: hidden !important; }';
+    if (document.head) {
+      document.head.appendChild(style);
+    } else {
+      document.addEventListener('DOMContentLoaded', function() {
+        document.head.appendChild(style);
+      });
     }
-    hideElement();
-    var observer = new MutationObserver(hideElement);
-    observer.observe(document.body, { childList: true, subtree: true });
   })();
   true;
 `;

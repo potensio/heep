@@ -12,9 +12,10 @@
  */
 export function appendUtmParams(baseUrl: string, campaign: string): string {
   const url = new URL(baseUrl);
-  url.searchParams.set("utm_source", "swissbelhotel_app");
-  url.searchParams.set("utm_medium", "mobile_webview");
+  url.searchParams.set("utm_source", "mobile_app");
+  url.searchParams.set("utm_medium", "app");
   url.searchParams.set("utm_campaign", campaign);
+  url.searchParams.set("utm_content", "webview");
   return url.toString();
 }
 
@@ -56,7 +57,7 @@ export function getAnalyticsInjectionScript(campaign: string): string {
         var payload = {
           client_id: clientId,
           user_properties: {
-            traffic_source: { value: 'swissbelhotel_app' }
+            traffic_source: { value: 'mobile_app' }
           },
           events: [{
             name: 'app_webview_visit',
@@ -65,9 +66,10 @@ export function getAnalyticsInjectionScript(campaign: string): string {
               engagement_time_msec: 1000,
               event_category: 'app_traffic',
               event_label: '${campaign}',
-              source: 'swissbelhotel_app',
-              medium: 'mobile_webview',
+              source: 'mobile_app',
+              medium: 'app',
               campaign: '${campaign}',
+              content: 'webview',
               page_location: window.location.href,
               page_title: document.title
             }
