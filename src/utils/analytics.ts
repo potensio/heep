@@ -7,15 +7,12 @@
  * This helps identify traffic coming from the mobile app's WebView
  *
  * @param baseUrl - The original URL to append UTM params to
- * @param campaign - Campaign name (e.g., 'booking', 'loyalty')
  * @returns URL string with UTM parameters appended
  */
-export function appendUtmParams(baseUrl: string, campaign: string): string {
+export function appendUtmParams(baseUrl: string): string {
   const url = new URL(baseUrl);
-  url.searchParams.set("utm_source", "mobile_app");
-  url.searchParams.set("utm_medium", "app");
-  url.searchParams.set("utm_campaign", campaign);
-  url.searchParams.set("utm_content", "webview");
+  url.searchParams.set("utm_source", "swissbelhotel_app");
+  url.searchParams.set("utm_medium", "mobile_webview");
   return url.toString();
 }
 
@@ -23,14 +20,13 @@ export function appendUtmParams(baseUrl: string, campaign: string): string {
  * JavaScript to inject into WebView that sends a custom GA4 event
  * This works by using the existing gtag() function on the website
  *
- * @param campaign - Campaign name to identify the source
  * @returns JavaScript string to inject
  */
 // GA4 Measurement Protocol credentials
 const GA4_MEASUREMENT_ID = "G-4LQG9NVQ0E";
 const GA4_API_SECRET = "Vby52NYEQLa05JkEoaa-4g";
 
-export function getAnalyticsInjectionScript(campaign: string): string {
+export function getAnalyticsInjectionScript(): string {
   return `
     (function() {
       // Generate a random client ID for this session
@@ -57,7 +53,7 @@ export function getAnalyticsInjectionScript(campaign: string): string {
         var payload = {
           client_id: clientId,
           user_properties: {
-            traffic_source: { value: 'mobile_app' }
+            traffic_source: { value: 'swissbelhotel_app' }
           },
           events: [{
             name: 'app_webview_visit',
@@ -65,11 +61,8 @@ export function getAnalyticsInjectionScript(campaign: string): string {
               session_id: sessionId,
               engagement_time_msec: 1000,
               event_category: 'app_traffic',
-              event_label: '${campaign}',
-              source: 'mobile_app',
-              medium: 'app',
-              campaign: '${campaign}',
-              content: 'webview',
+              source: 'swissbelhotel_app',
+              medium: 'mobile_webview',
               page_location: window.location.href,
               page_title: document.title
             }

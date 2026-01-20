@@ -20,14 +20,11 @@ const HIDE_ELEMENT_SCRIPT = `
   true;
 `;
 
-const ANALYTICS_SCRIPT = getAnalyticsInjectionScript("booking");
+const ANALYTICS_SCRIPT = getAnalyticsInjectionScript();
 const COMBINED_SCRIPT = HIDE_ELEMENT_SCRIPT + ANALYTICS_SCRIPT;
 
 // URL with UTM parameters for GA4 attribution
-const BOOKING_URL = appendUtmParams(
-  "https://www.swiss-belhotel.com/",
-  "booking"
-);
+const BOOKING_URL = appendUtmParams("https://www.swiss-belhotel.com/");
 
 export default function BookingWebView() {
   return (

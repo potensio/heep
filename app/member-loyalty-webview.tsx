@@ -5,13 +5,10 @@ import {
   getAnalyticsInjectionScript,
 } from "@/src/utils/analytics";
 
-const ANALYTICS_SCRIPT = getAnalyticsInjectionScript("loyalty");
+const ANALYTICS_SCRIPT = getAnalyticsInjectionScript();
 
 // URL with UTM parameters for GA4 attribution
-const LOYALTY_URL = appendUtmParams(
-  "https://sbec.swiss-belhotel.com/login",
-  "loyalty"
-);
+const LOYALTY_URL = appendUtmParams("https://sbec.swiss-belhotel.com/login");
 
 export default function MemberLoyaltyWebView() {
   return (
