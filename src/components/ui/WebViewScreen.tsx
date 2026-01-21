@@ -33,11 +33,13 @@ const REMOVE_TARGET_BLANK_SCRIPT = `
 interface WebViewScreenProps {
   url: string;
   injectedJavaScript?: string;
+  injectedJavaScriptBeforeContentLoaded?: string;
 }
 
 export function WebViewScreen({
   url,
   injectedJavaScript,
+  injectedJavaScriptBeforeContentLoaded,
 }: WebViewScreenProps): React.JSX.Element {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -69,7 +71,7 @@ export function WebViewScreen({
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
-      handleGoBack
+      handleGoBack,
     );
     return () => backHandler.remove();
   }, [handleGoBack]);
@@ -110,6 +112,9 @@ export function WebViewScreen({
         cacheEnabled={true}
         incognito={false}
         injectedJavaScript={combinedInjectedJS}
+        injectedJavaScriptBeforeContentLoaded={
+          injectedJavaScriptBeforeContentLoaded
+        }
         onNavigationStateChange={handleNavigationStateChange}
         onMessage={() => {}}
       />
