@@ -20,27 +20,17 @@ platform :ios, podfile_properties['ios.deploymentTarget'] || '15.1'
 
 prepare_react_native_project!
 
-# Firebase static frameworks fix
-use_frameworks! :linkage => :static
-$RNFirebaseAsStaticFramework = true
-
-# Enable modular headers for Firebase dependencies
-pod 'GoogleUtilities', :modular_headers => true
-pod 'FirebaseCore', :modular_headers => true
-pod 'FirebaseCoreExtension', :modular_headers => true
-pod 'FirebaseFirestoreInternal', :modular_headers => true
-pod 'FirebaseSharedSwift', :modular_headers => true
-
-
-
-target 'swissbelhotelapp' do
+target 'SwissBelhotel' do
   use_expo_modules!
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
   else
     config_command = [
-      'npx',
+      'node',
+      '--no-warnings',
+      '--eval',
+      'require(\'expo/bin/autolinking\')',
       'expo-modules-autolinking',
       'react-native-config',
       '--json',
