@@ -12,12 +12,12 @@ import { OneSignal } from "react-native-onesignal";
 /**
  * A banner component that prompts users to enable notifications.
  * Only shows when notification permission has not been granted.
- * On iOS, opens Settings since permission can only be requested once.
- * On Android, triggers the native permission popup.
+ * Shows separate buttons for iOS (opens Settings) and Android (requests permission).
  */
 export function EnableNotificationBanner() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
-  const [isRequesting, setIsRequesting] = useState(false);
+  const [isRequestingAndroid, setIsRequestingAndroid] = useState(false);
+  const [isOpeningSettings, setIsOpeningSettings] = useState(false);
 
   useEffect(() => {
     checkPermission();
@@ -29,23 +29,30 @@ export function EnableNotificationBanner() {
     setHasPermission(permission);
   };
 
-  const handleEnableNotifications = async () => {
-    setIsRequesting(true);
+  const handleEnableNotificationsAndroid = async () => {
+    setIsRequestingAndroid(true);
     try {
-      if (Platform.OS === "ios") {
-        // On iOS, once permission is denied, we can only direct users to Settings
-        // The system won't show the prompt again
-        await Linking.openSettings();
-        // Re-check permission when user returns (handled by useEffect on focus)
-      } else {
-        // On Android, we can request permission again
-        const result = await OneSignal.Notifications.requestPermission(true);
-        setHasPermission(result);
-      }
+      // On Android, we can request permission again
+      const result = await OneSignal.Notifications.requestPermission(true);
+      setHasPermission(result);
     } catch (error) {
       console.error("Failed to request notification permission:", error);
     } finally {
-      setIsRequesting(false);
+      setIsRequestingAndroid(false);
+    }
+  };
+
+  const handleOpenSettings = async () => {
+    setIsOpeningSettings(true);
+    try {
+      // On iOS, once permission is denied, we can only direct users to Settings
+      // The system won't show the prompt again
+      await Linking.openSettings();
+      // Re-check permission when user returns (handled by useEffect on focus)
+    } catch (error) {
+      console.error("Failed to open settings:", error);
+    } finally {
+      setIsOpeningSettings(false);
     }
   };
 
@@ -59,7 +66,7 @@ export function EnableNotificationBanner() {
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [isRequesting]);
+  }, [isOpeningSettings]);
 
   // Don't render while checking permission status
   if (hasPermission === null) {
@@ -77,20 +84,40 @@ export function EnableNotificationBanner() {
         Stay updated with exclusive offers, booking confirmations, and important
         updates.
       </Text>
-      <TouchableOpacity
-        onPress={handleEnableNotifications}
-        disabled={isRequesting}
-        className="bg-[#F04F31] py-2.5 px-4 rounded-lg items-center"
-        activeOpacity={0.7}
-      >
-        {isRequesting ? (
-          <ActivityIndicator size="small" color="#ffffff" />
-        ) : (
-          <Text className="text-white text-sm font-medium">
-            {Platform.OS === "ios" ? "Open Settings" : "Enable Notifications"}
-          </Text>
-        )}
-      </TouchableOpacity>
+
+      {Platform.OS === "ios" ? (
+        // iOS: Open Settings button
+        <TouchableOpacity
+          onPress={handleOpenSettings}
+          disabled={isOpeningSettings}
+          className="bg-[#F04F31] py-2.5 px-4 rounded-lg items-center"
+          activeOpacity={0.7}
+        >
+          {isOpeningSettings ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <Text className="text-white text-sm font-medium">
+              Open Settings
+            </Text>
+          )}
+        </TouchableOpacity>
+      ) : (
+        // Android: Enable Notifications button
+        <TouchableOpacity
+          onPress={handleEnableNotificationsAndroid}
+          disabled={isRequestingAndroid}
+          className="bg-[#F04F31] py-2.5 px-4 rounded-lg items-center"
+          activeOpacity={0.7}
+        >
+          {isRequestingAndroid ? (
+            <ActivityIndicator size="small" color="#ffffff" />
+          ) : (
+            <Text className="text-white text-sm font-medium">
+              Enable Notifications
+            </Text>
+          )}
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

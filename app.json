@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "swissbelhotel-app",
+    "name": "Swiss-Belhotel",
     "slug": "swissbelhotel-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -31,10 +31,6 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "notification": {
-        "icon": "./assets/images/notification-icon.png",
-        "color": "#F04E30"
-      },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.sbi.swissbelhotelapp",
@@ -56,7 +52,9 @@
       [
         "onesignal-expo-plugin",
         {
-          "mode": "production"
+          "mode": "production",
+          "smallIcons": ["./assets/images/notification_icon.png"],
+          "smallIconAccentColor": "#F04E30"
         }
       ]
     ],
