@@ -41,5 +41,5 @@ yarn-error.*
 app-example
 
 # generated native folders
-# /ios - Commented out to commit iOS folder for EAS Build
+/ios
 /android

@@ -8,12 +8,10 @@
     "scheme": "swissbelhotelapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.sbi.swissbelhotelapp",
       "appleTeamId": "VJ2SY6UNX6",
-      "icon": "./assets/images/icon.png",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": ["remote-notification"],
@@ -138,9 +136,9 @@
             }
           }
         },
-        "projectId": "87f0b537-c218-40aa-808a-8d484139237b"
+        "projectId": "c4c8fa50-6be4-4ab4-8ab2-b4a3924b6612"
       }
     },
-    "owner": "hanifski"
+    "owner": "potensio"
   }
 }
