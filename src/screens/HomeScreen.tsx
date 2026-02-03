@@ -109,7 +109,7 @@ export default function HomeScreen() {
         <View className="items-center mt-[60px] gap-2">
           <Image
             source={require("@/assets/images/footer-logo.png")}
-            style={{ width: 50, height: 38.56 }}
+            style={{ width: 64, height: 64 }}
             contentFit="cover"
           />
           <Text className="text-[#1F1F1F] text-xs text-center leading-[19px]">
