@@ -113,7 +113,8 @@ export default function HomeScreen() {
             contentFit="cover"
           />
           <Text className="text-[#1F1F1F] text-xs text-center leading-[19px]">
-            © 2025 All Rights Reserved | Swiss-Belhotel International
+            © {new Date().getFullYear()} All Rights Reserved | Swiss-Belhotel
+            International
           </Text>
         </View>
       </View>

@@ -89,6 +89,28 @@ export function getAnalyticsInjectionScript(): string {
           setTimeout(sendToGA4, 1000);
         });
       }
+      
+      // Handle target="_blank" links to open in same WebView
+      // Uses capture phase to intercept before other handlers
+      document.addEventListener('click', function(e) {
+        // Find the closest anchor element (handles clicks on child elements)
+        var target = e.target;
+        while (target && target.tagName !== 'A') {
+          target = target.parentElement;
+        }
+        
+        // Only handle links with target="_blank"
+        if (target && target.tagName === 'A' && target.getAttribute('target') === '_blank') {
+          var href = target.getAttribute('href');
+          
+          // Only handle http/https links (skip mailto:, tel:, javascript:, etc)
+          if (href && (href.indexOf('http://') === 0 || href.indexOf('https://') === 0)) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.href = href;
+          }
+        }
+      }, true); // Use capture phase for early interception
     })();
     true;
   `;
