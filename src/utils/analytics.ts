@@ -1,5 +1,6 @@
 /**
- * Utility functions for analytics tracking
+ * Analytics tracking utilities for Google Analytics 4
+ * Handles UTM parameters and GA4 Measurement Protocol events
  */
 
 /**
@@ -17,15 +18,23 @@ export function appendUtmParams(baseUrl: string): string {
 }
 
 /**
- * JavaScript to inject into WebView that sends a custom GA4 event
- * This works by using the existing gtag() function on the website
- *
- * @returns JavaScript string to inject
+ * GA4 Measurement Protocol credentials
+ * Used for sending events directly to Google Analytics
  */
-// GA4 Measurement Protocol credentials
 const GA4_MEASUREMENT_ID = "G-4LQG9NVQ0E";
 const GA4_API_SECRET = "Vby52NYEQLa05JkEoaa-4g";
 
+/**
+ * Generates JavaScript to inject into WebView for GA4 tracking
+ * Sends a custom event via GA4 Measurement Protocol
+ *
+ * Performance characteristics:
+ * - Runs once after page loads
+ * - Single HTTP request (async, non-blocking)
+ * - Minimal storage usage (localStorage/sessionStorage)
+ *
+ * @returns JavaScript string to inject into WebView
+ */
 export function getAnalyticsInjectionScript(): string {
   return `
     (function() {
@@ -89,28 +98,6 @@ export function getAnalyticsInjectionScript(): string {
           setTimeout(sendToGA4, 1000);
         });
       }
-      
-      // Handle target="_blank" links to open in same WebView
-      // Uses capture phase to intercept before other handlers
-      document.addEventListener('click', function(e) {
-        // Find the closest anchor element (handles clicks on child elements)
-        var target = e.target;
-        while (target && target.tagName !== 'A') {
-          target = target.parentElement;
-        }
-        
-        // Only handle links with target="_blank"
-        if (target && target.tagName === 'A' && target.getAttribute('target') === '_blank') {
-          var href = target.getAttribute('href');
-          
-          // Only handle http/https links (skip mailto:, tel:, javascript:, etc)
-          if (href && (href.indexOf('http://') === 0 || href.indexOf('https://') === 0)) {
-            e.preventDefault();
-            e.stopPropagation();
-            window.location.href = href;
-          }
-        }
-      }, true); // Use capture phase for early interception
     })();
     true;
   `;

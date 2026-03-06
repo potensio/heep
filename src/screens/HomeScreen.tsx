@@ -1,5 +1,11 @@
 import { Image } from "expo-image";
-import { View, Text, TouchableOpacity, ImageBackground } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ImageBackground,
+  useWindowDimensions,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
@@ -20,10 +26,15 @@ const BellIcon = () => (
 export default function HomeScreen() {
   const router = useRouter();
   const { unreadCount } = useNotifications();
+  const { width } = useWindowDimensions();
+
+  // Responsive padding based on screen width
+  const isTablet = width >= 768;
+  const horizontalPadding = isTablet ? "px-12" : "px-4";
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 justify-between py-8 p-4">
+      <View className={`flex-1 justify-between py-8 ${horizontalPadding}`}>
         {/* Header with Bell Icon */}
         <View className="flex-row justify-between items-start">
           <Image
