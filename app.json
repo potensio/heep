@@ -56,6 +56,15 @@
           "smallIcons": ["./assets/images/notification_icon.png"],
           "smallIconAccentColor": "#F04E30"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true
+          }
+        }
       ]
     ],
     "experiments": {

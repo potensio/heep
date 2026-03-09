@@ -16,6 +16,9 @@
     "production": {
       "autoIncrement": true,
       "node": "22.9.0",
+      "android": {
+        "buildArtifactPaths": ["android/app/build/outputs/**/mapping.txt"]
+      },
       "ios": {
         "credentialsSource": "local"
       }
