@@ -1,0 +1,10 @@
+{
+  "title": "Notifications",
+  "empty": {
+    "title": "No notifications yet",
+    "description": "You'll see notifications here when you receive them"
+  },
+  "markAllRead": "Mark all as read",
+  "unreadCount_one": "{{count}} unread notification",
+  "unreadCount_other": "{{count}} unread notifications"
+}

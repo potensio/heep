@@ -21,3 +21,4 @@ export {
   type NotificationToggleProps,
 } from "./NotificationToggle";
 export { EnableNotificationBanner } from "./EnableNotificationBanner";
+export { LanguageSwitcher } from "./LanguageSwitcher";

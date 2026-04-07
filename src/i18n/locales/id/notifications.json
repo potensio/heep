@@ -1,0 +1,10 @@
+{
+  "title": "Notifikasi",
+  "empty": {
+    "title": "Belum ada notifikasi",
+    "description": "Anda akan melihat notifikasi di sini saat menerimanya"
+  },
+  "markAllRead": "Tandai semua sudah dibaca",
+  "unreadCount_one": "{{count}} notifikasi belum dibaca",
+  "unreadCount_other": "{{count}} notifikasi belum dibaca"
+}

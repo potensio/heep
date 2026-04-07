@@ -23,3 +23,6 @@ export {
   useNotificationPreference,
   type UseNotificationPreferenceReturn,
 } from "./use-notification-preference";
+
+// Language hook
+export { useLanguage, type Language } from "./use-language";

@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCDcF9bvdT_5DFJUP1nxBwYng6WTmHsUDs",
@@ -12,7 +12,12 @@ const firebaseConfig = {
 // Initialize Firebase (avoid re-initialization)
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore
-export const db = getFirestore(app);
+// Initialize Firestore with long polling for React Native compatibility.
+// The Firebase JS SDK uses WebChannel by default, which doesn't work reliably
+// in React Native environments. This causes onSnapshot listeners to hang or
+// never receive data. Long polling provides a stable alternative transport.
+export const db = initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+});
 
 export default app;

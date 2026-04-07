@@ -18,6 +18,7 @@ import "../global.css";
 import { useColorScheme } from "@/src/hooks/use-color-scheme";
 import { ErrorBoundary } from "@/src/components/ui";
 import { queryClient } from "@/src/lib/query-client";
+import "@/src/i18n"; // Initialize i18n
 
 // Disable Reanimated strict mode warnings
 configureReanimatedLogger({
@@ -54,7 +55,7 @@ export default function RootLayout() {
         (event) => {
           event.preventDefault();
           event.getNotification().display();
-        }
+        },
       );
     };
 

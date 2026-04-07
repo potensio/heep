@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { Image, ImageProps } from "expo-image";
 import { OneSignal } from "react-native-onesignal";
+import { useTranslation } from "react-i18next";
 import { storage } from "@/src/lib/storage";
 
 // Workaround for expo-image type incompatibility with React 19
@@ -11,6 +12,7 @@ const ExpoImage = Image as unknown as ComponentType<ImageProps>;
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { t } = useTranslation(["onboarding", "common"]);
 
   const handleGetStarted = async () => {
     await storage.setOnboardingCompleted();
@@ -45,11 +47,10 @@ export default function OnboardingScreen() {
               contentFit="contain"
             />
             <Text className="text-text-primary text-2xl font-semibold text-center mt-3">
-              One app, two experiences
+              {t("onboarding:title")}
             </Text>
             <Text className="text-text-secondary text-center leading-relaxed mt-4">
-              Access both hotel booking and the Swiss-Belexecutive Member Zone
-              in a single platform. Choose your journey right after signing in.
+              {t("onboarding:description")}
             </Text>
           </View>
         </View>
@@ -61,7 +62,7 @@ export default function OnboardingScreen() {
             onPress={handleGetStarted}
           >
             <Text className="text-white font-medium leading-5">
-              Get Started
+              {t("common:button.getStarted")}
             </Text>
           </TouchableOpacity>
         </View>

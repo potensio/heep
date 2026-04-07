@@ -5,7 +5,6 @@ import {
   query,
   where,
   orderBy,
-  getDocs,
   onSnapshot,
   doc,
   updateDoc,
@@ -18,6 +17,8 @@ import { Notification } from "@/src/types/notification";
 import { fromFirestoreDoc } from "@/src/services/notification-service";
 
 const NOTIFICATIONS_COLLECTION = "notifications";
+const SUBSCRIPTION_ID_RETRY_INTERVAL = 1000;
+const SUBSCRIPTION_ID_MAX_RETRIES = 10;
 
 /**
  * Return type for the useNotifications hook.
@@ -40,139 +41,144 @@ export function computeUnreadCount(notifications: Notification[]): number {
 }
 
 /**
- * Custom hook for notifications using Firestore subscription.
- * Uses initial fetch + real-time subscription for reliability.
+ * Custom hook for notifications using Firestore real-time subscription.
+ * Retries getting the OneSignal subscription ID if not immediately available.
  */
 export function useNotifications(): UseNotificationsReturn {
   const queryClient = useQueryClient();
-  const queryKey = queryKeys.notifications.list();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const unsubscribeRef = useRef<Unsubscribe | null>(null);
-  const hasInitialFetch = useRef(false);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryCountRef = useRef(0);
+  const setupSubscriptionRef = useRef<(() => Promise<void>) | null>(null);
 
-  const setupSubscription = useCallback(() => {
-    // Cleanup existing subscription
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current();
-      unsubscribeRef.current = null;
-    }
+  useEffect(() => {
+    const queryKey = queryKeys.notifications.list();
 
-    setIsLoading(true);
-    setError(null);
+    const cleanup = () => {
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+        unsubscribeRef.current = null;
+      }
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = null;
+      }
+    };
 
-    // Get current user's OneSignal subscription ID
-    const subscriptionId =
-      OneSignal.User.pushSubscription.getPushSubscriptionId();
+    const setupSubscription = async () => {
+      // Cleanup existing subscription and retry timers
+      cleanup();
 
-    if (!subscriptionId) {
+      setIsLoading(true);
+      setError(null);
+
+      // Get current user's OneSignal subscription ID using the new async method
+      const subscriptionId = await OneSignal.User.pushSubscription.getIdAsync();
+
+      if (!subscriptionId) {
+        // Retry — OneSignal may not have initialized yet
+        if (retryCountRef.current < SUBSCRIPTION_ID_MAX_RETRIES) {
+          retryCountRef.current += 1;
+          console.log(
+            `[useNotifications] No subscription ID yet, retrying (${retryCountRef.current}/${SUBSCRIPTION_ID_MAX_RETRIES})...`,
+          );
+          retryTimerRef.current = setTimeout(
+            setupSubscription,
+            SUBSCRIPTION_ID_RETRY_INTERVAL,
+          );
+          return;
+        }
+
+        console.warn(
+          "[useNotifications] No subscription ID after max retries, showing empty list",
+        );
+        setNotifications([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Reset retry counter on success
+      retryCountRef.current = 0;
+
       console.log(
-        "[useNotifications] No subscription ID found, showing empty list"
-      );
-      setNotifications([]);
-      setIsLoading(false);
-      return;
-    }
-
-    console.log(
-      "[useNotifications] Filtering by subscriptionId:",
-      subscriptionId
-    );
-
-    try {
-      // Query notifications filtered by user's subscription ID
-      const q = query(
-        collection(db, NOTIFICATIONS_COLLECTION),
-        where("data.subscriptionId", "==", subscriptionId),
-        orderBy("createdAt", "desc")
+        "[useNotifications] Filtering by subscriptionId:",
+        subscriptionId,
       );
 
-      // Initial fetch untuk memastikan data ter-load
-      if (!hasInitialFetch.current) {
-        getDocs(q)
-          .then((snapshot) => {
+      try {
+        // Query notifications filtered by user's subscription ID
+        const q = query(
+          collection(db, NOTIFICATIONS_COLLECTION),
+          where("data.subscriptionId", "==", subscriptionId),
+          orderBy("createdAt", "desc"),
+        );
+
+        // onSnapshot fires immediately with cached/server data — no need for a
+        // separate getDocs call, which was causing a redundant double-fetch and
+        // slower perceived loading.
+        const unsubscribe = onSnapshot(
+          q,
+          (snapshot) => {
             const data = snapshot.docs.map(fromFirestoreDoc);
             console.log(
-              "[useNotifications] Initial fetch:",
+              "[useNotifications] Snapshot update:",
               data.length,
-              "items"
+              "items",
             );
             setNotifications(data);
             setIsLoading(false);
+            setError(null);
             queryClient.setQueryData(queryKey, data);
-            hasInitialFetch.current = true;
-          })
-          .catch((err) => {
-            console.error("[useNotifications] Initial fetch error:", err);
+          },
+          (err) => {
+            console.error(
+              "[useNotifications] Subscription error:",
+              err.message,
+              (err as { code?: string }).code,
+            );
             setError(err);
             setIsLoading(false);
-          });
-      }
+          },
+        );
 
-      // Setup real-time subscription
-      const unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          const data = snapshot.docs.map(fromFirestoreDoc);
-          console.log(
-            "[useNotifications] Snapshot update:",
-            data.length,
-            "items"
-          );
-          setNotifications(data);
-          setIsLoading(false);
-          setError(null);
-          queryClient.setQueryData(queryKey, data);
-        },
-        (err) => {
-          console.error(
-            "[useNotifications] Subscription error:",
-            err.message,
-            (err as { code?: string }).code
-          );
-          setError(err);
-          setIsLoading(false);
-        }
-      );
-
-      unsubscribeRef.current = unsubscribe;
-    } catch (err) {
-      console.error("[useNotifications] Setup error:", err);
-      setError(
-        err instanceof Error ? err : new Error("Failed to setup Firestore")
-      );
-      setIsLoading(false);
-    }
-  }, [queryClient, queryKey]);
-
-  useEffect(() => {
-    setupSubscription();
-
-    return () => {
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
+        unsubscribeRef.current = unsubscribe;
+      } catch (err) {
+        console.error("[useNotifications] Setup error:", err);
+        setError(
+          err instanceof Error ? err : new Error("Failed to setup Firestore"),
+        );
+        setIsLoading(false);
       }
     };
-  }, [setupSubscription]);
+
+    setupSubscriptionRef.current = setupSubscription;
+    setupSubscription();
+
+    return cleanup;
+  }, [queryClient]);
 
   const unreadCount = useMemo(
     () => computeUnreadCount(notifications),
-    [notifications]
+    [notifications],
   );
 
   const refetch = useCallback(() => {
-    hasInitialFetch.current = false;
-    setupSubscription();
-  }, [setupSubscription]);
+    retryCountRef.current = 0;
+    if (setupSubscriptionRef.current) {
+      setupSubscriptionRef.current();
+    }
+  }, []);
 
   const markAsRead = useCallback(
     async (notificationId: string) => {
       // Optimistic update
       const previousNotifications = notifications;
       setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
+        prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n)),
       );
 
       try {
@@ -185,7 +191,7 @@ export function useNotifications(): UseNotificationsReturn {
         throw err;
       }
     },
-    [notifications]
+    [notifications],
   );
 
   return {

@@ -9,6 +9,7 @@ import {
   getTargetBlankHandlerScript,
   combineScripts,
 } from "@/src/utils/webview-scripts";
+import { getSwissBelhotelUrl } from "@/src/utils/url-helpers";
 
 // Analytics tracking
 const ANALYTICS_SCRIPT = getAnalyticsInjectionScript();
@@ -32,14 +33,14 @@ const COMBINED_SCRIPT = combineScripts(
   ANALYTICS_SCRIPT,
 );
 
-// URL with UTM parameters for GA4 attribution
-const BOOKING_URL = appendUtmParams("https://www.swiss-belhotel.com/");
-
 export default function BookingWebView() {
+  // Get URL based on current language (id -> /id, en -> /)
+  const bookingUrl = appendUtmParams(getSwissBelhotelUrl());
+
   return (
     <>
       <Stack.Screen options={{ gestureEnabled: false }} />
-      <WebViewScreen url={BOOKING_URL} injectedJavaScript={COMBINED_SCRIPT} />
+      <WebViewScreen url={bookingUrl} injectedJavaScript={COMBINED_SCRIPT} />
     </>
   );
 }

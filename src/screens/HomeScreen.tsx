@@ -9,7 +9,9 @@ import {
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
+import { useTranslation } from "react-i18next";
 import { useNotifications } from "@/src/hooks";
+import { LanguageSwitcher } from "@/src/components/ui";
 
 const BellIcon = () => (
   <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
@@ -27,6 +29,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const { unreadCount } = useNotifications();
   const { width } = useWindowDimensions();
+  const { t } = useTranslation(["home", "common"]);
 
   // Responsive padding based on screen width
   const isTablet = width >= 768;
@@ -42,25 +45,27 @@ export default function HomeScreen() {
             style={{ width: 56, height: 56 }}
             contentFit="cover"
           />
-          <TouchableOpacity
-            onPress={() => router.push("/notifications")}
-            className="relative p-2"
-          >
-            <BellIcon />
-            {unreadCount > 0 && (
-              <View className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F04F31]" />
-            )}
-          </TouchableOpacity>
+          <View className="flex-row items-center gap-3">
+            <LanguageSwitcher />
+            <TouchableOpacity
+              onPress={() => router.push("/notifications")}
+              className="relative p-2"
+            >
+              <BellIcon />
+              {unreadCount > 0 && (
+                <View className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F04F31]" />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Welcome Content */}
         <View className="pt-4">
           <Text className="text-xl font-semibold mt-2">
-            Welcome to Swiss-Belhotel International
+            {t("home:welcome.title")}
           </Text>
           <Text className="text-[#8A8A8A] mt-2 leading-relaxed">
-            Choose whether you want to book a stay or access your member loyalty
-            benefits.
+            {t("home:welcome.subtitle")}
           </Text>
         </View>
 
@@ -75,9 +80,11 @@ export default function HomeScreen() {
               resizeMode="cover"
             />
             <View className="mt-2.5">
-              <Text className="font-medium">Hotel Booking</Text>
+              <Text className="font-medium">
+                {t("home:hotelBooking.title")}
+              </Text>
               <Text className="text-sm text-[#8A8A8A] mt-2">
-                Browse rooms, explore facilities, and book your stay.
+                {t("home:hotelBooking.description")}
               </Text>
             </View>
             <TouchableOpacity
@@ -85,7 +92,7 @@ export default function HomeScreen() {
               onPress={() => router.push("/booking-webview")}
             >
               <Text className="text-white font-medium py-1 px-1.5">
-                Book Now
+                {t("common:button.bookNow")}
               </Text>
             </TouchableOpacity>
           </View>
@@ -99,10 +106,11 @@ export default function HomeScreen() {
               resizeMode="cover"
             />
             <View className="mt-2.5">
-              <Text className="font-medium">Member Loyalty</Text>
+              <Text className="font-medium">
+                {t("home:memberLoyalty.title")}
+              </Text>
               <Text className="text-sm text-[#8A8A8A] mt-2">
-                Enjoy 10% to 35% discounts of rooms and dining plus over 1000
-                member-only vouchers.
+                {t("home:memberLoyalty.description")}
               </Text>
             </View>
             <TouchableOpacity
@@ -110,7 +118,7 @@ export default function HomeScreen() {
               onPress={() => router.push("/member-loyalty-webview")}
             >
               <Text className="text-white font-medium py-1 px-1.5">
-                Check Reward
+                {t("common:button.checkReward")}
               </Text>
             </TouchableOpacity>
           </View>
@@ -124,8 +132,7 @@ export default function HomeScreen() {
             contentFit="cover"
           />
           <Text className="text-[#1F1F1F] text-xs text-center leading-[19px]">
-            © {new Date().getFullYear()} All Rights Reserved | Swiss-Belhotel
-            International
+            {t("common:footer.copyright", { year: new Date().getFullYear() })}
           </Text>
         </View>
       </View>

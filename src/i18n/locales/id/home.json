@@ -1,0 +1,14 @@
+{
+  "welcome": {
+    "title": "Selamat Datang di Swiss-Belhotel International",
+    "subtitle": "Pilih apakah Anda ingin memesan menginap atau mengakses manfaat loyalitas anggota Anda."
+  },
+  "hotelBooking": {
+    "title": "Pemesanan Hotel",
+    "description": "Jelajahi kamar, fasilitas, dan pesan penginapan Anda."
+  },
+  "memberLoyalty": {
+    "title": "Loyalitas Anggota",
+    "description": "Nikmati diskon 10% hingga 35% untuk kamar dan makan plus lebih dari 1000 voucher khusus anggota."
+  }
+}

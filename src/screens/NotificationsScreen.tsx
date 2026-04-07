@@ -8,6 +8,7 @@ import {
 import { useRouter } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
+import { useTranslation } from "react-i18next";
 import { useNotifications } from "@/src/hooks";
 import { EnableNotificationBanner } from "@/src/components/ui";
 import type { Notification } from "@/src/types/notification";
@@ -64,6 +65,7 @@ const ArrowLeftIcon = () => (
  */
 export default function NotificationsScreen() {
   const router = useRouter();
+  const { t } = useTranslation("notifications");
   const {
     notifications,
     unreadCount,
@@ -125,7 +127,7 @@ export default function NotificationsScreen() {
         </TouchableOpacity>
         <View className="flex-row items-center gap-1">
           <Text className="text-lg font-medium text-[#1F1F1F]">
-            Notification
+            {t("title")}
           </Text>
           {unreadCount > 0 && (
             <View className="bg-[#F04F31] rounded-full px-1.5 py-0.5 min-w-[16px] items-center">
@@ -171,7 +173,10 @@ export default function NotificationsScreen() {
       ) : notifications.length === 0 ? (
         <View className="flex-1 items-center justify-center px-4">
           <Text className="text-base text-[#767676] text-center">
-            No notifications yet
+            {t("empty.title")}
+          </Text>
+          <Text className="text-sm text-[#8A8A8A] text-center mt-2">
+            {t("empty.description")}
           </Text>
         </View>
       ) : (

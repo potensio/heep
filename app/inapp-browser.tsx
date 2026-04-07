@@ -2,15 +2,16 @@ import { useEffect } from "react";
 import { View, Text } from "react-native";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-
-const SWISSBELHOTEL_URL = "https://www.swiss-belhotel.com/";
+import { getSwissBelhotelUrl } from "@/src/utils/url-helpers";
 
 export default function InAppBrowser() {
   const router = useRouter();
 
   useEffect(() => {
     const openBrowser = async () => {
-      await WebBrowser.openBrowserAsync(SWISSBELHOTEL_URL);
+      // Get URL based on current language (id -> /id, en -> /)
+      const url = getSwissBelhotelUrl();
+      await WebBrowser.openBrowserAsync(url);
       // Navigate back after browser is closed
       router.back();
     };
