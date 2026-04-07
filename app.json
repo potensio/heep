@@ -14,7 +14,9 @@
       "appleTeamId": "VJ2SY6UNX6",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby hotels and provide personalized recommendations."
       },
       "entitlements": {
@@ -22,7 +24,8 @@
         "com.apple.security.application-groups": [
           "group.com.sbi.swissbelhotelapp.onesignal"
         ]
-      }
+      },
+      "buildNumber": "2"
     },
     "android": {
       "adaptiveIcon": {
@@ -53,7 +56,9 @@
         "onesignal-expo-plugin",
         {
           "mode": "production",
-          "smallIcons": ["./assets/images/notification_icon.png"],
+          "smallIcons": [
+            "./assets/images/notification_icon.png"
+          ],
           "smallIconAccentColor": "#F04E30"
         }
       ],
