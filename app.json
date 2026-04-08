@@ -25,7 +25,7 @@
           "group.com.sbi.swissbelhotelapp.onesignal"
         ]
       },
-      "buildNumber": "2"
+      "buildNumber": "5"
     },
     "android": {
       "adaptiveIcon": {
@@ -37,7 +37,8 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.sbi.swissbelhotelapp",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "versionCode": 5
     },
     "web": {
       "bundler": "metro",
