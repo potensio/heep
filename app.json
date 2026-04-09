@@ -38,7 +38,7 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.sbi.swissbelhotelapp",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 5
+      "versionCode": 13
     },
     "web": {
       "bundler": "metro",
