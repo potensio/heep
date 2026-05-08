@@ -15,12 +15,18 @@ interface WebViewScreenProps {
   url: string;
   injectedJavaScript?: string;
   injectedJavaScriptBeforeContentLoaded?: string;
+  showBackButton?: boolean;
+  rightAction?: React.ReactNode;
+  trapBackAtRoot?: boolean;
 }
 
 export function WebViewScreen({
   url,
   injectedJavaScript,
   injectedJavaScriptBeforeContentLoaded,
+  showBackButton = true,
+  rightAction,
+  trapBackAtRoot = false,
 }: WebViewScreenProps): React.JSX.Element {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -36,14 +42,16 @@ export function WebViewScreen({
       webViewRef.current.goBack();
       return true;
     }
+    if (trapBackAtRoot) {
+      return true;
+    }
     return false;
-  }, [canGoBack]);
+  }, [canGoBack, trapBackAtRoot]);
 
   const handleClose = () => {
     router.back();
   };
 
-  // Handle Android hardware back button
   useEffect(() => {
     const backHandler = BackHandler.addEventListener(
       "hardwareBackPress",
@@ -55,26 +63,32 @@ export function WebViewScreen({
   return (
     <View style={styles.container}>
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <TouchableOpacity
-          onPress={handleGoBack}
-          style={styles.backButton}
-          disabled={!canGoBack}
-        >
-          <Ionicons
-            name="arrow-back"
-            size={24}
-            color={canGoBack ? "#1F1F1F" : "#CCCCCC"}
-          />
-          <Text
-            style={[styles.backText, !canGoBack && styles.backTextDisabled]}
+        {showBackButton ? (
+          <TouchableOpacity
+            onPress={handleGoBack}
+            style={styles.backButton}
+            disabled={!canGoBack}
           >
-            Back
-          </Text>
-        </TouchableOpacity>
+            <Ionicons
+              name="arrow-back"
+              size={24}
+              color={canGoBack ? "#1F1F1F" : "#CCCCCC"}
+            />
+            <Text
+              style={[styles.backText, !canGoBack && styles.backTextDisabled]}
+            >
+              Back
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.placeholder} />
+        )}
 
-        <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
-          <Ionicons name="close" size={24} color="#1F1F1F" />
-        </TouchableOpacity>
+        {rightAction ?? (
+          <TouchableOpacity onPress={handleClose} style={styles.closeButton}>
+            <Ionicons name="close" size={24} color="#1F1F1F" />
+          </TouchableOpacity>
+        )}
       </View>
       <WebView
         ref={webViewRef}
@@ -87,6 +101,7 @@ export function WebViewScreen({
         startInLoadingState={true}
         cacheEnabled={true}
         incognito={false}
+        allowsBackForwardNavigationGestures={true}
         injectedJavaScript={injectedJavaScript}
         injectedJavaScriptBeforeContentLoaded={
           injectedJavaScriptBeforeContentLoaded
@@ -130,6 +145,9 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     padding: 8,
+  },
+  placeholder: {
+    width: 40,
   },
   webview: {
     flex: 1,
