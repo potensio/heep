@@ -2,7 +2,7 @@
   "expo": {
     "name": "Swiss-Belhotel",
     "slug": "swissbelhotel-app",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "swissbelhotelapp",
@@ -14,7 +14,9 @@
       "appleTeamId": "VJ2SY6UNX6",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "NSLocationWhenInUseUsageDescription": "This app uses your location to show nearby hotels and provide personalized recommendations."
       },
       "entitlements": {
@@ -23,7 +25,7 @@
           "group.com.sbi.swissbelhotelapp.onesignal"
         ]
       },
-      "buildNumber": "28"
+      "buildNumber": "31"
     },
     "android": {
       "adaptiveIcon": {
@@ -36,7 +38,7 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.sbi.swissbelhotelapp",
       "googleServicesFile": "./google-services.json",
-      "versionCode": 14
+      "versionCode": 16
     },
     "web": {
       "bundler": "metro",
@@ -55,7 +57,9 @@
         "onesignal-expo-plugin",
         {
           "mode": "production",
-          "smallIcons": ["./assets/images/notification_icon.png"],
+          "smallIcons": [
+            "./assets/images/notification_icon.png"
+          ],
           "smallIconAccentColor": "#F04E30"
         }
       ],
