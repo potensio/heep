@@ -40,6 +40,8 @@ function BellButton() {
     <TouchableOpacity
       onPress={() => router.push("/notifications")}
       className="relative p-2"
+      accessibilityLabel="Notifications"
+      accessibilityRole="button"
     >
       <BellIcon />
       {unreadCount > 0 && (
