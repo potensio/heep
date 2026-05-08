@@ -5,7 +5,6 @@ import {
   getAnalyticsInjectionScript,
 } from "@/src/utils/analytics";
 import {
-  getHideElementScript,
   getTargetBlankHandlerScript,
   combineScripts,
 } from "@/src/utils/webview-scripts";
