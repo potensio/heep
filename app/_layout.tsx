@@ -75,7 +75,7 @@ export default function RootLayout() {
                 name="(onboarding)"
                 options={{ headerShown: false }}
               />
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="main-webview" options={{ headerShown: false }} />
               <Stack.Screen
                 name="booking-webview"
                 options={{ headerShown: false }}

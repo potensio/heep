@@ -24,7 +24,7 @@ export default function OnboardingScreen() {
       console.log("[Onboarding] Permission request error:", error);
     }
 
-    router.replace("/(tabs)");
+    router.replace("/main-webview");
   };
 
   return (

@@ -25,7 +25,7 @@ export default function Index() {
   }
 
   if (hasSeenOnboarding) {
-    return <Redirect href="/(tabs)" />;
+    return <Redirect href="/main-webview" />;
   }
 
   return <Redirect href="/(onboarding)" />;
