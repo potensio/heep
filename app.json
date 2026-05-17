@@ -18,10 +18,6 @@
       "bundleIdentifier": "com.bantujual.app"
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
       "package": "com.bantujual.app"
     },
     "web": {
