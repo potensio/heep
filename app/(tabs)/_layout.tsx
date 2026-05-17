@@ -2,9 +2,21 @@ import { Tabs } from "expo-router";
 import { View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 // Linear style (outline/regular)
-import { Home, ChatLine, User, ClipboardList } from "@solar-icons/react-native/Linear";
+import {
+  Home,
+  ChatLine,
+  User,
+  ClipboardList,
+  AddSquare,
+} from "@solar-icons/react-native/Linear";
 // Bold style (filled)
-import { Home as HomeBold, ClipboardList as ClipboardListBold, AddCircle, ChatLine as ChatLineBold, User as UserBold } from "@solar-icons/react-native/Bold";
+import {
+  Home as HomeBold,
+  ClipboardList as ClipboardListBold,
+  AddCircle as AddCircleBold,
+  ChatLine as ChatLineBold,
+  User as UserBold,
+} from "@solar-icons/react-native/Bold";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -14,7 +26,7 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#ffffff",
+          backgroundColor: "#F9F2E6",
           borderTopWidth: 1,
           borderTopColor: "#E5E7EB",
           height: 72 + insets.bottom,
@@ -71,7 +83,7 @@ export default function TabLayout() {
                   elevation: 8,
                 }}
               >
-                <AddCircle color="#FFFFFF" size={28} />
+                <AddSquare color="#FFFFFF" size={28} strokeWidth={2.5} />
               </View>
               <Text className="text-[12px] font-medium text-black mt-1">
                 Jual

@@ -1,16 +1,44 @@
 import { View } from "react-native";
 import { ActionButton } from "./ActionButton";
+import {
+  CrownStar,
+  Cart5,
+  Box,
+  Settings,
+} from "@solar-icons/react-native/Linear";
 
-// Placeholder icon component
-function PlaceholderIcon() {
-  return <View className="w-6 h-6 bg-gray-400 rounded" />;
-}
+const whiteStrokeColor = "#FFFFFF";
+const blackStrokeColor = "#000000";
 
 const actions = [
-  { id: 'promo', label: 'Promo', color: '#D0F507' },
-  { id: 'pesanan', label: 'Pesanan', color: '#155DFC' },
-  { id: 'produk', label: 'Produk', color: '#F54802' },
-  { id: 'setting', label: 'Setting', color: '#F9F906' },
+  {
+    id: "promo",
+    label: "Promo",
+    color: "#D0F507",
+    Icon: CrownStar,
+    iconColor: blackStrokeColor,
+  },
+  {
+    id: "pesanan",
+    label: "Pesanan",
+    color: "#155DFC",
+    Icon: Cart5,
+    iconColor: whiteStrokeColor,
+  },
+  {
+    id: "produk",
+    label: "Produk",
+    color: "#F54802",
+    Icon: Box,
+    iconColor: whiteStrokeColor,
+  },
+  {
+    id: "setting",
+    label: "Setting",
+    color: "#F9F906",
+    Icon: Settings,
+    iconColor: blackStrokeColor,
+  },
 ] as const;
 
 export function ActionGrid() {
@@ -19,7 +47,7 @@ export function ActionGrid() {
       {actions.map((action) => (
         <ActionButton
           key={action.id}
-          icon={<PlaceholderIcon />}
+          icon={<action.Icon size={24} color={action.iconColor} />}
           label={action.label}
           backgroundColor={action.color}
         />

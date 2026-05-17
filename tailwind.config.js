@@ -16,6 +16,10 @@ module.exports = {
         "text-primary": "#1F1F1F",
         "text-secondary": "#8A8A8A",
       },
+      fontFamily: {
+        sans: ["Plus-Jakarta"],
+        heading: ["Fjalla-One"],
+      },
     },
   },
   plugins: [],
