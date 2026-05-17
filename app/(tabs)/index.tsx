@@ -1,3 +1,5 @@
-import { HomeScreen } from "@/src/screens";
+import { HomeScreen } from "@/features/home/HomeScreen";
 
-export default HomeScreen;
+export default function HomeTab() {
+  return <HomeScreen />;
+}

@@ -1,3 +1,5 @@
-import { ChatScreen } from "@/src/screens";
+import { ChatScreen } from "@/features/chat/ChatScreen";
 
-export default ChatScreen;
+export default function ChatTab() {
+  return <ChatScreen />;
+}

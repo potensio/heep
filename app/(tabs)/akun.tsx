@@ -1,3 +1,5 @@
-import { AccountScreen } from "@/src/screens";
+import { AccountScreen } from "@/features/account/AccountScreen";
 
-export default AccountScreen;
+export default function AccountTab() {
+  return <AccountScreen />;
+}

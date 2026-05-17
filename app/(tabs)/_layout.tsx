@@ -1,17 +1,10 @@
 import { Tabs } from "expo-router";
 import { View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  HomeIconOutline,
-  HomeIconBold,
-  OrderIconOutline,
-  OrderIconBold,
-  PlusIconBold,
-  ChatIconOutline,
-  ChatIconBold,
-  AccountIconOutline,
-  AccountIconBold,
-} from "@/src/components/icons";
+// Linear style (outline/regular)
+import { Home, ChatLine, User, ClipboardList } from "@solar-icons/react-native/Linear";
+// Bold style (filled)
+import { Home as HomeBold, ClipboardList as ClipboardListBold, AddCircle, ChatLine as ChatLineBold, User as UserBold } from "@solar-icons/react-native/Bold";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
@@ -44,9 +37,9 @@ export default function TabLayout() {
           title: "Beranda",
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <HomeIconBold color="#101828" size={24} />
+              <HomeBold color="#101828" size={24} />
             ) : (
-              <HomeIconOutline color="#666666" size={24} />
+              <Home color="#666666" size={24} />
             ),
         }}
       />
@@ -56,9 +49,9 @@ export default function TabLayout() {
           title: "Pesanan",
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <OrderIconBold color="#101828" size={24} />
+              <ClipboardListBold color="#101828" size={24} />
             ) : (
-              <OrderIconOutline color="#666666" size={24} />
+              <ClipboardList color="#666666" size={24} />
             ),
         }}
       />
@@ -78,7 +71,7 @@ export default function TabLayout() {
                   elevation: 8,
                 }}
               >
-                <PlusIconBold color="#FFFFFF" size={28} />
+                <AddCircle color="#FFFFFF" size={28} />
               </View>
               <Text className="text-[12px] font-medium text-black mt-1">
                 Jual
@@ -94,9 +87,9 @@ export default function TabLayout() {
           title: "Chat",
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <ChatIconBold color="#101828" size={24} />
+              <ChatLineBold color="#101828" size={24} />
             ) : (
-              <ChatIconOutline color="#666666" size={24} />
+              <ChatLine color="#666666" size={24} />
             ),
         }}
       />
@@ -106,9 +99,9 @@ export default function TabLayout() {
           title: "Akun",
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <AccountIconBold color="#101828" size={24} />
+              <UserBold color="#101828" size={24} />
             ) : (
-              <AccountIconOutline color="#666666" size={24} />
+              <User color="#666666" size={24} />
             ),
         }}
       />

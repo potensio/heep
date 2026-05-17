@@ -1,3 +1,5 @@
-import { OrderScreen } from "@/src/screens";
+import { OrdersScreen } from "@/features/orders/OrdersScreen";
 
-export default OrderScreen;
+export default function OrdersTab() {
+  return <OrdersScreen />;
+}
