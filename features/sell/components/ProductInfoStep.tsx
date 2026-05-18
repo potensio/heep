@@ -5,7 +5,7 @@ import { ArrowRight, ArrowLeft } from '@solar-icons/react-native/Linear';
 import { PriceInput } from './PriceInput';
 import type { ProductInfoStepProps } from '../types';
 
-export function ProductInfoStep({ formData, onFormChange, onNext, onBack }: ProductInfoStepProps) {
+export function ProductInfoStep({ formData, onFormChange, onNext, onBack, isDevMode = false }: ProductInfoStepProps) {
   const insets = useSafeAreaInsets();
 
   const validateAndProceed = () => {
@@ -20,7 +20,7 @@ export function ProductInfoStep({ formData, onFormChange, onNext, onBack }: Prod
 
   const isNameValid = formData.name.length >= 3;
   const isPriceValid = formData.price >= 1000;
-  const canProceed = isNameValid && isPriceValid;
+  const canProceed = isDevMode || (isNameValid && isPriceValid);
 
   return (
     <View className="flex-1 bg-[#F9F2E6]">
@@ -100,6 +100,14 @@ export function ProductInfoStep({ formData, onFormChange, onNext, onBack }: Prod
         className="absolute bottom-0 left-0 right-0 bg-white px-5 pt-4 pb-6 border-t border-gray-100"
         style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
+        {isDevMode && (
+          <View className="mb-3 p-2 bg-yellow-100 rounded-lg border border-yellow-300">
+            <Text className="text-xs text-yellow-800 text-center">
+              🛠️ DEV MODE: Validation bypassed
+            </Text>
+          </View>
+        )}
+
         <View className="flex-row gap-3">
           <TouchableOpacity
             onPress={onBack}
@@ -109,7 +117,7 @@ export function ProductInfoStep({ formData, onFormChange, onNext, onBack }: Prod
           </TouchableOpacity>
           
           <TouchableOpacity
-            onPress={validateAndProceed}
+            onPress={isDevMode ? onNext : validateAndProceed}
             disabled={!canProceed}
             className={`flex-1 flex-row items-center justify-center py-4 rounded-xl ${
               canProceed ? 'bg-[#9AE600]' : 'bg-gray-300'

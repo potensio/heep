@@ -20,6 +20,7 @@ export interface PhotoUploadStepProps {
   photos: string[];
   onPhotosChange: (photos: string[]) => void;
   onNext: () => void;
+  isDevMode?: boolean;
 }
 
 export interface ProductInfoStepProps {
@@ -27,6 +28,7 @@ export interface ProductInfoStepProps {
   onFormChange: (data: Partial<SellFormData>) => void;
   onNext: () => void;
   onBack: () => void;
+  isDevMode?: boolean;
 }
 
 export interface ReviewStepProps {

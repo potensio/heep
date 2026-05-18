@@ -11,11 +11,12 @@ import { SuccessScreen } from './SuccessScreen';
 import type { SellFormData } from '../types';
 
 interface SellWizardProps {
-  onPublish: (formData: SellFormData) => Promise<string>; // returns productId
+  onPublish: (formData: SellFormData) => Promise<string>;
   onViewProduct: (productId: string) => void;
+  isDevMode?: boolean;
 }
 
-export function SellWizard({ onPublish, onViewProduct }: SellWizardProps) {
+export function SellWizard({ onPublish, onViewProduct, isDevMode = false }: SellWizardProps) {
   const insets = useSafeAreaInsets();
   const {
     currentStep,
@@ -74,6 +75,7 @@ export function SellWizard({ onPublish, onViewProduct }: SellWizardProps) {
           photos={formData.photos}
           onPhotosChange={(photos) => updateFormData({ photos })}
           onNext={nextStep}
+          isDevMode={isDevMode}
         />
       )}
 
@@ -83,6 +85,7 @@ export function SellWizard({ onPublish, onViewProduct }: SellWizardProps) {
           onFormChange={updateFormData}
           onNext={nextStep}
           onBack={prevStep}
+          isDevMode={isDevMode}
         />
       )}
 

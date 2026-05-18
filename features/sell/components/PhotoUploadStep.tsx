@@ -6,7 +6,7 @@ import { ArrowRight } from '@solar-icons/react-native/Linear';
 import { PhotoGrid } from './PhotoGrid';
 import type { PhotoUploadStepProps } from '../types';
 
-export function PhotoUploadStep({ photos, onPhotosChange, onNext }: PhotoUploadStepProps) {
+export function PhotoUploadStep({ photos, onPhotosChange, onNext, isDevMode = false }: PhotoUploadStepProps) {
   const insets = useSafeAreaInsets();
 
   const handleAddPhoto = async () => {
@@ -41,14 +41,14 @@ export function PhotoUploadStep({ photos, onPhotosChange, onNext }: PhotoUploadS
   };
 
   const handleNext = () => {
-    if (photos.length < 1) {
+    if (photos.length < 1 && !isDevMode) {
       Alert.alert('Foto Diperlukan', 'Tambahkan minimal 1 foto untuk melanjutkan');
       return;
     }
     onNext();
   };
 
-  const canProceed = photos.length >= 1;
+  const canProceed = photos.length >= 1 || isDevMode;
 
   return (
     <View className="flex-1 bg-[#F9F2E6]">
@@ -75,6 +75,14 @@ export function PhotoUploadStep({ photos, onPhotosChange, onNext }: PhotoUploadS
           <Text className="text-sm text-gray-500 mt-4 text-center">
             {photos.length} dari 6 foto
           </Text>
+        )}
+
+        {isDevMode && (
+          <View className="mt-6 p-3 bg-yellow-100 rounded-lg border border-yellow-300">
+            <Text className="text-xs text-yellow-800 text-center">
+              🛠️ DEV MODE: Tombol aktif tanpa upload foto
+            </Text>
+          </View>
         )}
       </ScrollView>
 
