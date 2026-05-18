@@ -1,14 +1,18 @@
 // features/sell/types.ts
 
 export type ProductCategory = 
-  | 'elektronik'
+  | 'komputer'
+  | 'handphone-tablet'
+  | 'elektronik-lain'
   | 'fashion-pria'
   | 'fashion-wanita'
   | 'sepatu-tas'
   | 'rumah-tangga'
-  | 'otomotif'
+  | 'mobil'
+  | 'motor'
   | 'properti'
   | 'hobi-olahraga'
+  | 'alat-musik'
   | 'bayi-anak'
   | 'kesehatan-kecantikan'
   | 'makanan-minuman'
@@ -21,14 +25,18 @@ export interface CategoryOption {
 }
 
 export const CATEGORY_OPTIONS: CategoryOption[] = [
-  { value: 'elektronik', label: 'Elektronik', icon: 'Monitor' },
+  { value: 'komputer', label: 'Komputer & Laptop', icon: 'Monitor' },
+  { value: 'handphone-tablet', label: 'Handphone & Tablet', icon: 'Mobile' },
+  { value: 'elektronik-lain', label: 'Elektronik Lain', icon: 'Cpu' },
   { value: 'fashion-pria', label: 'Fashion Pria', icon: 'TShirt' },
   { value: 'fashion-wanita', label: 'Fashion Wanita', icon: 'Skirt' },
   { value: 'sepatu-tas', label: 'Sepatu & Tas', icon: 'Bag' },
   { value: 'rumah-tangga', label: 'Rumah Tangga', icon: 'House' },
-  { value: 'otomotif', label: 'Otomotif', icon: 'Wheel' },
+  { value: 'mobil', label: 'Mobil', icon: 'Car' },
+  { value: 'motor', label: 'Motor', icon: 'Scooter' },
   { value: 'properti', label: 'Properti', icon: 'Buildings' },
   { value: 'hobi-olahraga', label: 'Hobi & Olahraga', icon: 'Volleyball' },
+  { value: 'alat-musik', label: 'Alat Musik', icon: 'MusicNote' },
   { value: 'bayi-anak', label: 'Bayi & Anak', icon: 'Balloon' },
   { value: 'kesehatan-kecantikan', label: 'Kesehatan & Kecantikan', icon: 'Cosmetic' },
   { value: 'makanan-minuman', label: 'Makanan & Minuman', icon: 'Cup' },
