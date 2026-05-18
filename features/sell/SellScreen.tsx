@@ -1,4 +1,3 @@
-// features/sell/SellScreen.tsx
 import { useRouter } from "expo-router";
 import { SellWizard } from "./components/SellWizard";
 import type { SellFormData } from "./types";
@@ -20,10 +19,16 @@ export function SellScreen() {
     router.push(`/product/${productId}`);
   };
 
+  const handleCancel = () => {
+    // Navigate back ke tabs (home)
+    router.replace("/(tabs)");
+  };
+
   return (
     <SellWizard
       onPublish={handlePublish}
       onViewProduct={handleViewProduct}
+      onCancel={handleCancel}
       isDevMode={DEV_MODE}
     />
   );

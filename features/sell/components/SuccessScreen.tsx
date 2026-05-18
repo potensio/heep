@@ -1,10 +1,13 @@
-// features/sell/components/SuccessScreen.tsx
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CheckCircle, ArrowRight, Refresh } from '@solar-icons/react-native/Linear';
+import { CheckCircle, ArrowRight, Refresh, Home } from '@solar-icons/react-native/Linear';
 import type { SuccessScreenProps } from '../types';
 
-export function SuccessScreen({ productId, onViewProduct, onSellAgain }: SuccessScreenProps) {
+interface ExtendedSuccessScreenProps extends SuccessScreenProps {
+  onBackToHome?: () => void;
+}
+
+export function SuccessScreen({ productId, onViewProduct, onSellAgain, onBackToHome }: ExtendedSuccessScreenProps) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -49,6 +52,18 @@ export function SuccessScreen({ productId, onViewProduct, onSellAgain }: Success
             Jual Lagi
           </Text>
         </TouchableOpacity>
+
+        {onBackToHome && (
+          <TouchableOpacity
+            onPress={onBackToHome}
+            className="flex-row items-center justify-center py-4 rounded-xl border border-gray-300 bg-white"
+          >
+            <Home size={18} className="text-gray-700 mr-2" />
+            <Text className="font-semibold text-base text-gray-700">
+              Kembali ke Beranda
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Product ID hint */}

@@ -84,6 +84,13 @@ export interface ReviewStepProps {
   onBack: () => void;
 }
 
+export interface SellWizardProps {
+  onPublish: (formData: SellFormData) => Promise<string>;
+  onViewProduct: (productId: string) => void;
+  onCancel: () => void;
+  isDevMode?: boolean;
+}
+
 export interface SuccessScreenProps {
   productId: string;
   onViewProduct: () => void;

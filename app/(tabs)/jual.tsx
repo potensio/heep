@@ -1,13 +1,14 @@
-import { useRouter } from "expo-router";
 import { useEffect } from "react";
+import { View } from "react-native";
+import { useRouter } from "expo-router";
 
-export default function SellTab() {
+export default function JualTab() {
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect ke /sell stack (full screen tanpa tab bar)
+    // Redirect ke sell stack (tanpa tab bar)
     router.replace("/sell");
-  }, [router]);
+  }, []);
 
-  return null;
+  return <View />;
 }
