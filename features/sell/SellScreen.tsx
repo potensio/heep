@@ -1,16 +1,33 @@
-import { Text, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+// features/sell/SellScreen.tsx
+import { useRouter } from 'expo-router';
+import { SellWizard } from './components/SellWizard';
+import type { SellFormData } from './types';
 
 export function SellScreen() {
-  const insets = useSafeAreaInsets();
+  const router = useRouter();
+
+  const handlePublish = async (formData: SellFormData): Promise<string> => {
+    // TODO: Implement actual API call to publish product
+    // For now, simulate API delay and return mock product ID
+    console.log('Publishing product:', formData);
+    
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Generate mock product ID
+    const mockProductId = 'prod_' + Date.now().toString(36);
+    
+    return mockProductId;
+  };
+
+  const handleViewProduct = (productId: string) => {
+    // Navigate to product detail screen
+    router.push(`/product/${productId}`);
+  };
 
   return (
-    <View
-      className="flex-1 items-center justify-center bg-white"
-      style={{ paddingTop: insets.top }}
-    >
-      <Text className="text-xl font-bold text-gray-800">Jual Produk</Text>
-      <Text className="text-gray-500 mt-2">Form jual produk akan muncul di sini</Text>
-    </View>
+    <SellWizard 
+      onPublish={handlePublish}
+      onViewProduct={handleViewProduct}
+    />
   );
 }
