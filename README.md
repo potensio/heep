@@ -1,50 +1,78 @@
-# Welcome to your Expo app 👋
+# BantuJual
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile marketplace app for buying and selling products, built with React Native and Expo.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Browse Products** - Discover items for sale in your area
+- **Sell Items** - List your products with photos and descriptions
+- **Chat** - Communicate with buyers and sellers
+- **Orders** - Track your purchases and sales
+- **Account** - Manage your profile and settings
 
-   ```bash
-   npm install
-   ```
+## Tech Stack
 
-2. Start the app
+- [Expo](https://expo.dev/) - React Native framework
+- [React Native](https://reactnative.dev/) - Mobile app framework
+- [NativeWind](https://www.nativewind.dev/) - Tailwind CSS for React Native
+- [React Navigation](https://reactnavigation.org/) - Navigation library
 
-   ```bash
-   npx expo start
-   ```
+## Getting Started
 
-In the output, you'll find options to open the app in a
+### Prerequisites
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Node.js 18 or higher
+- npm or yarn
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Installation
 
-## Get a fresh project
-
-When you're ready, run:
+1. Clone the repository
+2. Install dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+3. Start the development server:
 
-## Learn more
+```bash
+npm start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+4. Run on your device:
+   - Press `i` for iOS simulator
+   - Press `a` for Android emulator
+   - Scan QR code with Expo Go app on your phone
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Project Structure
 
-## Join the community
+```
+app/              # App routes and screens
+├── (tabs)/       # Tab navigation screens
+├── product/      # Product detail pages
+└── sell/         # Selling flow
 
-Join our community of developers creating universal apps.
+features/         # Feature modules
+├── home/         # Home feature
+├── chat/         # Chat feature
+├── orders/       # Orders feature
+├── sell/         # Sell feature
+└── account/      # Account feature
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+components/       # Shared UI components
+hooks/            # Custom React hooks
+lib/              # Utilities and helpers
+assets/           # Images and fonts
+```
+
+## Scripts
+
+- `npm start` - Start the Expo development server
+- `npm run android` - Run on Android device/emulator
+- `npm run ios` - Run on iOS simulator
+- `npm run web` - Run in web browser
+- `npm run lint` - Run ESLint
+
+## License
+
+Private - All rights reserved.

@@ -60,6 +60,13 @@ export interface SellWizardState {
   error: string | null;
 }
 
+export interface SellWizardProps {
+  onPublish: (formData: SellFormData) => Promise<string>;
+  onViewProduct: (productId: string) => void;
+  onCancel: () => void;
+  isDevMode?: boolean;
+}
+
 export interface PhotoUploadStepProps {
   photos: string[];
   onPhotosChange: (photos: string[]) => void;
@@ -84,15 +91,9 @@ export interface ReviewStepProps {
   onBack: () => void;
 }
 
-export interface SellWizardProps {
-  onPublish: (formData: SellFormData) => Promise<string>;
-  onViewProduct: (productId: string) => void;
-  onCancel: () => void;
-  isDevMode?: boolean;
-}
-
 export interface SuccessScreenProps {
   productId: string;
   onViewProduct: () => void;
   onSellAgain: () => void;
+  onBackToHome?: () => void;
 }
