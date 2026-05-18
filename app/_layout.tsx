@@ -27,6 +27,13 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen 
+          name="sell" 
+          options={{
+            headerShown: false,
+            presentation: 'fullScreenModal',
+          }} 
+        />
       </Stack>
     </SafeAreaProvider>
   );

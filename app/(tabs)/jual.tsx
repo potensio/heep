@@ -1,5 +1,13 @@
-import { SellScreen } from "@/features/sell/SellScreen";
+import { useRouter } from "expo-router";
+import { useEffect } from "react";
 
 export default function SellTab() {
-  return <SellScreen />;
+  const router = useRouter();
+
+  useEffect(() => {
+    // Redirect ke /sell stack (full screen tanpa tab bar)
+    router.replace("/sell");
+  }, [router]);
+
+  return null;
 }
