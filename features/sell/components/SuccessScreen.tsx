@@ -1,7 +1,7 @@
 // features/sell/components/SuccessScreen.tsx
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { TickCircle, ArrowRight, Refresh } from '@solar-icons/react-native/Linear';
+import { CheckCircle, ArrowRight, Refresh } from '@solar-icons/react-native/Linear';
 import type { SuccessScreenProps } from '../types';
 
 export function SuccessScreen({ productId, onViewProduct, onSellAgain }: SuccessScreenProps) {
@@ -14,7 +14,7 @@ export function SuccessScreen({ productId, onViewProduct, onSellAgain }: Success
     >
       {/* Success Icon */}
       <View className="w-24 h-24 rounded-full bg-[#9AE600] items-center justify-center mb-6">
-        <TickCircle size={48} className="text-white" />
+        <CheckCircle size={48} color="white" />
       </View>
 
       {/* Title */}
