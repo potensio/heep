@@ -1,14 +1,48 @@
 // features/sell/components/ProductInfoStep.tsx
 import { View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowRight, ArrowLeft } from '@solar-icons/react-native/Linear';
+import { 
+  ArrowRight, 
+  ArrowLeft, 
+  Monitor, 
+  TShirt, 
+  Skirt, 
+  Bag, 
+  House, 
+  Wheel, 
+  Buildings, 
+  Volleyball, 
+  Balloon, 
+  Cosmetic, 
+  Cup, 
+  Widget 
+} from '@solar-icons/react-native/Linear';
 import { PriceInput } from './PriceInput';
+import { CATEGORY_OPTIONS, type ProductCategory } from '../types';
 import type { ProductInfoStepProps } from '../types';
+
+const iconMap: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+  Monitor,
+  TShirt,
+  Skirt,
+  Bag,
+  House,
+  Wheel,
+  Buildings,
+  Volleyball,
+  Balloon,
+  Cosmetic,
+  Cup,
+  Widget,
+};
 
 export function ProductInfoStep({ formData, onFormChange, onNext, onBack, isDevMode = false }: ProductInfoStepProps) {
   const insets = useSafeAreaInsets();
 
   const validateAndProceed = () => {
+    if (!formData.category) {
+      return;
+    }
     if (formData.name.length < 3) {
       return;
     }
@@ -18,9 +52,20 @@ export function ProductInfoStep({ formData, onFormChange, onNext, onBack, isDevM
     onNext();
   };
 
+  const isCategoryValid = formData.category !== '';
   const isNameValid = formData.name.length >= 3;
   const isPriceValid = formData.price >= 1000;
-  const canProceed = isDevMode || (isNameValid && isPriceValid);
+  const canProceed = isDevMode || (isCategoryValid && isNameValid && isPriceValid);
+
+  const handleCategorySelect = (category: ProductCategory) => {
+    onFormChange({ category });
+  };
+
+  const renderCategoryIcon = (iconName: string, size: number = 20) => {
+    const IconComponent = iconMap[iconName];
+    if (!IconComponent) return null;
+    return <IconComponent size={size} />;
+  };
 
   return (
     <View className="flex-1 bg-[#F9F2E6]">
@@ -35,6 +80,46 @@ export function ProductInfoStep({ formData, onFormChange, onNext, onBack, isDevM
         <Text className="text-gray-500 mb-6">
           Isi informasi dasar produk yang akan dijual.
         </Text>
+
+        {/* Kategori Produk */}
+        <View className="mb-5">
+          <Text className="text-sm font-medium text-gray-700 mb-3">
+            Kategori Produk <Text className="text-red-500">*</Text>
+          </Text>
+          <View className="flex-row flex-wrap gap-2">
+            {CATEGORY_OPTIONS.map((option) => {
+              const isSelected = formData.category === option.value;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  onPress={() => handleCategorySelect(option.value)}
+                  className={`flex-row items-center px-3 py-2 rounded-full border ${
+                    isSelected 
+                      ? 'bg-[#9AE600] border-[#9AE600]' 
+                      : 'bg-white border-gray-300'
+                  }`}
+                >
+                  <View className={isSelected ? 'text-gray-900' : 'text-gray-600'}>
+                    {renderCategoryIcon(option.icon, 16)}
+                  </View>
+                  <Text 
+                    className={`ml-1.5 text-xs font-medium ${
+                      isSelected ? 'text-gray-900' : 'text-gray-700'
+                    }`}
+                    numberOfLines={1}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          {!isCategoryValid && !isDevMode && (
+            <Text className="text-xs text-red-500 mt-2">
+              Pilih kategori produk
+            </Text>
+          )}
+        </View>
 
         {/* Nama Produk */}
         <View className="mb-5">

@@ -1,6 +1,6 @@
 // features/sell/components/PhotoGrid.tsx
 import { View, TouchableOpacity, Image, Text } from 'react-native';
-import { GalleryAdd, Trash } from '@solar-icons/react-native/Linear';
+import { GalleryAdd, TrashBinMinimalistic } from '@solar-icons/react-native/Linear';
 
 interface PhotoGridProps {
   photos: string[];
@@ -45,7 +45,7 @@ export function PhotoGrid({ photos, onAddPhoto, onRemovePhoto, maxPhotos = 6 }: 
               onPress={() => onRemovePhoto(index)}
               className="absolute top-1 right-1 w-6 h-6 bg-red-500 rounded-full items-center justify-center"
             >
-              <Trash size={14} className="text-white" />
+              <TrashBinMinimalistic size={14} className="text-white" />
             </TouchableOpacity>
             {index === 0 && (
               <View className="absolute bottom-0 left-0 right-0 bg-black/50 py-1">

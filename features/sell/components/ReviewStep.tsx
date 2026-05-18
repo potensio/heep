@@ -2,11 +2,17 @@
 import { View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, ArrowRight, Gallery, PenNewSquare } from '@solar-icons/react-native/Linear';
+import { CATEGORY_OPTIONS } from '../types';
 import type { ReviewStepProps } from '../types';
 
 function formatRupiah(value: number): string {
   if (!value || value === 0) return 'Rp 0';
   return 'Rp ' + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function getCategoryLabel(categoryValue: string): string {
+  const category = CATEGORY_OPTIONS.find(cat => cat.value === categoryValue);
+  return category?.label || categoryValue;
 }
 
 export function ReviewStep({ 
@@ -53,6 +59,15 @@ export function ReviewStep({
 
           {/* Product Info */}
           <View className="p-4">
+            {/* Category Badge */}
+            {formData.category && (
+              <View className="self-start bg-[#9AE600]/20 px-3 py-1 rounded-full mb-2">
+                <Text className="text-xs font-medium text-gray-800">
+                  {getCategoryLabel(formData.category)}
+                </Text>
+              </View>
+            )}
+            
             <Text className="text-lg font-semibold text-gray-900 mb-1" numberOfLines={2}>
               {formData.name}
             </Text>
