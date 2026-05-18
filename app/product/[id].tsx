@@ -2,7 +2,7 @@
 import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Heart, Share, MessageText } from '@solar-icons/react-native/Linear';
+import { ArrowLeft, Heart, Share, ChatRound } from '@solar-icons/react-native/Linear';
 
 function formatRupiah(value: number): string {
   if (!value || value === 0) return 'Rp 0';
@@ -118,7 +118,7 @@ export default function ProductDetailScreen() {
         style={{ paddingBottom: Math.max(insets.bottom + 12, 20) }}
       >
         <TouchableOpacity className="flex-row items-center justify-center px-5 py-3 rounded-xl border border-gray-300">
-          <MessageText size={20} className="text-gray-700" />
+          <ChatRound size={20} color="#374151" />
         </TouchableOpacity>
         
         <TouchableOpacity className="flex-1 bg-[#9AE600] rounded-xl items-center justify-center py-3">
