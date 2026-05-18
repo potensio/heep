@@ -1,7 +1,7 @@
 // features/sell/components/ReviewStep.tsx
 import { View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, ArrowRight, GalleryEdit, Edit2 } from '@solar-icons/react-native/Linear';
+import { ArrowLeft, ArrowRight, Gallery, PenNewSquare } from '@solar-icons/react-native/Linear';
 import type { ReviewStepProps } from '../types';
 
 function formatRupiah(value: number): string {
@@ -78,7 +78,7 @@ export function ReviewStep({
             onPress={onEditPhotos}
             className="flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl border border-gray-300 bg-white"
           >
-            <GalleryEdit size={18} className="text-gray-700 mr-2" />
+            <Gallery size={18} className="text-gray-700 mr-2" />
             <Text className="text-gray-700 font-medium text-sm">Edit Foto</Text>
           </TouchableOpacity>
           
@@ -86,7 +86,7 @@ export function ReviewStep({
             onPress={onEditInfo}
             className="flex-1 flex-row items-center justify-center py-3 px-4 rounded-xl border border-gray-300 bg-white"
           >
-            <Edit2 size={18} className="text-gray-700 mr-2" />
+            <PenNewSquare size={18} className="text-gray-700 mr-2" />
             <Text className="text-gray-700 font-medium text-sm">Edit Info</Text>
           </TouchableOpacity>
         </View>
