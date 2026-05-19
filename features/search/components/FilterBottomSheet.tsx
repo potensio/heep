@@ -3,14 +3,14 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useCallback, useState } from "react";
 import { CheckSquare, CloseSquare } from "@solar-icons/react-native/Linear";
 
-interface FilterBottomSheetProps {
-  bottomSheetRef: React.RefObject<BottomSheet>;
-  onApply: (filters: FilterState) => void;
-}
-
 export interface FilterState {
   categories: string[];
   priceRange: "all" | "under100k" | "100k-500k" | "500k-1m" | "above1m";
+}
+
+interface FilterBottomSheetProps {
+  bottomSheetRef: React.RefObject<BottomSheet>;
+  onApply: (filters: FilterState) => void;
 }
 
 const categories = [
