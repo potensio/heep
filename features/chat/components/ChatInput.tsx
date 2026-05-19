@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
-import { Camera, Send } from '@solar-icons/react-native/Linear';
+import { Camera, Plain2 } from '@solar-icons/react-native/Linear';
 
 interface ChatInputProps {
   onSend: (text: string, image?: string) => void;
@@ -74,7 +74,7 @@ export function ChatInput({ onSend }: ChatInputProps) {
           }`}
           activeOpacity={0.7}
         >
-          <Send size={20} color={canSend ? '#FFFFFF' : '#9CA3AF'} />
+          <Plain2 size={20} color={canSend ? '#FFFFFF' : '#9CA3AF'} />
         </TouchableOpacity>
       </View>
     </View>
