@@ -43,8 +43,8 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
     >
       {/* Avatar */}
       <View
-        className="w-12 h-12 rounded-full items-center justify-center mr-3"
-        style={{ backgroundColor: '#155DFC' }}
+        className="w-12 h-12 items-center justify-center mr-3"
+        style={{ backgroundColor: '#155DFC', borderRadius: 24 }}
       >
         <Text className="text-white text-lg font-semibold">
           {otherUser.name.charAt(0).toUpperCase()}
