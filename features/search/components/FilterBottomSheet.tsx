@@ -37,7 +37,7 @@ export function FilterBottomSheet({
 }: FilterBottomSheetProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedPriceRange, setSelectedPriceRange] =
-    useState<FilterState["priceRange"]>"all";
+    useState<"all" | "under100k" | "100k-500k" | "500k-1m" | "above1m">("all");
 
   const handleClose = useCallback(() => {
     bottomSheetRef.current?.close();
