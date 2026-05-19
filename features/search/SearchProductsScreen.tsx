@@ -4,14 +4,16 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
+import BottomSheet from "@gorhom/bottom-sheet";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { SearchBar } from "./components/SearchBar";
-
 import { ProductCard } from "./components/ProductCard";
 import { EmptyState } from "./components/EmptyState";
+import { SortBottomSheet, type SortOption } from "./components/SortBottomSheet";
+import { FilterBottomSheet, type FilterState } from "./components/FilterBottomSheet";
 
 
 // Mock data produk
@@ -80,6 +82,9 @@ export function SearchProductsScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   
   const [filteredProducts, setFilteredProducts] = useState(mockProducts);
+  const [sortBy, setSortBy] = useState<SortOption>("relevan");
+  const sortSheetRef = useRef<BottomSheet>(null);
+  const filterSheetRef = useRef<BottomSheet>(null);
 
   // Handle search
   const handleSearch = useCallback(() => {
@@ -95,6 +100,64 @@ export function SearchProductsScreen() {
     );
     setFilteredProducts(filtered);
   }, [searchQuery]);
+
+  // Handle sort
+  const handleSort = useCallback(
+    (option: SortOption) => {
+      setSortBy(option);
+      const sorted = [...filteredProducts].sort((a, b) => {
+        switch (option) {
+          case "terbaru":
+            return parseInt(b.id) - parseInt(a.id);
+          case "termurah":
+            return a.price - b.price;
+          case "termahal":
+            return b.price - a.price;
+          default:
+            return 0;
+        }
+      });
+      setFilteredProducts(sorted);
+    },
+    [filteredProducts]
+  );
+
+  // Handle filter
+  const handleFilter = useCallback(
+    (filters: FilterState) => {
+      let filtered = [...mockProducts];
+
+      // Filter by category
+      if (filters.categories.length > 0) {
+        filtered = filtered.filter((product) =>
+          filters.categories.some((cat) =>
+            product.category.toLowerCase().includes(cat.toLowerCase())
+          )
+        );
+      }
+
+      // Filter by price range
+      switch (filters.priceRange) {
+        case "under100k":
+          filtered = filtered.filter((p) => p.price < 100000);
+          break;
+        case "100k-500k":
+          filtered = filtered.filter((p) => p.price >= 100000 && p.price <= 500000);
+          break;
+        case "500k-1m":
+          filtered = filtered.filter(
+            (p) => p.price > 500000 && p.price <= 1000000
+          );
+          break;
+        case "above1m":
+          filtered = filtered.filter((p) => p.price > 1000000);
+          break;
+      }
+
+      setFilteredProducts(filtered);
+    },
+    []
+  );
 
   // Handle product press
   const handleProductPress = useCallback(
@@ -132,14 +195,14 @@ export function SearchProductsScreen() {
         <View className="flex-row gap-3 mt-4">
           <TouchableOpacity
             className="flex-1 flex-row items-center justify-center bg-white py-3 rounded-xl border border-gray-200"
-            onPress={() => console.log("Sort pressed")}
+            onPress={() => sortSheetRef.current?.expand()}
           >
             <Text className="text-sm text-gray-700 mr-2">Sortir</Text>
             <Text className="text-xs text-gray-400">▼</Text>
           </TouchableOpacity>
           <TouchableOpacity
             className="flex-1 flex-row items-center justify-center bg-white py-3 rounded-xl border border-gray-200"
-            onPress={() => console.log("Filter pressed")}
+            onPress={() => filterSheetRef.current?.expand()}
           >
             <Text className="text-sm text-gray-700 mr-2">Filter</Text>
             <Text className="text-xs text-gray-400">⚙</Text>
@@ -182,6 +245,14 @@ export function SearchProductsScreen() {
           )}
         </View>
       </ScrollView>
+
+      {/* Bottom Sheets */}
+      <SortBottomSheet
+        bottomSheetRef={sortSheetRef}
+        selected={sortBy}
+        onSelect={handleSort}
+      />
+      <FilterBottomSheet bottomSheetRef={filterSheetRef} onApply={handleFilter} />
     </View>
   );
 }
