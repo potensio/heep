@@ -22,7 +22,7 @@ export function SettingsScreen() {
           {/* Profile & Account Section */}
           <View>
             <Text className="text-sm text-gray-500 px-4 mb-2">Akun & Profil</Text>
-            <View className="bg-white">
+            <View>
               <SettingsItem
                 icon={<User size={20} className="text-gray-700" />}
                 label="Profil"
@@ -46,7 +46,7 @@ export function SettingsScreen() {
           {/* App Settings Section */}
           <View>
             <Text className="text-sm text-gray-500 px-4 mb-2">Aplikasi</Text>
-            <View className="bg-white">
+            <View>
               <SettingsItem
                 icon={<Bell size={20} className="text-gray-700" />}
                 label="Notifikasi"
@@ -58,7 +58,7 @@ export function SettingsScreen() {
           {/* Seller Settings Section */}
           <View>
             <Text className="text-sm text-gray-500 px-4 mb-2">Toko</Text>
-            <View className="bg-white">
+            <View>
               <SettingsItem
                 icon={<Shop size={20} className="text-gray-700" />}
                 label="Toko"
