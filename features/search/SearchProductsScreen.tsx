@@ -9,7 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { SearchBar } from "./components/SearchBar";
-import { SortDropdown, type SortOption } from "./components/SortDropdown";
+
 import { ProductCard } from "./components/ProductCard";
 import { EmptyState } from "./components/EmptyState";
 
@@ -79,7 +79,6 @@ export function SearchProductsScreen() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   
-  const [sortBy, setSortBy] = useState<SortOption>("relevan");
   const [filteredProducts, setFilteredProducts] = useState(mockProducts);
 
   // Handle search
@@ -96,27 +95,6 @@ export function SearchProductsScreen() {
     );
     setFilteredProducts(filtered);
   }, [searchQuery]);
-
-  // Handle sort
-  const handleSort = useCallback(
-    (option: SortOption) => {
-      setSortBy(option);
-      const sorted = [...filteredProducts].sort((a, b) => {
-        switch (option) {
-          case "terbaru":
-            return parseInt(b.id) - parseInt(a.id);
-          case "termurah":
-            return a.price - b.price;
-          case "termahal":
-            return b.price - a.price;
-          default:
-            return 0;
-        }
-      });
-      setFilteredProducts(sorted);
-    },
-    [filteredProducts]
-  );
 
   // Handle product press
   const handleProductPress = useCallback(
@@ -153,9 +131,6 @@ export function SearchProductsScreen() {
           onSubmit={handleSearch}
         />
       </View>
-
-      {/* Sort Dropdown */}
-      <SortDropdown selected={sortBy} onSelect={handleSort} />
 
       <ScrollView
         className="flex-1"
