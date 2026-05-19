@@ -29,7 +29,7 @@ export function MessageBubble({ message, isCurrentUser }: MessageBubbleProps) {
       className={`max-w-[75%] ${isCurrentUser ? "self-end" : "self-start"}`}
     >
       <View
-        className={`px-4 py-2.5 rounded-2xl ${
+        className={`px-4 py-3 rounded-2xl ${
           isCurrentUser
             ? "bg-accent-neon rounded-br-[0px]"
             : "bg-accent-orange rounded-bl-[0px]"

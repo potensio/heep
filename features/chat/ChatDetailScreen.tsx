@@ -74,7 +74,7 @@ export function ChatDetailScreen() {
       }
 
       elements.push(
-        <View key={message.id} className="mb-2">
+        <View key={message.id} className="mb-3">
           <MessageBubble
             message={message}
             isCurrentUser={message.senderId === CURRENT_USER_ID}
