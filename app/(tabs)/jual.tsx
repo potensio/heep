@@ -1,14 +1,7 @@
-import { useEffect } from "react";
-import { View } from "react-native";
-import { useRouter } from "expo-router";
+// This file is required for the tab to exist in the navigator
+// But the actual UI is rendered via tabBarButton in _layout.tsx
+// The tabBarButton triggers router.push("/sell") to open modal
 
-export default function JualTab() {
-  const router = useRouter();
-
-  useEffect(() => {
-    // Redirect ke sell stack (tanpa tab bar)
-    router.replace("/sell");
-  }, []);
-
-  return <View />;
+export default function JualPlaceholder() {
+  return null;
 }

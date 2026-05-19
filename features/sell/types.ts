@@ -43,15 +43,25 @@ export const CATEGORY_OPTIONS: CategoryOption[] = [
   { value: 'lainnya', label: 'Lainnya', icon: 'Widget' },
 ];
 
+export type ProductCondition = 'Baru' | 'Masih Bagus' | 'Masih Layak' | 'Apa adanya';
+
+export const CONDITION_OPTIONS: ProductCondition[] = [
+  'Baru',
+  'Masih Bagus',
+  'Masih Layak',
+  'Apa adanya'
+];
+
 export interface SellFormData {
   photos: string[];
   category: ProductCategory | '';
+  condition: ProductCondition | '';
   name: string;
   price: number;
   description: string;
 }
 
-export type WizardStep = 1 | 2 | 3;
+export type WizardStep = 1 | 2 | 3 | 4;
 
 export interface SellWizardState {
   currentStep: WizardStep;
@@ -74,6 +84,13 @@ export interface PhotoUploadStepProps {
   isDevMode?: boolean;
 }
 
+export interface CategoryStepProps {
+  selectedCategory: ProductCategory | '';
+  onCategorySelect: (category: ProductCategory) => void;
+  onNext: () => void;
+  onBack: () => void;
+}
+
 export interface ProductInfoStepProps {
   formData: SellFormData;
   onFormChange: (data: Partial<SellFormData>) => void;
@@ -94,6 +111,5 @@ export interface ReviewStepProps {
 export interface SuccessScreenProps {
   productId: string;
   onViewProduct: () => void;
-  onSellAgain: () => void;
   onBackToHome?: () => void;
 }

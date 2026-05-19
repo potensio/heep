@@ -17,14 +17,15 @@ export function StepIndicator({ currentStep, stepLabels }: StepIndicatorProps) {
         const isLast = index === stepLabels.length - 1;
 
         return (
-          <View key={stepNumber} className="flex-row items-center">
+          <View key={stepNumber} className="flex-row items-start">
+            {/* Circle with Label */}
             <View className="items-center">
               <View
                 className={`w-8 h-8 rounded-full items-center justify-center ${
                   isActive
-                    ? 'bg-[#9AE600]'
+                    ? 'bg-primary'
                     : isCompleted
-                    ? 'bg-[#9AE600]'
+                    ? 'bg-primary'
                     : 'bg-gray-200'
                 }`}
               >
@@ -38,19 +39,22 @@ export function StepIndicator({ currentStep, stepLabels }: StepIndicatorProps) {
               </View>
               <Text
                 className={`text-xs mt-1 ${
-                  isActive ? 'text-[#7CCF00] font-medium' : 'text-gray-400'
+                  isActive ? 'text-primary font-medium' : 'text-gray-400'
                 }`}
               >
                 {label}
               </Text>
             </View>
 
+            {/* Connector Line - aligned to center of circle */}
             {!isLast && (
-              <View
-                className={`w-12 h-0.5 mx-2 ${
-                  isCompleted ? 'bg-[#9AE600]' : 'bg-gray-200'
-                }`}
-              />
+              <View className="h-8 justify-center">
+                <View
+                  className={`w-12 h-0.5 mx-2 ${
+                    isCompleted ? 'bg-primary' : 'bg-gray-200'
+                  }`}
+                />
+              </View>
             )}
           </View>
         );

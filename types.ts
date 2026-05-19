@@ -17,6 +17,10 @@ export interface OrderSummary {
   totalTransactions: number;
 }
 
+export interface StoreStats {
+  productViews: number;
+}
+
 // Navigation types
 export type TabScreen = 'index' | 'pesanan' | 'jual' | 'chat' | 'akun';
 

@@ -26,7 +26,7 @@ export function ReviewStep({
   const insets = useSafeAreaInsets();
 
   return (
-    <View className="flex-1 bg-[#F9F2E6]">
+    <View className="flex-1 bg-background">
       <ScrollView 
         className="flex-1 px-5 pt-4"
         contentContainerStyle={{ paddingBottom: 140 }}
@@ -61,7 +61,7 @@ export function ReviewStep({
           <View className="p-4">
             {/* Category Badge */}
             {formData.category && (
-              <View className="self-start bg-[#9AE600]/20 px-3 py-1 rounded-full mb-2">
+              <View className="self-start bg-primary/20 px-3 py-1 rounded-full mb-2">
                 <Text className="text-xs font-medium text-gray-800">
                   {getCategoryLabel(formData.category)}
                 </Text>
@@ -71,7 +71,7 @@ export function ReviewStep({
             <Text className="text-lg font-semibold text-gray-900 mb-1" numberOfLines={2}>
               {formData.name}
             </Text>
-            <Text className="text-xl font-bold text-[#7CCF00] mb-3">
+            <Text className="text-xl font-bold text-primary mb-3">
               {formatRupiah(formData.price)}
             </Text>
             
@@ -130,7 +130,7 @@ export function ReviewStep({
             onPress={onPublish}
             disabled={isSubmitting}
             className={`flex-1 flex-row items-center justify-center py-4 rounded-xl ${
-              isSubmitting ? 'bg-gray-300' : 'bg-[#9AE600]'
+              isSubmitting ? 'bg-gray-300' : 'bg-primary'
             }`}
           >
             {isSubmitting ? (
@@ -142,10 +142,10 @@ export function ReviewStep({
               </>
             ) : (
               <>
-                <Text className="font-semibold text-base mr-2 text-gray-900">
+                <Text className="font-semibold text-base mr-2 text-white">
                   Publish Sekarang
                 </Text>
-                <ArrowRight size={20} className="text-gray-900" />
+                <ArrowRight size={20} color="#FFFFFF" />
               </>
             )}
           </TouchableOpacity>

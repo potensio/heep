@@ -1,14 +1,15 @@
-import { View, TouchableOpacity, Text } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CloseCircle } from '@solar-icons/react-native/Linear';
 import { useSellForm } from '../hooks/useSellForm';
 import { StepIndicator } from './StepIndicator';
 import { PhotoUploadStep } from './PhotoUploadStep';
+import { CategoryStep } from './CategoryStep';
 import { ProductInfoStep } from './ProductInfoStep';
 import { ReviewStep } from './ReviewStep';
 import { SuccessScreen } from './SuccessScreen';
-import type { SellFormData } from '../types';
+import type { SellFormData, ProductCategory } from '../types';
 
 interface SellWizardProps {
   onPublish: (formData: SellFormData) => Promise<string>;
@@ -57,19 +58,19 @@ export function SellWizard({ onPublish, onViewProduct, onCancel, isDevMode = fal
       <SuccessScreen
         productId={publishedProductId}
         onViewProduct={() => onViewProduct(publishedProductId)}
-        onSellAgain={handleSellAgain}
+
         onBackToHome={onCancel}
       />
     );
   }
 
   return (
-    <View className="flex-1 bg-[#F9F2E6]" style={{ paddingTop: insets.top }}>
+    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       {/* Header with Step Indicator and Close Button */}
       <View className="relative">
         <StepIndicator 
           currentStep={currentStep} 
-          stepLabels={['Foto', 'Informasi', 'Review']} 
+          stepLabels={['Foto', 'Kategori', 'Info', 'Review']} 
         />
         
         {/* Close Button */}
@@ -93,6 +94,15 @@ export function SellWizard({ onPublish, onViewProduct, onCancel, isDevMode = fal
       )}
 
       {currentStep === 2 && (
+        <CategoryStep
+          selectedCategory={formData.category}
+          onCategorySelect={(category: ProductCategory) => updateFormData({ category })}
+          onNext={nextStep}
+          onBack={prevStep}
+        />
+      )}
+
+      {currentStep === 3 && (
         <ProductInfoStep
           formData={formData}
           onFormChange={updateFormData}
@@ -102,12 +112,12 @@ export function SellWizard({ onPublish, onViewProduct, onCancel, isDevMode = fal
         />
       )}
 
-      {currentStep === 3 && (
+      {currentStep === 4 && (
         <ReviewStep
           formData={formData}
           isSubmitting={isSubmitting}
           onEditPhotos={() => goToStep(1)}
-          onEditInfo={() => goToStep(2)}
+          onEditInfo={() => goToStep(3)}
           onPublish={handlePublish}
           onBack={prevStep}
         />

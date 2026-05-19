@@ -35,7 +35,7 @@ export default function ProductDetailScreen() {
   // In real app, fetch product data using the id
   
   return (
-    <View className="flex-1 bg-[#F9F2E6]">
+    <View className="flex-1 bg-background">
       {/* Header */}
       <View 
         className="flex-row items-center justify-between px-4 py-3 bg-white/80 backdrop-blur-sm absolute top-0 left-0 right-0 z-10"
@@ -71,7 +71,7 @@ export default function ProductDetailScreen() {
         {/* Product Info */}
         <View className="px-5 pt-5 pb-8">
           {/* Price */}
-          <Text className="text-2xl font-bold text-[#7CCF00] mb-2">
+          <Text className="text-2xl font-bold text-primary mb-2">
             {formatRupiah(150000)}
           </Text>
 
@@ -82,7 +82,7 @@ export default function ProductDetailScreen() {
 
           {/* Seller Info */}
           <View className="flex-row items-center py-4 border-t border-b border-gray-200 mb-4">
-            <View className="w-12 h-12 rounded-full bg-[#9AE600] items-center justify-center">
+            <View className="w-12 h-12 rounded-full bg-accent items-center justify-center">
               <Text className="text-lg font-semibold text-gray-900">
                 S
               </Text>
@@ -91,8 +91,8 @@ export default function ProductDetailScreen() {
               <Text className="font-semibold text-gray-900">Nama Penjual</Text>
               <Text className="text-sm text-gray-500">Aktif 2 jam lalu</Text>
             </View>
-            <TouchableOpacity className="px-4 py-2 rounded-full border border-[#9AE600]">
-              <Text className="text-sm font-medium text-[#7CCF00]">Follow</Text>
+            <TouchableOpacity className="px-4 py-2 rounded-full border border-accent">
+              <Text className="text-sm font-medium text-primary">Follow</Text>
             </TouchableOpacity>
           </View>
 
@@ -121,7 +121,7 @@ export default function ProductDetailScreen() {
           <ChatRound size={20} color="#374151" />
         </TouchableOpacity>
         
-        <TouchableOpacity className="flex-1 bg-[#9AE600] rounded-xl items-center justify-center py-3">
+        <TouchableOpacity className="flex-1 bg-accent rounded-xl items-center justify-center py-3">
           <Text className="font-semibold text-gray-900 text-base">
             Beli Sekarang
           </Text>

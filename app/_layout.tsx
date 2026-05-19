@@ -8,7 +8,14 @@ import {
   PlusJakartaSans_600SemiBold,
   PlusJakartaSans_700Bold,
 } from "@expo-google-fonts/plus-jakarta-sans";
+import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
 import "../global.css";
+
+// Disable Reanimated strict mode warnings
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false,
+});
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -31,7 +38,16 @@ export default function RootLayout() {
           name="sell" 
           options={{
             headerShown: false,
-            presentation: 'fullScreenModal',
+            presentation: 'modal',
+            animation: 'slide_from_bottom',
+          }} 
+        />
+        <Stack.Screen 
+          name="product" 
+          options={{
+            headerShown: false,
+            presentation: 'card',
+            animation: 'slide_from_right',
           }} 
         />
       </Stack>

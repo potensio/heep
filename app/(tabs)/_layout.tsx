@@ -1,5 +1,5 @@
-import { Tabs } from "expo-router";
-import { View, Text } from "react-native";
+import { Tabs, useRouter } from "expo-router";
+import { View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 // Linear style (outline/regular)
 import {
@@ -13,13 +13,13 @@ import {
 import {
   Home as HomeBold,
   ClipboardList as ClipboardListBold,
-  AddCircle as AddCircleBold,
   ChatLine as ChatLineBold,
   User as UserBold,
 } from "@solar-icons/react-native/Bold";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
     <Tabs
@@ -71,10 +71,14 @@ export default function TabLayout() {
         name="jual"
         options={{
           title: "Jual",
-          tabBarIcon: () => (
-            <View className="items-center -mt-6">
+          tabBarButton: () => (
+            <TouchableOpacity
+              onPress={() => router.push("/sell")}
+              className="items-center -mt-6"
+              activeOpacity={0.8}
+            >
               <View
-                className="w-14 h-14 bg-[#155DFC] rounded-full items-center justify-center"
+                className="w-14 h-14 bg-primary rounded-full items-center justify-center"
                 style={{
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 4 },
@@ -88,9 +92,8 @@ export default function TabLayout() {
               <Text className="text-[12px] font-medium text-black mt-1">
                 Jual
               </Text>
-            </View>
+            </TouchableOpacity>
           ),
-          tabBarLabel: () => null,
         }}
       />
       <Tabs.Screen

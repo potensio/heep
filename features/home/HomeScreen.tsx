@@ -1,18 +1,11 @@
 import { Text, View, ScrollView, TouchableOpacity } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { SummaryCard } from "./components/SummaryCard";
 import { ActionGrid } from "./components/ActionGrid";
 import { BannerCarousel } from "./components/BannerCarousel";
 import { OrderCard } from "./components/OrderCard";
-import type { Order, OrderSummary } from "@/types";
+import type { Order } from "@/types";
 import { Bell } from "@solar-icons/react-native/Linear";
-
-// Mock data - will come from API/state later
-const mockSummary: OrderSummary = {
-  totalRevenue: 2450000,
-  totalTransactions: 1234,
-};
 
 const mockOrder: Order = {
   id: "1",
@@ -28,7 +21,7 @@ export function HomeScreen() {
   const insets = useSafeAreaInsets();
 
   return (
-    <View className="flex-1 py-8 bg-[#F9F2E6]">
+    <View className="flex-1 py-8 bg-background">
       <StatusBar style="dark" />
       <ScrollView
         className="flex-1"
@@ -51,14 +44,11 @@ export function HomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {/* Summary Card */}
-          <SummaryCard summary={mockSummary} />
+          {/* Banner/Carousel Section */}
+          <BannerCarousel />
 
           {/* Action Buttons */}
           <ActionGrid />
-
-          {/* Banner/Carousel Section */}
-          <BannerCarousel />
 
           {/* New Orders Section */}
           <View>

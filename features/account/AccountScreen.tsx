@@ -6,7 +6,7 @@ export function AccountScreen() {
 
   return (
     <View
-      className="flex-1 items-center justify-center bg-[#F9F2E6]"
+      className="flex-1 items-center justify-center bg-background"
       style={{ paddingTop: insets.top }}
     >
       <Text className="text-xl font-bold text-gray-800">Akun</Text>

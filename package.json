@@ -16,6 +16,7 @@
     "@expo-google-fonts/fjalla-one": "^0.4.1",
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@expo/vector-icons": "^15.0.3",
+    "@react-native-picker/picker": "^2.11.4",
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
     "@solar-icons/react-native": "^1.1.0",
@@ -42,6 +43,7 @@
     "react-native-worklets": "0.5.1"
   },
   "devDependencies": {
+    "@react-native-community/cli-plugin-metro": "^12.3.6",
     "@types/react": "~19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",

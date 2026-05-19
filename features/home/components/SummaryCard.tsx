@@ -1,47 +1,63 @@
 import { Text, View } from "react-native";
-import type { OrderSummary } from "@/types";
+import { Eye } from "@solar-icons/react-native/Linear";
+import type { StoreStats } from "@/types";
 
 interface SummaryCardProps {
-  summary: OrderSummary;
+  stats: StoreStats;
 }
 
-export function SummaryCard({ summary }: SummaryCardProps) {
-  // Format currency
-  const formattedRevenue = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(summary.totalRevenue);
+export function SummaryCard({ stats }: SummaryCardProps) {
+  // Mock view data for last 7 days
+  const viewData = [45, 62, 38, 75, 55, 89, stats.productViews % 100 || 92];
+  const maxValue = Math.max(...viewData);
 
   return (
-    <View
-      className="rounded-2xl p-[17px]"
-      style={{
-        borderWidth: 1,
-        borderColor: "rgba(0, 0, 0, 0.16)",
-      }}
-    >
-      {/* Header with title and indicator */}
-      <View className="flex-row justify-between items-center mb-2">
-        <Text className="text-sm text-black leading-5">
-          Ringkasan Toko
-        </Text>
-        <View className="w-4 h-4 bg-[#FB2C36] rounded-full" />
+    <View>
+      {/* Header with Icon */}
+      <View className="flex-row items-center gap-2 mb-3">
+        <View
+          className="w-8 h-8 rounded-full items-center justify-center"
+          style={{ backgroundColor: "#3B82F615" }}
+        >
+          <Eye size={18} color="#3B82F6" />
+        </View>
+        <View>
+          <Text
+            className="text-2xl text-[#0A0A0A]"
+            style={{ fontWeight: "700" }}
+          >
+            {stats.productViews.toLocaleString('id-ID')}
+          </Text>
+          <Text className="text-xs text-gray-500 leading-4">
+            Total Dilihat
+          </Text>
+        </View>
       </View>
 
-      {/* Revenue Amount */}
-      <Text
-        className="text-[32px] text-[#0A0A0A] leading-8 mb-2"
-        style={{ fontWeight: "700" }}
-      >
-        {formattedRevenue}
-      </Text>
+      {/* Mini Bar Chart */}
+      <View className="flex-row items-end justify-between h-10 gap-1">
+        {viewData.map((value, index) => {
+          const heightPercent = (value / maxValue) * 100;
+          const isLast = index === viewData.length - 1;
 
-      {/* Transaction Count */}
-      <Text className="text-xs text-black leading-4">
-        Dari {summary.totalTransactions.toLocaleString('id-ID')} transaksi
-      </Text>
+          return (
+            <View
+              key={index}
+              className="flex-1 rounded-t"
+              style={{
+                height: `${Math.max(heightPercent, 15)}%`,
+                backgroundColor: isLast ? "#3B82F6" : "#E5E7EB",
+              }}
+            />
+          );
+        })}
+      </View>
+
+      {/* X-axis labels */}
+      <View className="flex-row justify-between mt-2">
+        <Text className="text-[10px] text-gray-400">7 hari lalu</Text>
+        <Text className="text-[10px] text-gray-400">Hari ini</Text>
+      </View>
     </View>
   );
 }

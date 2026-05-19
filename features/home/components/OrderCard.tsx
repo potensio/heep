@@ -21,7 +21,7 @@ export function OrderCard({ order }: OrderCardProps) {
   return (
     <View className="flex-row items-center gap-6">
       {/* Product Image Placeholder */}
-      <View className="size-20 bg-[#d8d8d8] rounded-2xl" />
+      <View className="size-20 bg-gray-300 rounded-2xl" />
 
       {/* Order Details */}
       <View className="flex-1 gap-1.5">
