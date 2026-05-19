@@ -122,9 +122,6 @@ export function SearchProductsScreen() {
         className="bg-background px-5 pb-2"
         style={{ paddingTop: (insets.top > 0 ? insets.top : 24) + 16 }}
       >
-        <Text className="text-2xl font-heading font-medium mb-4">
-          Cari Produk
-        </Text>
         <SearchBar
           value={searchQuery}
           onChangeText={setSearchQuery}
