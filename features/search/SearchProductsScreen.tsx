@@ -9,7 +9,6 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { SearchBar } from "./components/SearchBar";
-import { SearchHistory } from "./components/SearchHistory";
 import { SortDropdown, type SortOption } from "./components/SortDropdown";
 import { ProductCard } from "./components/ProductCard";
 import { EmptyState } from "./components/EmptyState";
@@ -89,11 +88,7 @@ export function SearchProductsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchHistory, setSearchHistory] = useState<string[]>([
-    "Sepatu running",
-    "Tas kulit",
-    "Jam tangan",
-  ]);
+  
   const [sortBy, setSortBy] = useState<SortOption>("relevan");
   const [filteredProducts, setFilteredProducts] = useState(mockProducts);
 
@@ -104,12 +99,6 @@ export function SearchProductsScreen() {
       setFilteredProducts(mockProducts);
       return;
     }
-
-    // Add to history (max 3)
-    setSearchHistory((prev) => {
-      const filtered = prev.filter((item) => item !== query);
-      return [query, ...filtered].slice(0, 3);
-    });
 
     // Filter products
     const filtered = mockProducts.filter((product) =>
@@ -139,16 +128,6 @@ export function SearchProductsScreen() {
     [filteredProducts]
   );
 
-  // Handle history delete
-  const handleDeleteHistory = useCallback((item: string) => {
-    setSearchHistory((prev) => prev.filter((h) => h !== item));
-  }, []);
-
-  // Handle clear all history
-  const handleClearAllHistory = useCallback(() => {
-    setSearchHistory([]);
-  }, []);
-
   // Handle category select
   const handleCategorySelect = useCallback((category: string) => {
     setSearchQuery(category);
@@ -174,11 +153,6 @@ export function SearchProductsScreen() {
       product.name.toLowerCase().includes(suggestion.toLowerCase())
     );
     setFilteredProducts(filtered);
-    // Add to history
-    setSearchHistory((prev) => {
-      const filtered = prev.filter((item) => item !== suggestion);
-      return [suggestion, ...filtered].slice(0, 3);
-    });
   }, []);
 
   return (
@@ -208,16 +182,6 @@ export function SearchProductsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
       >
-        {/* Search History */}
-        {!searchQuery && (
-          <SearchHistory
-            history={searchHistory}
-            onSelect={setSearchQuery}
-            onDelete={handleDeleteHistory}
-            onClearAll={handleClearAllHistory}
-          />
-        )}
-
         {/* Popular Categories */}
         {!searchQuery && (
           <View className="px-5 mt-6">
