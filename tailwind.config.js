@@ -12,11 +12,21 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: "#155DFC",
+        primary: {
+          DEFAULT: "#155DFC",
+          50: "#EFF6FF",
+          100: "#DBEAFE",
+          500: "#155DFC",
+          600: "#1E4AF6",
+          700: "#1D3ED1",
+        },
         accent: {
-          DEFAULT: "#cfff04",
-          light: "#cfff04",
-          dark: "#7CCF00",
+          neon: "#c5e302",
+          neonLight: "#BBF451",
+          neonDark: "#7CCF00",
+          red: "#FB2C36",
+          orange: "#F54802",
+          yellow: "#F9F906",
         },
         danger: "#FB2C36",
         orange: "#F54802",
