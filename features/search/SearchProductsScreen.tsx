@@ -12,7 +12,7 @@ import { SearchBar } from "./components/SearchBar";
 import { SortDropdown, type SortOption } from "./components/SortDropdown";
 import { ProductCard } from "./components/ProductCard";
 import { EmptyState } from "./components/EmptyState";
-import { Fire } from "@solar-icons/react-native/Linear";
+
 
 // Mock data produk
 const mockProducts = [
@@ -64,16 +64,6 @@ const mockProducts = [
     store: "Cap Store",
     category: "Aksesoris",
   },
-];
-
-// Kategori populer
-const popularCategories = [
-  "Fashion Pria",
-  "Fashion Wanita",
-  "Elektronik",
-  "Aksesoris",
-  "Sepatu",
-  "Tas",
 ];
 
 // Saran pencarian (static)
@@ -128,16 +118,6 @@ export function SearchProductsScreen() {
     [filteredProducts]
   );
 
-  // Handle category select
-  const handleCategorySelect = useCallback((category: string) => {
-    setSearchQuery(category);
-    const filtered = mockProducts.filter((product) =>
-      product.category.toLowerCase().includes(category.toLowerCase()) ||
-      product.name.toLowerCase().includes(category.toLowerCase())
-    );
-    setFilteredProducts(filtered);
-  }, []);
-
   // Handle product press
   const handleProductPress = useCallback(
     (productId: string) => {
@@ -182,29 +162,6 @@ export function SearchProductsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
       >
-        {/* Popular Categories */}
-        {!searchQuery && (
-          <View className="px-5 mt-6">
-            <View className="flex-row items-center mb-3">
-              <Fire size={16} color="#F97316" />
-              <Text className="text-sm font-medium text-gray-700 ml-2">
-                Kategori Populer
-              </Text>
-            </View>
-            <View className="flex-row flex-wrap gap-2">
-              {popularCategories.map((category) => (
-                <TouchableOpacity
-                  key={category}
-                  onPress={() => handleCategorySelect(category)}
-                  className="bg-white px-4 py-2 rounded-full border border-gray-200"
-                >
-                  <Text className="text-sm text-gray-700">{category}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
-
         {/* Product Grid */}
         <View className="px-5 mt-6">
           {searchQuery && (
