@@ -38,7 +38,7 @@ export function ChatInput({ onSend }: ChatInputProps) {
 
   return (
     <View
-      className="bg-white border-t border-neutral-200"
+      className="bg-background border-t border-neutral-200"
       style={{ paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }}
     >
       {selectedImage && (
