@@ -42,8 +42,8 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
       activeOpacity={0.7}
     >
       {/* Avatar */}
-      <View className="w-12 h-12 bg-primary-100 rounded-full items-center justify-center mr-3">
-        <Text className="text-primary-500 text-lg font-semibold">
+      <View className="w-12 h-12 bg-primary rounded-full items-center justify-center mr-3">
+        <Text className="text-white text-lg font-semibold">
           {otherUser.name.charAt(0).toUpperCase()}
         </Text>
       </View>
