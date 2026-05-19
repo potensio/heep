@@ -1,5 +1,5 @@
-import { AccountScreen } from "@/features/account/AccountScreen";
+import { SettingsScreen } from "@/features/settings/SettingsScreen";
 
 export default function AccountTab() {
-  return <AccountScreen />;
+  return <SettingsScreen />;
 }
