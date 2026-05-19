@@ -6,13 +6,13 @@ import {
   Home,
   ChatLine,
   User,
-  ClipboardList,
+  Magnifer,
   AddSquare,
 } from "@solar-icons/react-native/Linear";
 // Bold style (filled)
 import {
   Home as HomeBold,
-  ClipboardList as ClipboardListBold,
+  Magnifer as MagniferBold,
   ChatLine as ChatLineBold,
   User as UserBold,
 } from "@solar-icons/react-native/Bold";
@@ -56,14 +56,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="pesanan"
+        name="cari"
         options={{
-          title: "Pesanan",
+          title: "Cari",
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <ClipboardListBold color="#101828" size={24} />
+              <MagniferBold color="#101828" size={24} />
             ) : (
-              <ClipboardList color="#666666" size={24} />
+              <Magnifer color="#666666" size={24} />
             ),
         }}
       />

@@ -35,12 +35,34 @@ yarn-error.*
 # IDE
 .kiro
 .vscode
+.idea/
+*.swp
+*.swo
+*~
 
 # local env files
 .env*.local
 
 # typescript
 *.tsbuildinfo
+
+# logs
+*.log
+logs/
+
+# testing
+coverage/
+.nyc_output/
+
+# build outputs
+build/
+out/
+.next/
+
+# misc
+.cache/
+temp/
+tmp/
 
 app-example
 
