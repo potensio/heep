@@ -27,11 +27,11 @@ export function MessageBubble({ message, isCurrentUser }: MessageBubbleProps) {
       <View
         className={`px-4 py-2.5 rounded-2xl ${
           isCurrentUser
-            ? 'bg-primary-500 rounded-br-sm'
-            : 'bg-neutral-100 rounded-bl-sm'
+            ? 'bg-accent-neon rounded-br-sm'
+            : 'bg-accent-orange rounded-bl-sm'
         }`}
       >
-        <Text className={`text-base ${isCurrentUser ? 'text-white' : 'text-neutral-900'}`}>
+        <Text className={`text-base ${isCurrentUser ? 'text-neutral-900' : 'text-white'}`}>
           {message.text}
         </Text>
       </View>
