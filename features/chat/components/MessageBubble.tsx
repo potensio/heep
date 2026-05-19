@@ -1,0 +1,40 @@
+import { View, Text, Image } from 'react-native';
+import type { Message } from '../types';
+
+interface MessageBubbleProps {
+  message: Message;
+  isCurrentUser: boolean;
+}
+
+export function MessageBubble({ message, isCurrentUser }: MessageBubbleProps) {
+  if (message.image) {
+    return (
+      <View className={`max-w-[70%] ${isCurrentUser ? 'self-end' : 'self-start'}`}>
+        <Image
+          source={{ uri: message.image }}
+          className="w-48 h-36 rounded-2xl"
+          resizeMode="cover"
+        />
+        {message.text && (
+          <Text className="text-sm mt-1 text-neutral-800">{message.text}</Text>
+        )}
+      </View>
+    );
+  }
+
+  return (
+    <View className={`max-w-[75%] ${isCurrentUser ? 'self-end' : 'self-start'}`}>
+      <View
+        className={`px-4 py-2.5 rounded-2xl ${
+          isCurrentUser
+            ? 'bg-primary-500 rounded-br-sm'
+            : 'bg-neutral-100 rounded-bl-sm'
+        }`}
+      >
+        <Text className={`text-base ${isCurrentUser ? 'text-white' : 'text-neutral-900'}`}>
+          {message.text}
+        </Text>
+      </View>
+    </View>
+  );
+}
