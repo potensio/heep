@@ -13,7 +13,8 @@ import { SearchBar } from "./components/SearchBar";
 import { ProductCard } from "./components/ProductCard";
 import { EmptyState } from "./components/EmptyState";
 import { SortBottomSheet, type SortOption } from "./components/SortBottomSheet";
-import { FilterBottomSheet, type FilterState } from "./components/FilterBottomSheet";
+import { FilterBottomSheet } from "./components/FilterBottomSheet";
+import type { FilterState } from "./components/FilterBottomSheet";
 
 
 // Mock data produk
