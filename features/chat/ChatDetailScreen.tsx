@@ -1,14 +1,18 @@
-import { useState, useRef, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { ArrowLeft } from '@solar-icons/react-native/Linear';
-import { ProductContextCard } from './components/ProductContextCard';
-import { MessageBubble } from './components/MessageBubble';
-import { DateSeparator } from './components/DateSeparator';
-import { ChatInput } from './components/ChatInput';
-import { mockMessagesByConversation, mockConversations, CURRENT_USER_ID } from './mockData';
-import type { Message } from './types';
+import { useState, useRef, useEffect } from "react";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { ArrowLeft } from "@solar-icons/react-native/Linear";
+import { ProductContextCard } from "./components/ProductContextCard";
+import { MessageBubble } from "./components/MessageBubble";
+import { DateSeparator } from "./components/DateSeparator";
+import { ChatInput } from "./components/ChatInput";
+import {
+  mockMessagesByConversation,
+  mockConversations,
+  CURRENT_USER_ID,
+} from "./mockData";
+import type { Message } from "./types";
 
 export function ChatDetailScreen() {
   const insets = useSafeAreaInsets();
@@ -16,9 +20,9 @@ export function ChatDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const conversation = mockConversations.find(c => c.id === id);
+  const conversation = mockConversations.find((c) => c.id === id);
   const [messages, setMessages] = useState<Message[]>(
-    id ? mockMessagesByConversation[id] || [] : []
+    id ? mockMessagesByConversation[id] || [] : [],
   );
 
   useEffect(() => {
@@ -47,7 +51,7 @@ export function ChatDetailScreen() {
       timestamp: new Date(),
       isRead: true,
     };
-    setMessages(prev => [...prev, newMessage]);
+    setMessages((prev) => [...prev, newMessage]);
   };
 
   const renderMessagesWithSeparators = () => {
@@ -59,12 +63,12 @@ export function ChatDetailScreen() {
       const messageDateOnly = new Date(
         messageDate.getFullYear(),
         messageDate.getMonth(),
-        messageDate.getDate()
+        messageDate.getDate(),
       );
 
       if (!lastDate || messageDateOnly.getTime() !== lastDate.getTime()) {
         elements.push(
-          <DateSeparator key={`sep-${message.id}`} date={messageDate} />
+          <DateSeparator key={`sep-${message.id}`} date={messageDate} />,
         );
         lastDate = messageDateOnly;
       }
@@ -75,7 +79,7 @@ export function ChatDetailScreen() {
             message={message}
             isCurrentUser={message.senderId === CURRENT_USER_ID}
           />
-        </View>
+        </View>,
       );
     });
 
@@ -85,7 +89,7 @@ export function ChatDetailScreen() {
   return (
     <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
       {/* Header */}
-      <View className="bg-white px-4 py-3 flex-row items-center border-b border-neutral-200">
+      <View className="bg-background px-4 py-3 flex-row items-center border-b border-neutral-200">
         <TouchableOpacity
           onPress={() => router.back()}
           className="mr-3 p-1"

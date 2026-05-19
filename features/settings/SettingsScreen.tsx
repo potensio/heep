@@ -20,19 +20,21 @@ export function SettingsScreen() {
           <Text className="text-2xl font-heading font-medium">Pengaturan</Text>
 
           {/* Profile & Account Section */}
-          <View className="gap-2">
-            <Text className="text-sm text-gray-500 px-1 mb-1">Akun & Profil</Text>
-            <View className="gap-2">
+          <View>
+            <Text className="text-sm text-gray-500 px-4 mb-2">Akun & Profil</Text>
+            <View className="bg-white">
               <SettingsItem
                 icon={<User size={20} className="text-gray-700" />}
                 label="Profil"
                 onPress={() => router.push("/settings/profil")}
               />
+              <View className="h-px bg-gray-200 ml-16" />
               <SettingsItem
                 icon={<Phone size={20} className="text-gray-700" />}
                 label="Nomor Handphone"
                 onPress={() => router.push("/settings/handphone")}
               />
+              <View className="h-px bg-gray-200 ml-16" />
               <SettingsItem
                 icon={<Shield size={20} className="text-gray-700" />}
                 label="Keamanan"
@@ -42,9 +44,9 @@ export function SettingsScreen() {
           </View>
 
           {/* App Settings Section */}
-          <View className="gap-2">
-            <Text className="text-sm text-gray-500 px-1 mb-1">Aplikasi</Text>
-            <View className="gap-2">
+          <View>
+            <Text className="text-sm text-gray-500 px-4 mb-2">Aplikasi</Text>
+            <View className="bg-white">
               <SettingsItem
                 icon={<Bell size={20} className="text-gray-700" />}
                 label="Notifikasi"
@@ -54,9 +56,9 @@ export function SettingsScreen() {
           </View>
 
           {/* Seller Settings Section */}
-          <View className="gap-2">
-            <Text className="text-sm text-gray-500 px-1 mb-1">Toko</Text>
-            <View className="gap-2">
+          <View>
+            <Text className="text-sm text-gray-500 px-4 mb-2">Toko</Text>
+            <View className="bg-white">
               <SettingsItem
                 icon={<Shop size={20} className="text-gray-700" />}
                 label="Toko"

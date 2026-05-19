@@ -1,5 +1,5 @@
-import { View, Text, Image } from 'react-native';
-import type { Message } from '../types';
+import { View, Text, Image } from "react-native";
+import type { Message } from "../types";
 
 interface MessageBubbleProps {
   message: Message;
@@ -9,7 +9,9 @@ interface MessageBubbleProps {
 export function MessageBubble({ message, isCurrentUser }: MessageBubbleProps) {
   if (message.image) {
     return (
-      <View className={`max-w-[70%] ${isCurrentUser ? 'self-end' : 'self-start'}`}>
+      <View
+        className={`max-w-[70%] ${isCurrentUser ? "self-end" : "self-start"}`}
+      >
         <Image
           source={{ uri: message.image }}
           className="w-48 h-36 rounded-2xl"
@@ -23,15 +25,19 @@ export function MessageBubble({ message, isCurrentUser }: MessageBubbleProps) {
   }
 
   return (
-    <View className={`max-w-[75%] ${isCurrentUser ? 'self-end' : 'self-start'}`}>
+    <View
+      className={`max-w-[75%] ${isCurrentUser ? "self-end" : "self-start"}`}
+    >
       <View
         className={`px-4 py-2.5 rounded-2xl ${
           isCurrentUser
-            ? 'bg-accent-neon rounded-br-sm'
-            : 'bg-accent-orange rounded-bl-sm'
+            ? "bg-accent-neon rounded-br-[0px]"
+            : "bg-accent-orange rounded-bl-[0px]"
         }`}
       >
-        <Text className={`text-base ${isCurrentUser ? 'text-neutral-900' : 'text-white'}`}>
+        <Text
+          className={`text-base ${isCurrentUser ? "text-neutral-900" : "text-white"}`}
+        >
           {message.text}
         </Text>
       </View>
