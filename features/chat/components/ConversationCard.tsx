@@ -38,7 +38,7 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
   return (
     <TouchableOpacity
       onPress={() => onPress(conversation)}
-      className="bg-white mx-4 mb-2 p-3 rounded-xl flex-row items-center"
+      className="flex-row items-center px-4 py-3 border-b border-neutral-100"
       activeOpacity={0.7}
     >
       {/* Avatar */}
@@ -72,7 +72,7 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
       <View className="relative">
         <Image
           source={{ uri: product.image }}
-          className="w-10 h-10 rounded-lg"
+          className="w-10 h-10 rounded-full"
           resizeMode="cover"
         />
         {unreadCount > 0 && (
