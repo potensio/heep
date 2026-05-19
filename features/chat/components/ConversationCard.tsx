@@ -41,18 +41,58 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
       className="flex-row items-center px-4 py-3 border-b border-neutral-100"
       activeOpacity={0.7}
     >
-      {/* Avatar */}
-      <View
-        className="w-12 h-12 items-center justify-center mr-3"
-        style={{ backgroundColor: '#155DFC', borderRadius: 24 }}
-      >
-        <Text className="text-white text-lg font-semibold">
-          {otherUser.name.charAt(0).toUpperCase()}
-        </Text>
+      {/* Avatar & Product overlapped */}
+      <View className="relative mr-3" style={{ width: 52, height: 48 }}>
+        {/* Product thumbnail */}
+        <Image
+          source={{ uri: product.image }}
+          className="absolute"
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 18,
+            right: 0,
+            top: 0,
+          }}
+          resizeMode="cover"
+        />
+        {/* Avatar */}
+        <View
+          className="absolute items-center justify-center"
+          style={{
+            width: 36,
+            height: 36,
+            backgroundColor: '#155DFC',
+            borderRadius: 18,
+            left: 0,
+            bottom: 0,
+          }}
+        >
+          <Text className="text-white text-base font-semibold">
+            {otherUser.name.charAt(0).toUpperCase()}
+          </Text>
+        </View>
+        {/* Unread badge */}
+        {unreadCount > 0 && (
+          <View
+            className="absolute bg-accent-red rounded-full items-center justify-center"
+            style={{
+              minWidth: 18,
+              height: 18,
+              right: -2,
+              top: -2,
+              paddingHorizontal: 4,
+            }}
+          >
+            <Text className="text-white text-xs font-bold">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </Text>
+          </View>
+        )}
       </View>
 
       {/* Content */}
-      <View className="flex-1 mr-3">
+      <View className="flex-1">
         <View className="flex-row justify-between items-center mb-1">
           <Text className="text-base font-semibold text-neutral-900" numberOfLines={1}>
             {otherUser.name}
@@ -61,30 +101,12 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
             {formatRelativeTime(lastMessage.timestamp)}
           </Text>
         </View>
-        <View className="flex-row items-center">
-          <Text
-            className={`flex-1 text-sm ${unreadCount > 0 ? 'text-neutral-800 font-medium' : 'text-neutral-500'}`}
-            numberOfLines={1}
-          >
-            {lastMessage.image ? '📷 Foto' : lastMessage.text}
-          </Text>
-        </View>
-      </View>
-
-      {/* Product thumbnail & unread badge */}
-      <View className="relative">
-        <Image
-          source={{ uri: product.image }}
-          className="w-10 h-10 rounded-full"
-          resizeMode="cover"
-        />
-        {unreadCount > 0 && (
-          <View className="absolute -top-1 -right-1 bg-accent-red rounded-full min-w-[20px] h-5 items-center justify-center px-1">
-            <Text className="text-white text-xs font-bold">
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </Text>
-          </View>
-        )}
+        <Text
+          className={`text-sm ${unreadCount > 0 ? 'text-neutral-800 font-medium' : 'text-neutral-500'}`}
+          numberOfLines={1}
+        >
+          {lastMessage.image ? '📷 Foto' : lastMessage.text}
+        </Text>
       </View>
     </TouchableOpacity>
   );
