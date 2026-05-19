@@ -127,6 +127,24 @@ export function SearchProductsScreen() {
           onChangeText={setSearchQuery}
           onSubmit={handleSearch}
         />
+
+        {/* Sort & Filter Buttons */}
+        <View className="flex-row gap-3 mt-4">
+          <TouchableOpacity
+            className="flex-1 flex-row items-center justify-center bg-white py-3 rounded-xl border border-gray-200"
+            onPress={() => console.log("Sort pressed")}
+          >
+            <Text className="text-sm text-gray-700 mr-2">Sortir</Text>
+            <Text className="text-xs text-gray-400">▼</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="flex-1 flex-row items-center justify-center bg-white py-3 rounded-xl border border-gray-200"
+            onPress={() => console.log("Filter pressed")}
+          >
+            <Text className="text-sm text-gray-700 mr-2">Filter</Text>
+            <Text className="text-xs text-gray-400">⚙</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
