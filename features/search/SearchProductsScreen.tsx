@@ -145,12 +145,6 @@ export function SearchProductsScreen() {
             </Text>
           )}
 
-          {!searchQuery && (
-            <Text className="text-base font-medium text-gray-800 mb-3">
-              Rekomendasi Untukmu
-            </Text>
-          )}
-
           <View className="flex-row flex-wrap">
             {filteredProducts.map((product, index) => (
               <ProductCard
