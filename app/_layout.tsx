@@ -1,5 +1,7 @@
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { StyleSheet } from "react-native";
 import { useFonts } from "expo-font";
 import { FjallaOne_400Regular } from "@expo-google-fonts/fjalla-one";
 import {
@@ -31,26 +33,34 @@ export default function RootLayout() {
   }
 
   return (
-    <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen 
-          name="sell" 
-          options={{
-            headerShown: false,
-            presentation: 'modal',
-            animation: 'slide_from_bottom',
-          }} 
-        />
-        <Stack.Screen 
-          name="product" 
-          options={{
-            headerShown: false,
-            presentation: 'card',
-            animation: 'slide_from_right',
-          }} 
-        />
-      </Stack>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.container}>
+      <SafeAreaProvider>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen 
+            name="sell" 
+            options={{
+              headerShown: false,
+              presentation: 'modal',
+              animation: 'slide_from_bottom',
+            }} 
+          />
+          <Stack.Screen 
+            name="product" 
+            options={{
+              headerShown: false,
+              presentation: 'card',
+              animation: 'slide_from_right',
+            }} 
+          />
+        </Stack>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+});
