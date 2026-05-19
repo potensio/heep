@@ -1,6 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
-import { Eye, EyeSlash } from "@solar-icons/react-native/Linear";
+import { Eye, EyeClosed } from "@solar-icons/react-native/Linear";
 
 export function SecuritySettings() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -59,9 +59,9 @@ export function SecuritySettings() {
               className="px-3"
             >
               {showCurrentPassword ? (
-                <EyeSlash size={20} className="text-gray-400" />
-              ) : (
                 <Eye size={20} className="text-gray-400" />
+              ) : (
+                <EyeClosed size={20} className="text-gray-400" />
               )}
             </TouchableOpacity>
           </View>
@@ -84,9 +84,9 @@ export function SecuritySettings() {
               className="px-3"
             >
               {showNewPassword ? (
-                <EyeSlash size={20} className="text-gray-400" />
-              ) : (
                 <Eye size={20} className="text-gray-400" />
+              ) : (
+                <EyeClosed size={20} className="text-gray-400" />
               )}
             </TouchableOpacity>
           </View>
@@ -109,9 +109,9 @@ export function SecuritySettings() {
               className="px-3"
             >
               {showConfirmPassword ? (
-                <EyeSlash size={20} className="text-gray-400" />
-              ) : (
                 <Eye size={20} className="text-gray-400" />
+              ) : (
+                <EyeClosed size={20} className="text-gray-400" />
               )}
             </TouchableOpacity>
           </View>

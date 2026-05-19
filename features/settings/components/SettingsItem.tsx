@@ -1,5 +1,5 @@
 import { TouchableOpacity, Text, View } from "react-native";
-import { ChevronRight } from "@solar-icons/react-native/Linear";
+import { ArrowRight } from "@solar-icons/react-native/Linear";
 import type { ReactNode } from "react";
 
 interface SettingsItemProps {
@@ -16,7 +16,7 @@ export function SettingsItem({ icon, label, onPress }: SettingsItemProps) {
     >
       <View className="w-6 items-center">{icon}</View>
       <Text className="flex-1 text-base text-gray-800 ml-3">{label}</Text>
-      <ChevronRight size={20} className="text-gray-400" />
+      <ArrowRight size={20} className="text-gray-400" />
     </TouchableOpacity>
   );
 }

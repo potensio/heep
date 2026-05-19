@@ -1,6 +1,6 @@
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
-import { Store } from "@solar-icons/react-native/Linear";
+import { Shop } from "@solar-icons/react-native/Linear";
 
 export function ShopSettings() {
   const [shopName, setShopName] = useState("Toko Andi Official");
@@ -25,7 +25,7 @@ export function ShopSettings() {
       {/* Shop Logo/Avatar */}
       <View className="items-center mb-8">
         <View className="w-24 h-24 rounded-full bg-gray-200 items-center justify-center">
-          <Store size={40} className="text-gray-400" />
+          <Shop size={40} className="text-gray-400" />
         </View>
         <TouchableOpacity className="mt-3">
           <Text className="text-sm font-medium text-blue-600">Ubah Logo</Text>
