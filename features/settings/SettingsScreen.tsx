@@ -1,8 +1,8 @@
-import { View, ScrollView, Text } from "react-native";
+import { View, ScrollView, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { SettingsItem } from "./components/SettingsItem";
-import { User, Phone, Shield, Bell, Shop } from "@solar-icons/react-native/Linear";
+import { User, Phone, Shield, Bell, Logout } from "@solar-icons/react-native/Linear";
 
 export function SettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -55,16 +55,16 @@ export function SettingsScreen() {
             </View>
           </View>
 
-          {/* Seller Settings Section */}
-          <View>
-            <Text className="text-sm text-gray-500 px-4 mb-2">Toko</Text>
-            <View>
-              <SettingsItem
-                icon={<Shop size={20} className="text-gray-700" />}
-                label="Toko"
-                onPress={() => router.push("/settings/toko")}
-              />
-            </View>
+          {/* Logout Button */}
+          <View className="mt-4">
+            <TouchableOpacity
+              onPress={() => router.replace("/auth")}
+              className="flex-row items-center justify-center py-4 rounded-xl bg-white border border-gray-200"
+              activeOpacity={0.7}
+            >
+              <Logout size={20} className="text-accent-red mr-2" />
+              <Text className="text-base font-medium text-accent-red">Keluar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
