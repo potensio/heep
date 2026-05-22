@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ArrowRight, ArrowLeft } from "@solar-icons/react-native/Linear";
+import { ArrowLeft } from "@solar-icons/react-native/Linear";
+import { Button } from "@/components/ui/Button";
 import {
   Monitor,
   Smartphone,
@@ -134,25 +135,13 @@ export function CategoryStep({
             <ArrowLeft size={20} color="#374151" />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <Button
             onPress={handleNext}
             disabled={!selectedCategory}
-            className={`flex-1 flex-row items-center justify-center py-4 rounded-2xl ${
-              selectedCategory ? "bg-primary" : "bg-gray-300"
-            }`}
+            style={{ flex: 1 }}
           >
-            <Text
-              className={`font-semibold text-base mr-2 ${
-                selectedCategory ? "text-white" : "text-gray-500"
-              }`}
-            >
-              Lanjut
-            </Text>
-            <ArrowRight
-              size={20}
-              color={selectedCategory ? "#FFFFFF" : "#6B7280"}
-            />
-          </TouchableOpacity>
+            Lanjut
+          </Button>
         </View>
       </View>
     </View>

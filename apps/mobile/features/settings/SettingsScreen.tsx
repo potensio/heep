@@ -12,7 +12,7 @@ export function SettingsScreen() {
 
   const handleLogout = () => {
     logout();
-    router.replace("/beranda");
+    router.replace("/auth");
   };
 
   return (

@@ -49,7 +49,7 @@ export function ProductCard({
     >
       <Image
         source={{ uri: product.image }}
-        className="w-full h-32 bg-gray-100 rounded-xl"
+        className="w-full aspect-square bg-gray-100 rounded-xl"
         resizeMode="cover"
       />
       <View className="mt-2">

@@ -9,3 +9,4 @@ export { ThemedView, type ThemedViewProps } from "./themed-view";
 // UI components
 export { IconSymbol } from "./icon-symbol";
 export { Avatar, UnreadBadge, OnlineIndicator, type AvatarSize } from "./Avatar";
+export { Button, type ButtonVariant, type ButtonSize } from "./Button";

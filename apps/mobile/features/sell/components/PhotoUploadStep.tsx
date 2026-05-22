@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Alert, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import { ArrowRight } from "@solar-icons/react-native/Linear";
+import { Button } from "@/components/ui/Button";
 import { PhotoGrid } from "./PhotoGrid";
 import type { PhotoUploadStepProps } from "../types";
 
@@ -85,14 +86,6 @@ export function PhotoUploadStep({
             {photos.length} dari 6 foto
           </Text>
         )}
-
-        {isDevMode && (
-          <View className="mt-6 p-3 bg-yellow-100 rounded-lg border border-yellow-300">
-            <Text className="text-xs text-yellow-800 text-center">
-              🛠️ DEV MODE: Tombol aktif tanpa upload foto
-            </Text>
-          </View>
-        )}
       </ScrollView>
 
       {/* Footer with CTA */}
@@ -100,22 +93,9 @@ export function PhotoUploadStep({
         className="absolute bottom-0 left-0 right-0 bg-background px-5 pt-4 pb-6 border-t border-gray-100"
         style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
-        <TouchableOpacity
-          onPress={handleNext}
-          disabled={!canProceed}
-          className={`flex-row items-center justify-center py-4 rounded-2xl ${
-            canProceed ? "bg-primary" : "bg-gray-300"
-          }`}
-        >
-          <Text
-            className={`font-semibold text-base mr-2 ${
-              canProceed ? "text-white" : "text-gray-500"
-            }`}
-          >
-            Lanjut
-          </Text>
-          <ArrowRight size={20} color={canProceed ? "#FFFFFF" : "#6B7280"} />
-        </TouchableOpacity>
+        <Button onPress={handleNext} disabled={!canProceed} style={{ flex: 1 }}>
+          Lanjut
+        </Button>
       </View>
     </View>
   );

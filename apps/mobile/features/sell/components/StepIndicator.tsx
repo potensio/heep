@@ -9,7 +9,7 @@ interface StepIndicatorProps {
 
 export function StepIndicator({ currentStep, stepLabels }: StepIndicatorProps) {
   return (
-    <View className="flex-row items-center justify-center px-4 py-3">
+    <View className="flex-row items-center px-5 py-3">
       {stepLabels.map((label, index) => {
         const stepNumber = index + 1;
         const isActive = stepNumber === currentStep;
@@ -17,44 +17,38 @@ export function StepIndicator({ currentStep, stepLabels }: StepIndicatorProps) {
         const isLast = index === stepLabels.length - 1;
 
         return (
-          <View key={stepNumber} className="flex-row items-start">
-            {/* Circle with Label */}
-            <View className="items-center">
-              <View
-                className={`w-8 h-8 rounded-full items-center justify-center ${
-                  isActive
-                    ? 'bg-primary'
-                    : isCompleted
-                    ? 'bg-primary'
-                    : 'bg-gray-200'
-                }`}
-              >
-                <Text
-                  className={`text-sm font-semibold ${
-                    isActive || isCompleted ? 'text-white' : 'text-gray-500'
-                  }`}
-                >
-                  {stepNumber}
-                </Text>
-              </View>
+          <View key={stepNumber} className="flex-row items-center">
+            {/* Step Number */}
+            <View
+              className={`w-5 h-5 rounded-full items-center justify-center ${
+                isActive || isCompleted ? 'bg-black' : 'bg-gray-200'
+              }`}
+            >
               <Text
-                className={`text-xs mt-1 ${
-                  isActive ? 'text-primary font-medium' : 'text-gray-400'
+                className={`text-xs font-semibold ${
+                  isActive || isCompleted ? 'text-white' : 'text-gray-500'
                 }`}
               >
-                {label}
+                {stepNumber}
               </Text>
             </View>
 
-            {/* Connector Line - aligned to center of circle */}
+            {/* Label */}
+            <Text
+              className={`text-xs ml-1.5 mr-2 ${
+                isActive || isCompleted ? 'text-black font-medium' : 'text-gray-400'
+              }`}
+            >
+              {label}
+            </Text>
+
+            {/* Connector Line */}
             {!isLast && (
-              <View className="h-8 justify-center">
-                <View
-                  className={`w-12 h-0.5 mx-2 ${
-                    isCompleted ? 'bg-primary' : 'bg-gray-200'
-                  }`}
-                />
-              </View>
+              <View
+                className={`h-0.5 w-4 mr-2 ${
+                  isCompleted ? 'bg-black' : 'bg-gray-200'
+                }`}
+              />
             )}
           </View>
         );

@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CheckRead } from "@solar-icons/react-native/Linear";
+import { Button } from "@/components/ui/Button";
 import type { SuccessScreenProps } from "../types";
 
 interface ExtendedSuccessScreenProps extends SuccessScreenProps {
@@ -42,12 +43,12 @@ export function SuccessScreen({
         className="px-5 pt-4 pb-6 gap-3"
         style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
-        <TouchableOpacity
+        <Button
           onPress={onViewProduct}
-          className="flex-row items-center justify-center py-4 rounded-2xl bg-black"
+          fullWidth
         >
-          <Text className="font-medium text-lg text-white">Lihat produk</Text>
-        </TouchableOpacity>
+          Lihat produk
+        </Button>
 
         <TouchableOpacity
           onPress={onBackToHome}

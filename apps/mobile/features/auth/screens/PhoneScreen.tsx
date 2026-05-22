@@ -95,6 +95,17 @@ export function PhoneScreen() {
               {isLoading ? 'Mengirim...' : 'Lanjutkan'}
             </Text>
           </TouchableOpacity>
+
+          {/* Guest Login Button */}
+          <TouchableOpacity
+            onPress={() => router.replace('/')}
+            className="rounded-xl py-4 items-center bg-transparent border border-gray-300 mt-3"
+            activeOpacity={0.8}
+          >
+            <Text className="text-base font-semibold text-gray-700">
+              Masuk tanpa login
+            </Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>

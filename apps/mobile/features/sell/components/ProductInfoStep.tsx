@@ -10,7 +10,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
-import { ArrowRight, ArrowLeft, Tag } from "@solar-icons/react-native/Linear";
+import { ArrowLeft, Tag } from "@solar-icons/react-native/Linear";
+import { Button } from "@/components/ui/Button";
 import { CATEGORY_OPTIONS, CONDITION_OPTIONS } from "../types";
 import type { ProductInfoStepProps } from "../types";
 
@@ -270,22 +271,13 @@ export function ProductInfoStep({
             <ArrowLeft size={20} color="#374151" />
           </TouchableOpacity>
 
-          <TouchableOpacity
+          <Button
             onPress={isDevMode ? onNext : validateAndProceed}
             disabled={!canProceed}
-            className={`flex-1 flex-row items-center justify-center py-4 rounded-2xl ${
-              canProceed ? "bg-primary" : "bg-gray-300"
-            }`}
+            style={{ flex: 1 }}
           >
-            <Text
-              className={`font-semibold text-base mr-2 ${
-                canProceed ? "text-white" : "text-gray-500"
-              }`}
-            >
-              Lanjut ke Review
-            </Text>
-            <ArrowRight size={20} color={canProceed ? "#FFFFFF" : "#6B7280"} />
-          </TouchableOpacity>
+            Lanjut ke Review
+          </Button>
         </View>
       </View>
     </View>

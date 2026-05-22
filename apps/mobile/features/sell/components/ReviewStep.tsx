@@ -1,7 +1,8 @@
 // features/sell/components/ReviewStep.tsx
 import { View, Text, TouchableOpacity, ScrollView, Image, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, ArrowRight, Gallery, PenNewSquare } from '@solar-icons/react-native/Linear';
+import { ArrowLeft, Gallery, PenNewSquare } from '@solar-icons/react-native/Linear';
+import { Button } from '@/components/ui/Button';
 import { CATEGORY_OPTIONS } from '../types';
 import type { ReviewStepProps } from '../types';
 
@@ -126,29 +127,14 @@ export function ReviewStep({
             <ArrowLeft size={20} className="text-gray-700" />
           </TouchableOpacity>
           
-          <TouchableOpacity
+          <Button
             onPress={onPublish}
             disabled={isSubmitting}
-            className={`flex-1 flex-row items-center justify-center py-4 rounded-xl ${
-              isSubmitting ? 'bg-gray-300' : 'bg-primary'
-            }`}
+            loading={isSubmitting}
+            style={{ flex: 1 }}
           >
-            {isSubmitting ? (
-              <>
-                <ActivityIndicator size="small" color="#6B7280" className="mr-2" />
-                <Text className="font-semibold text-base text-gray-500">
-                  Mempublish...
-                </Text>
-              </>
-            ) : (
-              <>
-                <Text className="font-semibold text-base mr-2 text-white">
-                  Publish Sekarang
-                </Text>
-                <ArrowRight size={20} color="#FFFFFF" />
-              </>
-            )}
-          </TouchableOpacity>
+            Publish Sekarang
+          </Button>
         </View>
       </View>
     </View>

@@ -11,7 +11,7 @@ export function SuccessScreen() {
   const handleStart = () => {
     // Navigate to returnTo if it exists, otherwise go to beranda
     if (params.returnTo) {
-      router.replace(params.returnTo as string);
+      router.replace(params.returnTo as any);
     } else {
       router.replace('/beranda');
     }
