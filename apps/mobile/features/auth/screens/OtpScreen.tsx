@@ -7,7 +7,7 @@ import { OtpInput } from '../components/OtpInput';
 
 export function OtpScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ phone: string }>();
+  const params = useLocalSearchParams<{ phone: string; returnTo?: string }>();
   const insets = useSafeAreaInsets();
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -32,7 +32,10 @@ export function OtpScreen() {
     setTimeout(() => {
       setIsLoading(false);
       // For static demo, assume new user - navigate to complete profile
-      router.replace('/auth/complete-profile');
+      router.replace({ 
+        pathname: '/auth/complete-profile',
+        params: { returnTo: params.returnTo }
+      });
     }, 1000);
   };
 

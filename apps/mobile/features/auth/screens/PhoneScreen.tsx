@@ -1,12 +1,13 @@
 // features/auth/screens/PhoneScreen.tsx
 import { View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { PhoneInput } from '../components/PhoneInput';
 
 export function PhoneScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ returnTo?: string }>();
   const insets = useSafeAreaInsets();
   const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,8 +19,14 @@ export function PhoneScreen() {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      // Navigate to OTP screen, pass phone as param
-      router.push({ pathname: '/auth/otp', params: { phone } });
+      // Navigate to OTP screen, pass phone and returnTo as params
+      router.push({ 
+        pathname: '/auth/otp', 
+        params: { 
+          phone,
+          returnTo: params.returnTo 
+        } 
+      });
     }, 1000);
   };
 

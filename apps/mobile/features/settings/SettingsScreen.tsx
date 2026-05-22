@@ -1,12 +1,19 @@
 import { View, ScrollView, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
 import { SettingsItem } from "./components/SettingsItem";
 import { User, Phone, Shield, Bell, Logout } from "@solar-icons/react-native/Linear";
 
 export function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.replace("/beranda");
+  };
 
   return (
     <View className="flex-1 bg-background">
@@ -56,7 +63,7 @@ export function SettingsScreen() {
               <SettingsItem
                 icon={<Logout size={20} className="text-accent-red" />}
                 label="Keluar"
-                onPress={() => router.replace("/auth")}
+                onPress={handleLogout}
               />
             </View>
           </View>

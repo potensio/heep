@@ -1,7 +1,7 @@
 // features/auth/screens/CompleteProfileScreen.tsx
 import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GenderSelector } from '../components/GenderSelector';
 
@@ -9,6 +9,7 @@ type Gender = 'pria' | 'wanita' | null;
 
 export function CompleteProfileScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ returnTo?: string }>();
   const insets = useSafeAreaInsets();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,7 +23,10 @@ export function CompleteProfileScreen() {
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      router.replace('/auth/success');
+      router.replace({ 
+        pathname: '/auth/success',
+        params: { returnTo: params.returnTo }
+      });
     }, 1000);
   };
 

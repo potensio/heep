@@ -1,15 +1,20 @@
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CheckCircle } from '@solar-icons/react-native/Linear';
 
 export function SuccessScreen() {
   const router = useRouter();
+  const params = useLocalSearchParams<{ returnTo?: string }>();
   const insets = useSafeAreaInsets();
 
   const handleStart = () => {
-    // Navigate to main tabs and reset the navigation stack
-    router.replace('/(tabs)');
+    // Navigate to returnTo if it exists, otherwise go to beranda
+    if (params.returnTo) {
+      router.replace(params.returnTo as string);
+    } else {
+      router.replace('/beranda');
+    }
   };
 
   return (
