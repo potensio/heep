@@ -1,5 +1,5 @@
 // features/auth/components/PhoneInput.tsx
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Platform } from 'react-native';
 import { useState } from 'react';
 
 interface PhoneInputProps {
@@ -22,14 +22,22 @@ export function PhoneInput({ value, onChangeText, onSubmit, disabled }: PhoneInp
     <View className="flex-row items-center">
       <View
         className={`
-          flex-row items-center bg-white rounded-xl border
+          flex-row bg-white rounded-xl border
           ${isFocused ? 'border-primary' : 'border-gray-200'}
         `}
-        style={{ flex: 1 }}
+        style={{ flex: 1, height: 52, alignItems: 'center' }}
       >
-        <TouchableOpacity className="px-4 py-4 border-r border-gray-200">
-          <Text className="text-base text-gray-800 font-medium">+62</Text>
-        </TouchableOpacity>
+        <View
+          className="border-r border-gray-200"
+          style={{ paddingHorizontal: 16, height: '100%', justifyContent: 'center' }}
+        >
+          <Text
+            className="text-base text-gray-800 font-medium"
+            style={Platform.OS === 'android' ? { includeFontPadding: false } : undefined}
+          >
+            +62
+          </Text>
+        </View>
         <TextInput
           value={value}
           onChangeText={onChangeText}
@@ -41,7 +49,13 @@ export function PhoneInput({ value, onChangeText, onSubmit, disabled }: PhoneInp
           keyboardType="phone-pad"
           maxLength={13}
           editable={!disabled}
-          className="flex-1 px-4 py-4 text-base"
+          style={{
+            flex: 1,
+            fontSize: 16,
+            paddingHorizontal: 16,
+            height: '100%',
+            ...(Platform.OS === 'android' ? { includeFontPadding: false, textAlignVertical: 'center' } : {}),
+          }}
           returnKeyType="done"
         />
       </View>

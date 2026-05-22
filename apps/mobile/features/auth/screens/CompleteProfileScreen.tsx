@@ -60,13 +60,21 @@ export function CompleteProfileScreen() {
             <Text className="text-sm text-gray-600 mb-2 font-medium">
               Nama Lengkap
             </Text>
-            <TextInput
-              value={name}
-              onChangeText={setName}
-              placeholder="Masukkan nama lengkap"
-              placeholderTextColor="#9CA3AF"
-              className="bg-white rounded-xl px-4 py-4 text-base border border-gray-200"
-            />
+            <View className="bg-white rounded-xl border border-gray-200" style={{ height: 52 }}>
+              <TextInput
+                value={name}
+                onChangeText={setName}
+                placeholder="Masukkan nama lengkap"
+                placeholderTextColor="#9CA3AF"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  fontSize: 16,
+                  paddingHorizontal: 16,
+                  ...(Platform.OS === 'android' ? { includeFontPadding: false, textAlignVertical: 'center' } : {}),
+                }}
+              />
+            </View>
           </View>
 
           {/* Email Input */}
@@ -74,16 +82,24 @@ export function CompleteProfileScreen() {
             <Text className="text-sm text-gray-600 mb-2 font-medium">
               Email
             </Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              placeholder="Masukkan email"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoCorrect={false}
-              className="bg-white rounded-xl px-4 py-4 text-base border border-gray-200"
-            />
+            <View className="bg-white rounded-xl border border-gray-200" style={{ height: 52 }}>
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Masukkan email"
+                placeholderTextColor="#9CA3AF"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  fontSize: 16,
+                  paddingHorizontal: 16,
+                  ...(Platform.OS === 'android' ? { includeFontPadding: false, textAlignVertical: 'center' } : {}),
+                }}
+              />
+            </View>
           </View>
 
           {/* Gender Selector */}

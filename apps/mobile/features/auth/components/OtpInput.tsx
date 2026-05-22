@@ -1,4 +1,4 @@
-import { View, TextInput } from 'react-native';
+import { View, TextInput, Platform } from 'react-native';
 import { createRef } from 'react';
 
 interface OtpInputProps {
@@ -68,7 +68,7 @@ export function OtpInput({ value, onChangeText, length = 6, disabled }: OtpInput
           <View
             key={index}
             className={`
-              w-12 h-14 rounded-xl items-center justify-center
+              w-12 h-14 rounded-xl
               ${isFilled ? 'bg-primary-50 border-primary' : 'bg-white border-gray-200'}
               border
             `}
@@ -82,8 +82,14 @@ export function OtpInput({ value, onChangeText, length = 6, disabled }: OtpInput
               maxLength={1}
               editable={!disabled}
               selectTextOnFocus
-              className="text-xl font-semibold text-center"
-              style={{ width: '100%', height: '100%' }}
+              style={{
+                width: '100%',
+                height: '100%',
+                fontSize: 20,
+                fontWeight: '600',
+                textAlign: 'center',
+                ...(Platform.OS === 'android' ? { includeFontPadding: false, textAlignVertical: 'center' } : {}),
+              }}
             />
           </View>
         );
