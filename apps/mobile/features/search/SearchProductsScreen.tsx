@@ -1,22 +1,14 @@
-import {
-  Text,
-  View,
-  ScrollView,
-  TouchableOpacity,
-} from "react-native";
-
-import { useState, useCallback, useRef } from "react";
-import BottomSheet from "@gorhom/bottom-sheet";
+import { Text, View, ScrollView, TouchableOpacity } from "react-native";
+import { useState, useCallback } from "react";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { SearchBar } from "./components/SearchBar";
 import { ProductCard } from "./components/ProductCard";
 import { EmptyState } from "./components/EmptyState";
-import { SortBottomSheet, type SortOption } from "./components/SortBottomSheet";
-import { FilterBottomSheet } from "./components/FilterBottomSheet";
-import type { FilterState } from "./components/FilterBottomSheet";
-import { SortFromTopToBottom, Filter } from "@solar-icons/react-native/Linear";
+import { useFilterSheet } from "./context/FilterSheetContext";
+import type { FilterState, SortOption } from "./context/FilterSheetContext";
+import { Filter } from "@solar-icons/react-native/Linear";
 
 
 // Mock data produk
@@ -25,7 +17,7 @@ const mockProducts = [
     id: "1",
     name: "Sepatu Sneakers Pria",
     price: 250000,
-    image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Sneakers",
+    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
     seller: "Andi",
     sellerId: "seller-1",
     category: "Fashion",
@@ -34,7 +26,7 @@ const mockProducts = [
     id: "2",
     name: "Tas Ransel Laptop",
     price: 180000,
-    image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Tas",
+    image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop",
     seller: "Budi",
     sellerId: "seller-2",
     category: "Aksesoris",
@@ -43,7 +35,7 @@ const mockProducts = [
     id: "3",
     name: "Kemeja Flannel",
     price: 150000,
-    image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Kemeja",
+    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=400&h=400&fit=crop",
     seller: "Citra",
     sellerId: "seller-3",
     category: "Fashion",
@@ -52,7 +44,7 @@ const mockProducts = [
     id: "4",
     name: "Jam Tangan Analog",
     price: 350000,
-    image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Jam",
+    image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&h=400&fit=crop",
     seller: "Dian",
     sellerId: "seller-4",
     category: "Aksesoris",
@@ -61,7 +53,7 @@ const mockProducts = [
     id: "5",
     name: "Hoodie Oversized",
     price: 200000,
-    image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Hoodie",
+    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=400&fit=crop",
     seller: "Eka",
     sellerId: "seller-5",
     category: "Fashion",
@@ -70,7 +62,7 @@ const mockProducts = [
     id: "6",
     name: "Topi Baseball",
     price: 75000,
-    image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Topi",
+    image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=400&fit=crop",
     seller: "Fani",
     sellerId: "seller-6",
     category: "Aksesoris",
@@ -88,12 +80,10 @@ const searchSuggestions = [
 export function SearchProductsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { openFilterSheet } = useFilterSheet();
   const [searchQuery, setSearchQuery] = useState("");
-  
   const [filteredProducts, setFilteredProducts] = useState(mockProducts);
   const [sortBy, setSortBy] = useState<SortOption>("relevan");
-  const sortSheetRef = useRef<BottomSheet>(null);
-  const filterSheetRef = useRef<BottomSheet>(null);
 
   // Handle search
   const handleSearch = useCallback(() => {
@@ -110,26 +100,7 @@ export function SearchProductsScreen() {
     setFilteredProducts(filtered);
   }, [searchQuery]);
 
-  // Handle sort
-  const handleSort = useCallback(
-    (option: SortOption) => {
-      setSortBy(option);
-      const sorted = [...filteredProducts].sort((a, b) => {
-        switch (option) {
-          case "terbaru":
-            return parseInt(b.id) - parseInt(a.id);
-          case "termurah":
-            return a.price - b.price;
-          case "termahal":
-            return b.price - a.price;
-          default:
-            return 0;
-        }
-      });
-      setFilteredProducts(sorted);
-    },
-    [filteredProducts]
-  );
+
 
   // Handle filter
   const handleFilter = useCallback(
@@ -146,22 +117,27 @@ export function SearchProductsScreen() {
       }
 
       // Filter by price range
-      switch (filters.priceRange) {
-        case "under100k":
-          filtered = filtered.filter((p) => p.price < 100000);
-          break;
-        case "100k-500k":
-          filtered = filtered.filter((p) => p.price >= 100000 && p.price <= 500000);
-          break;
-        case "500k-1m":
-          filtered = filtered.filter(
-            (p) => p.price > 500000 && p.price <= 1000000
-          );
-          break;
-        case "above1m":
-          filtered = filtered.filter((p) => p.price > 1000000);
-          break;
+      if (filters.minPrice !== null) {
+        filtered = filtered.filter((p) => p.price >= filters.minPrice!);
       }
+      if (filters.maxPrice !== null) {
+        filtered = filtered.filter((p) => p.price <= filters.maxPrice!);
+      }
+
+      // Sort products
+      setSortBy(filters.sortBy);
+      filtered.sort((a, b) => {
+        switch (filters.sortBy) {
+          case "terbaru":
+            return parseInt(b.id) - parseInt(a.id);
+          case "termurah":
+            return a.price - b.price;
+          case "termahal":
+            return b.price - a.price;
+          default:
+            return 0;
+        }
+      });
 
       setFilteredProducts(filtered);
     },
@@ -202,7 +178,7 @@ export function SearchProductsScreen() {
         className="bg-background px-5 pb-2"
         style={{ paddingTop: (insets.top > 0 ? insets.top : 24) + 16 }}
       >
-        {/* Search Bar with Sort & Filter Buttons */}
+        {/* Search Bar with Filter Button */}
         <View className="flex-row items-center gap-2">
           <View className="flex-1">
             <SearchBar
@@ -214,14 +190,7 @@ export function SearchProductsScreen() {
           <TouchableOpacity
             className="items-center justify-center bg-white rounded-xl border border-gray-200"
             style={{ width: 50, height: 50 }}
-            onPress={() => sortSheetRef.current?.expand()}
-          >
-            <SortFromTopToBottom size={20} color="#374151" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            className="items-center justify-center bg-white rounded-xl border border-gray-200"
-            style={{ width: 50, height: 50 }}
-            onPress={() => filterSheetRef.current?.expand()}
+            onPress={() => openFilterSheet(handleFilter, { sortBy })}
           >
             <Filter size={20} color="#374151" />
           </TouchableOpacity>
@@ -265,13 +234,6 @@ export function SearchProductsScreen() {
         </View>
       </ScrollView>
 
-      {/* Bottom Sheets */}
-      <SortBottomSheet
-        bottomSheetRef={sortSheetRef}
-        selected={sortBy}
-        onSelect={handleSort}
-      />
-      <FilterBottomSheet bottomSheetRef={filterSheetRef} onApply={handleFilter} />
     </View>
   );
 }
