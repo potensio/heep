@@ -10,21 +10,20 @@ import { useCallback, useRef, useState, useEffect, memo } from "react";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-// Fixed height 180, 4:3 ratio => width = height * 4/3 = 240
-const CARD_HEIGHT = 180;
-const CARD_WIDTH = CARD_HEIGHT * (4 / 3); // = 240
+// Fixed height 160, 16:10 ratio => width = height * 16/10 = 256
+const CARD_HEIGHT = 160;
+const CARD_WIDTH = CARD_HEIGHT * (16 / 10); // = 256
 const SPACING = 4; // minimal gap between cards
-const PEEK_VISIBLE = 28; // pixels of prev/next card visible on edges
 
 // Total width for snapping (card + its margin contribution)
 const SNAP_INTERVAL = CARD_WIDTH + SPACING;
 // Padding to center the active card
-const HORIZONTAL_PADDING = (SCREEN_WIDTH - CARD_WIDTH) / 2 - PEEK_VISIBLE;
+const HORIZONTAL_PADDING = (SCREEN_WIDTH - CARD_WIDTH) / 2;
 
 const BANNERS = [
-  { id: "1", source: require("@/public/fonts/banner-1.png") },
-  { id: "2", source: require("@/public/fonts/banner-2.png") },
-  { id: "3", source: require("@/public/fonts/banner-3.png") },
+  { id: "1", source: require("@/public/fonts/banner-1.jpg") },
+  { id: "2", source: require("@/public/fonts/banner-2.jpg") },
+  { id: "3", source: require("@/public/fonts/banner-3.jpg") },
 ];
 
 // Extended array: [last, ...banners, ...banners, ...banners, first]

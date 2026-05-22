@@ -98,7 +98,7 @@ export function CategoryStep({
                 onPress={() => handleCategorySelect(category.value)}
                 className={`flex-row items-center px-4 py-3 rounded-xl border ${
                   isSelected
-                    ? "bg-orange border-orange"
+                    ? "bg-primary border-primary"
                     : "bg-white border-gray-200"
                 }`}
                 activeOpacity={0.8}
@@ -106,7 +106,7 @@ export function CategoryStep({
                 {renderCategoryIcon(
                   category.icon,
                   18,
-                  isSelected ? "#FFFFFF" : "#F54802",
+                  isSelected ? "#FFFFFF" : "#155DFC",
                 )}
 
                 <Text
@@ -127,13 +127,8 @@ export function CategoryStep({
         className="absolute bottom-0 left-0 right-0 bg-background px-5 pt-4 pb-6 border-t border-gray-100"
         style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
-        <View className="flex-row gap-3">
-          <TouchableOpacity
-            onPress={onBack}
-            className="flex-row items-center justify-center py-4 px-5 rounded-xl border border-gray-300 bg-white"
-          >
-            <ArrowLeft size={20} color="#374151" />
-          </TouchableOpacity>
+        <View className="flex-row gap-3 items-center">
+          <Button variant="outline" size="sm" icon={<ArrowLeft size={18} color="#000000" />} onPress={onBack} />
 
           <Button
             onPress={handleNext}

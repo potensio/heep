@@ -1,11 +1,13 @@
-import { TouchableOpacity, Text, ActivityIndicator, type ViewStyle } from 'react-native';
+import { TouchableOpacity, Text, ActivityIndicator, type ViewStyle, type ReactNode } from 'react-native';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps {
   /** Button text */
-  children: string;
+  children?: string;
+  /** Icon element (React element) */
+  icon?: ReactNode;
   /** Visual style variant */
   variant?: ButtonVariant;
   /** Size variant */
@@ -20,21 +22,22 @@ interface ButtonProps {
   onPress?: () => void;
 }
 
-const SIZE_STYLES: Record<ButtonSize, { paddingVertical: number; fontSize: number }> = {
-  sm: { paddingY: 10, fontSize: 14 },
-  md: { paddingY: 14, fontSize: 16 },
-  lg: { paddingY: 16, fontSize: 16 },
+const SIZE_STYLES: Record<ButtonSize, { height: number; paddingHorizontal: number; fontSize: number }> = {
+  sm: { height: 36, paddingHorizontal: 16, fontSize: 14 },
+  md: { height: 48, paddingHorizontal: 20, fontSize: 16 },
+  lg: { height: 52, paddingHorizontal: 24, fontSize: 16 },
 };
 
 const VARIANT_STYLES: Record<ButtonVariant, { bgColor: string; textColor: string; borderWidth?: number; borderColor?: string }> = {
-  primary: { bgColor: '#000000', textColor: '#FFFFFF' },
-  secondary: { bgColor: '#F3F4F6', textColor: '#111827' },
+  primary: { bgColor: '#000000', textColor: '#FFFFFF', borderWidth: 1, borderColor: '#000000' },
+  secondary: { bgColor: '#F3F4F6', textColor: '#111827', borderWidth: 1, borderColor: '#F3F4F6' },
   outline: { bgColor: 'transparent', textColor: '#000000', borderWidth: 1, borderColor: '#000000' },
   ghost: { bgColor: 'transparent', textColor: '#000000' },
 };
 
 export function Button({
   children,
+  icon,
   variant = 'primary',
   size = 'md',
   loading = false,
@@ -45,11 +48,14 @@ export function Button({
   const variantStyle = VARIANT_STYLES[variant];
   const sizeStyle = SIZE_STYLES[size];
   const isDisabled = disabled || loading;
+  const isIconOnly = icon && !children;
 
   const buttonStyle: ViewStyle = {
-    paddingVertical: sizeStyle.paddingY,
+    height: sizeStyle.height,
+    width: isIconOnly ? sizeStyle.height : undefined,
+    paddingHorizontal: isIconOnly ? 0 : sizeStyle.paddingHorizontal,
     backgroundColor: variantStyle.bgColor,
-    borderRadius: 12,
+    borderRadius: isIconOnly ? sizeStyle.height / 2 : 12,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -68,15 +74,21 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={variantStyle.textColor} />
       ) : (
-        <Text
-          style={{
-            fontSize: sizeStyle.fontSize,
-            fontWeight: '600',
-            color: variantStyle.textColor,
-          }}
-        >
-          {children}
-        </Text>
+        <>
+          {icon && <>{icon}</>}
+          {children && (
+            <Text
+              style={{
+                fontSize: sizeStyle.fontSize,
+                fontWeight: '600',
+                color: variantStyle.textColor,
+                marginLeft: icon ? 8 : 0,
+              }}
+            >
+              {children}
+            </Text>
+          )}
+        </>
       )}
     </TouchableOpacity>
   );

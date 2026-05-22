@@ -252,24 +252,16 @@ export function ProductInfoStep({
 
       {/* Footer with CTAs */}
       <View
-        className="absolute bottom-0 left-0 right-0 bg-white px-5 pt-4 pb-6 border-t border-gray-100"
+        className="absolute bottom-0 left-0 right-0 px-5 pt-4 pb-6"
         style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
-        {isDevMode && (
-          <View className="mb-3 p-2 bg-yellow-100 rounded-lg border border-yellow-300">
-            <Text className="text-xs text-yellow-800 text-center">
-              🛠️ DEV MODE: Validation bypassed
-            </Text>
-          </View>
-        )}
-
-        <View className="flex-row gap-3">
-          <TouchableOpacity
+        <View className="flex-row gap-3 items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<ArrowLeft size={18} color="#000000" />}
             onPress={onBack}
-            className="flex-row items-center justify-center py-4 px-5 rounded-xl border border-gray-300 bg-background"
-          >
-            <ArrowLeft size={20} color="#374151" />
-          </TouchableOpacity>
+          />
 
           <Button
             onPress={isDevMode ? onNext : validateAndProceed}

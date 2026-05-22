@@ -8,7 +8,7 @@ interface SearchBarProps {
   placeholder?: string;
 }
 
-const INPUT_HEIGHT = 50;
+const INPUT_HEIGHT = 40;
 const INPUT_FONT_SIZE = 16;
 
 export function SearchBar({

@@ -1,8 +1,8 @@
 import { Stack, useRouter, usePathname } from 'expo-router';
-import { View, TouchableOpacity, Alert, BackHandler } from 'react-native';
+import { View, TouchableOpacity, Alert, BackHandler, StatusBar } from 'react-native';
 import { useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CloseCircle } from '@solar-icons/react-native/Linear';
+import { X } from 'lucide-react-native';
 import { SellFormProvider, useSellFormContext } from '@/features/sell/context/SellFormContext';
 import { StepIndicator } from '@/features/sell/components/StepIndicator';
 import type { WizardStep } from '@/features/sell/types';
@@ -23,6 +23,9 @@ function SellLayoutContent() {
   // Derive current step from route
   const currentRoute = pathname.split('/').pop() || 'foto';
   const currentStep = routeToStep[currentRoute] ?? 1;
+
+  // Check if on success screen (no stepper needed)
+  const isSuccessScreen = currentRoute === 'success';
 
   // Handle hardware back button on first step
   useEffect(() => {
@@ -80,23 +83,30 @@ function SellLayoutContent() {
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      {/* Header with Step Indicator and Close Button */}
-      <View className="relative">
-        <StepIndicator
-          currentStep={currentStep}
-          stepLabels={['Foto', 'Kategori', 'Info', 'Review']}
-        />
+    <View className="flex-1 bg-background" style={{ paddingTop: isSuccessScreen ? 0 : insets.top }}>
+      {/* Status bar - matches success screen background */}
+      {isSuccessScreen && (
+        <StatusBar barStyle="dark-content" backgroundColor="#F9F906" />
+      )}
 
-        {/* Close Button */}
-        <TouchableOpacity
-          onPress={handleClose}
-          className="absolute right-4 top-3 z-10"
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <CloseCircle size={28} color="#666666" />
-        </TouchableOpacity>
-      </View>
+      {/* Header with Step Indicator and Close Button - hidden on success screen */}
+      {!isSuccessScreen && (
+        <View className="relative">
+          <StepIndicator
+            currentStep={currentStep}
+            stepLabels={['Foto', 'Kategori', 'Info', 'Review']}
+          />
+
+          {/* Close Button */}
+          <TouchableOpacity
+            onPress={handleClose}
+            className="absolute right-4 top-3 z-10"
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <X size={24} color="#666666" />
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Step Content */}
       <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
