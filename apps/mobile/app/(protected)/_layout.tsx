@@ -9,10 +9,18 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Skip auth check in development mode
+    if (__DEV__) return;
+    
     if (!isAuthenticated) {
       router.replace(`/auth?returnTo=${encodeURIComponent(pathname)}`);
     }
   }, [isAuthenticated, pathname, router]);
+
+  // Skip auth check in development mode
+  if (__DEV__) {
+    return <>{children}</>;
+  }
 
   if (!isAuthenticated) {
     return null;
@@ -25,7 +33,7 @@ export default function ProtectedLayout() {
   return (
     <AuthGuard>
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="sell/index" />
+        <Stack.Screen name="sell" />
         <Stack.Screen name="chat/[id]" />
         <Stack.Screen name="settings/index" />
         <Stack.Screen name="settings/profil" />
