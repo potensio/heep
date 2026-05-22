@@ -4,6 +4,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+
 import { useState, useCallback, useRef } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { StatusBar } from "expo-status-bar";
@@ -15,6 +16,7 @@ import { EmptyState } from "./components/EmptyState";
 import { SortBottomSheet, type SortOption } from "./components/SortBottomSheet";
 import { FilterBottomSheet } from "./components/FilterBottomSheet";
 import type { FilterState } from "./components/FilterBottomSheet";
+import { SortFromTopToBottom, Filter } from "@solar-icons/react-native/Linear";
 
 
 // Mock data produk
@@ -24,7 +26,8 @@ const mockProducts = [
     name: "Sepatu Sneakers Pria",
     price: 250000,
     image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Sneakers",
-    store: "Toko Sepatu Jaya",
+    seller: "Andi",
+    sellerId: "seller-1",
     category: "Fashion",
   },
   {
@@ -32,7 +35,8 @@ const mockProducts = [
     name: "Tas Ransel Laptop",
     price: 180000,
     image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Tas",
-    store: "Bag Corner",
+    seller: "Budi",
+    sellerId: "seller-2",
     category: "Aksesoris",
   },
   {
@@ -40,7 +44,8 @@ const mockProducts = [
     name: "Kemeja Flannel",
     price: 150000,
     image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Kemeja",
-    store: "Fashion Store",
+    seller: "Citra",
+    sellerId: "seller-3",
     category: "Fashion",
   },
   {
@@ -48,7 +53,8 @@ const mockProducts = [
     name: "Jam Tangan Analog",
     price: 350000,
     image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Jam",
-    store: "Timepiece ID",
+    seller: "Dian",
+    sellerId: "seller-4",
     category: "Aksesoris",
   },
   {
@@ -56,7 +62,8 @@ const mockProducts = [
     name: "Hoodie Oversized",
     price: 200000,
     image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Hoodie",
-    store: "Streetwear Hub",
+    seller: "Eka",
+    sellerId: "seller-5",
     category: "Fashion",
   },
   {
@@ -64,7 +71,8 @@ const mockProducts = [
     name: "Topi Baseball",
     price: 75000,
     image: "https://placehold.co/100x100/e5e7eb/666666/png?text=Topi",
-    store: "Cap Store",
+    seller: "Fani",
+    sellerId: "seller-6",
     category: "Aksesoris",
   },
 ];
@@ -168,6 +176,14 @@ export function SearchProductsScreen() {
     [router]
   );
 
+  // Handle seller press
+  const handleSellerPress = useCallback(
+    (sellerId: string) => {
+      router.push(`/user/${sellerId}`);
+    },
+    [router]
+  );
+
   // Handle suggestion press
   const handleSuggestionPress = useCallback((suggestion: string) => {
     setSearchQuery(suggestion);
@@ -186,27 +202,28 @@ export function SearchProductsScreen() {
         className="bg-background px-5 pb-2"
         style={{ paddingTop: (insets.top > 0 ? insets.top : 24) + 16 }}
       >
-        <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          onSubmit={handleSearch}
-        />
-
-        {/* Sort & Filter Buttons */}
-        <View className="flex-row gap-3 mt-4">
+        {/* Search Bar with Sort & Filter Buttons */}
+        <View className="flex-row items-center gap-2">
+          <View className="flex-1">
+            <SearchBar
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              onSubmit={handleSearch}
+            />
+          </View>
           <TouchableOpacity
-            className="flex-1 flex-row items-center justify-center bg-white py-3 rounded-xl border border-gray-200"
+            className="items-center justify-center bg-white rounded-xl border border-gray-200"
+            style={{ width: 50, height: 50 }}
             onPress={() => sortSheetRef.current?.expand()}
           >
-            <Text className="text-sm text-gray-700 mr-2">Sortir</Text>
-            <Text className="text-xs text-gray-400">▼</Text>
+            <SortFromTopToBottom size={20} color="#374151" />
           </TouchableOpacity>
           <TouchableOpacity
-            className="flex-1 flex-row items-center justify-center bg-white py-3 rounded-xl border border-gray-200"
+            className="items-center justify-center bg-white rounded-xl border border-gray-200"
+            style={{ width: 50, height: 50 }}
             onPress={() => filterSheetRef.current?.expand()}
           >
-            <Text className="text-sm text-gray-700 mr-2">Filter</Text>
-            <Text className="text-xs text-gray-400">⚙</Text>
+            <Filter size={20} color="#374151" />
           </TouchableOpacity>
         </View>
       </View>
@@ -230,6 +247,7 @@ export function SearchProductsScreen() {
                 key={product.id}
                 product={product}
                 onPress={() => handleProductPress(product.id)}
+                onSellerPress={() => handleSellerPress(product.sellerId)}
                 width="48%"
                 marginRight={index % 2 === 0 ? "4%" : 0}
               />

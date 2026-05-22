@@ -1,4 +1,4 @@
-import { View, ScrollView, Text, TouchableOpacity } from "react-native";
+import { View, ScrollView, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { SettingsItem } from "./components/SettingsItem";
@@ -52,19 +52,13 @@ export function SettingsScreen() {
                 label="Notifikasi"
                 onPress={() => router.push("/settings/notifikasi")}
               />
+              <View className="h-px bg-gray-200 ml-16" />
+              <SettingsItem
+                icon={<Logout size={20} className="text-accent-red" />}
+                label="Keluar"
+                onPress={() => router.replace("/auth")}
+              />
             </View>
-          </View>
-
-          {/* Logout Button */}
-          <View className="mt-4">
-            <TouchableOpacity
-              onPress={() => router.replace("/auth")}
-              className="flex-row items-center justify-center py-4 rounded-xl bg-white border border-gray-200"
-              activeOpacity={0.7}
-            >
-              <Logout size={20} className="text-accent-red mr-2" />
-              <Text className="text-base font-medium text-accent-red">Keluar</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

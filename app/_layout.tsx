@@ -46,7 +46,7 @@ export default function RootLayout() {
             }} 
           />
           <Stack.Screen 
-            name="product" 
+            name="product/[id]" 
             options={{
               headerShown: false,
               presentation: 'card',

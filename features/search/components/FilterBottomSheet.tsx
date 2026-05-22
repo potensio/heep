@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useCallback, useState } from "react";
 import { CheckSquare, CloseSquare } from "@solar-icons/react-native/Linear";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export interface FilterState {
   categories: string[];
@@ -35,6 +36,7 @@ export function FilterBottomSheet({
   bottomSheetRef,
   onApply,
 }: FilterBottomSheetProps) {
+  const insets = useSafeAreaInsets();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedPriceRange, setSelectedPriceRange] =
     useState<"all" | "under100k" | "100k-500k" | "500k-1m" | "above1m">("all");
@@ -72,6 +74,7 @@ export function FilterBottomSheet({
       enablePanDownToClose
       backgroundStyle={{ backgroundColor: "#FFFFFF" }}
       handleIndicatorStyle={{ backgroundColor: "#E5E7EB", width: 40 }}
+      style={{ paddingBottom: insets.bottom }}
     >
       <BottomSheetView className="flex-1 px-5 pt-2 pb-6">
         {/* Header */}

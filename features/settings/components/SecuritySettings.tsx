@@ -2,6 +2,10 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
 import { Eye, EyeClosed } from "@solar-icons/react-native/Linear";
 
+// Consistent input styling matching ProductInfoStep
+const INPUT_HEIGHT = 50;
+const INPUT_FONT_SIZE = 16;
+
 export function SecuritySettings() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -39,29 +43,33 @@ export function SecuritySettings() {
 
   return (
     <View className="flex-1 bg-background p-5">
-      <Text className="text-sm text-gray-600 mb-4">Ubah Password</Text>
+      <Text className="text-sm font-medium text-gray-700 mb-4">Ubah Password</Text>
 
       <View className="gap-4">
         {/* Current Password */}
         <View>
-          <Text className="text-xs text-gray-500 mb-1">Password Saat Ini</Text>
-          <View className="flex-row items-center bg-white rounded-xl border border-gray-200">
+          <Text className="text-sm font-medium text-gray-700 mb-2">Password Saat Ini</Text>
+          <View
+            className="flex-row items-center border border-gray-300 rounded-xl bg-white overflow-hidden"
+            style={{ height: INPUT_HEIGHT }}
+          >
             <TextInput
               value={currentPassword}
               onChangeText={setCurrentPassword}
               placeholder="Masukkan password saat ini"
               secureTextEntry={!showCurrentPassword}
-              className="flex-1 px-4 py-3 text-base"
+              className="flex-1 px-4 text-gray-900"
               placeholderTextColor="#9CA3AF"
+              style={{ fontSize: INPUT_FONT_SIZE }}
             />
             <TouchableOpacity
               onPress={() => setShowCurrentPassword(!showCurrentPassword)}
               className="px-3"
             >
               {showCurrentPassword ? (
-                <Eye size={20} className="text-gray-400" />
+                <Eye size={20} color="#9CA3AF" />
               ) : (
-                <EyeClosed size={20} className="text-gray-400" />
+                <EyeClosed size={20} color="#9CA3AF" />
               )}
             </TouchableOpacity>
           </View>
@@ -69,24 +77,28 @@ export function SecuritySettings() {
 
         {/* New Password */}
         <View>
-          <Text className="text-xs text-gray-500 mb-1">Password Baru</Text>
-          <View className="flex-row items-center bg-white rounded-xl border border-gray-200">
+          <Text className="text-sm font-medium text-gray-700 mb-2">Password Baru</Text>
+          <View
+            className="flex-row items-center border border-gray-300 rounded-xl bg-white overflow-hidden"
+            style={{ height: INPUT_HEIGHT }}
+          >
             <TextInput
               value={newPassword}
               onChangeText={setNewPassword}
               placeholder="Masukkan password baru"
               secureTextEntry={!showNewPassword}
-              className="flex-1 px-4 py-3 text-base"
+              className="flex-1 px-4 text-gray-900"
               placeholderTextColor="#9CA3AF"
+              style={{ fontSize: INPUT_FONT_SIZE }}
             />
             <TouchableOpacity
               onPress={() => setShowNewPassword(!showNewPassword)}
               className="px-3"
             >
               {showNewPassword ? (
-                <Eye size={20} className="text-gray-400" />
+                <Eye size={20} color="#9CA3AF" />
               ) : (
-                <EyeClosed size={20} className="text-gray-400" />
+                <EyeClosed size={20} color="#9CA3AF" />
               )}
             </TouchableOpacity>
           </View>
@@ -94,24 +106,28 @@ export function SecuritySettings() {
 
         {/* Confirm Password */}
         <View>
-          <Text className="text-xs text-gray-500 mb-1">Konfirmasi Password Baru</Text>
-          <View className="flex-row items-center bg-white rounded-xl border border-gray-200">
+          <Text className="text-sm font-medium text-gray-700 mb-2">Konfirmasi Password Baru</Text>
+          <View
+            className="flex-row items-center border border-gray-300 rounded-xl bg-white overflow-hidden"
+            style={{ height: INPUT_HEIGHT }}
+          >
             <TextInput
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               placeholder="Konfirmasi password baru"
               secureTextEntry={!showConfirmPassword}
-              className="flex-1 px-4 py-3 text-base"
+              className="flex-1 px-4 text-gray-900"
               placeholderTextColor="#9CA3AF"
+              style={{ fontSize: INPUT_FONT_SIZE }}
             />
             <TouchableOpacity
               onPress={() => setShowConfirmPassword(!showConfirmPassword)}
               className="px-3"
             >
               {showConfirmPassword ? (
-                <Eye size={20} className="text-gray-400" />
+                <Eye size={20} color="#9CA3AF" />
               ) : (
-                <EyeClosed size={20} className="text-gray-400" />
+                <EyeClosed size={20} color="#9CA3AF" />
               )}
             </TouchableOpacity>
           </View>

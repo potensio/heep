@@ -32,6 +32,7 @@ module.exports = {
         orange: "#F54802",
         yellow: "#F9F906",
         background: "#F9F2E6",
+        cream: "#F9F2E6",
         "text-primary": "#1F1F1F",
         "text-secondary": "#8A8A8A",
       },

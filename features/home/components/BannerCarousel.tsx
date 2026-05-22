@@ -6,7 +6,7 @@ import Animated, {
   withSpring,
   SharedValue,
 } from "react-native-reanimated";
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect, memo } from "react";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -36,7 +36,7 @@ const EXTENDED_BANNERS = [
   BANNERS[0],
 ];
 
-function BannerItem({
+const BannerItem = memo(function BannerItem({
   item,
   index,
   scrollX,
@@ -81,7 +81,7 @@ function BannerItem({
       </Animated.View>
     </Pressable>
   );
-}
+});
 
 export function BannerCarousel() {
   const scrollX = useSharedValue(0);
@@ -200,6 +200,18 @@ export function BannerCarousel() {
     []
   );
 
+  const renderBannerItem = useCallback(
+    ({ item, index }: { item: (typeof BANNERS)[0]; index: number }) => (
+      <BannerItem
+        item={item}
+        index={index}
+        scrollX={scrollX}
+        onPress={() => goToSlide(getRealIndexFromScrollIndex(index))}
+      />
+    ),
+    [scrollX, goToSlide, getRealIndexFromScrollIndex]
+  );
+
   return (
     <View className="py-4">
       <FlatList
@@ -223,14 +235,7 @@ export function BannerCarousel() {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         scrollEventThrottle={16}
-        renderItem={({ item, index }) => (
-          <BannerItem
-            item={item}
-            index={index}
-            scrollX={scrollX}
-            onPress={() => goToSlide(getRealIndexFromScrollIndex(index))}
-          />
-        )}
+        renderItem={renderBannerItem}
       />
 
       <View className="flex-row justify-center gap-2 mt-4">

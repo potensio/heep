@@ -1,4 +1,5 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native';
+import { Avatar, UnreadBadge } from '@/components/ui/Avatar';
 import type { Conversation } from '../types';
 
 interface ConversationCardProps {
@@ -57,38 +58,15 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
           resizeMode="cover"
         />
         {/* Avatar */}
-        <View
-          className="absolute items-center justify-center"
-          style={{
-            width: 36,
-            height: 36,
-            backgroundColor: '#155DFC',
-            borderRadius: 18,
-            left: 0,
-            bottom: 0,
-          }}
-        >
-          <Text className="text-white text-base font-semibold">
-            {otherUser.name.charAt(0).toUpperCase()}
-          </Text>
+        <View className="absolute" style={{ left: 0, bottom: 0 }}>
+          <Avatar
+            source={otherUser.avatar}
+            name={otherUser.name}
+            size="sm"
+          />
         </View>
         {/* Unread badge */}
-        {unreadCount > 0 && (
-          <View
-            className="absolute bg-accent-red rounded-full items-center justify-center"
-            style={{
-              minWidth: 18,
-              height: 18,
-              right: -2,
-              top: -2,
-              paddingHorizontal: 4,
-            }}
-          >
-            <Text className="text-white text-xs font-bold">
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </Text>
-          </View>
-        )}
+        {unreadCount > 0 && <UnreadBadge count={unreadCount} />}
       </View>
 
       {/* Content */}

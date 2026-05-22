@@ -11,13 +11,15 @@ export default function SettingsLayout() {
           fontWeight: "500",
         },
         headerBackTitle: "Kembali",
+        headerStyle: {
+          backgroundColor: "#F9F2E6",
+        },
       }}
     >
       <Stack.Screen name="profil" options={{ title: "Profil" }} />
       <Stack.Screen name="handphone" options={{ title: "Nomor Handphone" }} />
       <Stack.Screen name="keamanan" options={{ title: "Keamanan" }} />
       <Stack.Screen name="notifikasi" options={{ title: "Notifikasi" }} />
-      <Stack.Screen name="toko" options={{ title: "Toko" }} />
     </Stack>
   );
 }

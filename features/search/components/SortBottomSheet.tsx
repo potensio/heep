@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from "react-native";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useCallback } from "react";
 import { CheckSquare } from "@solar-icons/react-native/Linear";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export type SortOption = "relevan" | "terbaru" | "termurah" | "termahal";
 
@@ -25,6 +26,8 @@ export function SortBottomSheet({
   selected,
   onSelect,
 }: SortBottomSheetProps) {
+  const insets = useSafeAreaInsets();
+
   const handleClose = useCallback(() => {
     bottomSheetRef.current?.close();
   }, [bottomSheetRef]);
@@ -45,6 +48,7 @@ export function SortBottomSheet({
       enablePanDownToClose
       backgroundStyle={{ backgroundColor: "#FFFFFF" }}
       handleIndicatorStyle={{ backgroundColor: "#E5E7EB", width: 40 }}
+      style={{ paddingBottom: insets.bottom }}
     >
       <BottomSheetView className="flex-1 px-5 pt-2 pb-6">
         <Text className="text-lg font-heading font-medium text-gray-900 mb-4">

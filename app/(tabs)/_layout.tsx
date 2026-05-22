@@ -6,13 +6,13 @@ import {
   Home,
   ChatLine,
   User,
-  Magnifer,
+  Cart5,
   AddSquare,
 } from "@solar-icons/react-native/Linear";
 // Bold style (filled)
 import {
   Home as HomeBold,
-  Magnifer as MagniferBold,
+  Cart5 as Cart5Bold,
   ChatLine as ChatLineBold,
   User as UserBold,
 } from "@solar-icons/react-native/Bold";
@@ -61,9 +61,9 @@ export default function TabLayout() {
           title: "Cari",
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <MagniferBold color="#101828" size={24} />
+              <Cart5Bold color="#101828" size={24} />
             ) : (
-              <Magnifer color="#666666" size={24} />
+              <Cart5 color="#666666" size={24} />
             ),
         }}
       />

@@ -31,12 +31,12 @@ export function MessageBubble({ message, isCurrentUser }: MessageBubbleProps) {
       <View
         className={`px-4 py-3 rounded-2xl ${
           isCurrentUser
-            ? "bg-accent-neon rounded-br-[0px]"
+            ? "bg-black rounded-br-[0px]"
             : "bg-accent-orange rounded-bl-[0px]"
         }`}
       >
         <Text
-          className={`text-base ${isCurrentUser ? "text-neutral-900" : "text-white"}`}
+          className={`text-base ${isCurrentUser ? "text-white" : "text-white"}`}
         >
           {message.text}
         </Text>

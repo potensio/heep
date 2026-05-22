@@ -14,7 +14,7 @@ export function NotificationSettings() {
 
       <View className="gap-4">
         {/* Order Notifications */}
-        <View className="bg-white rounded-xl p-4 flex-row items-center justify-between">
+        <View className="bg-white rounded-xl p-4 flex-row items-center justify-between border border-gray-300">
           <View className="flex-1 mr-4">
             <Text className="text-base font-medium text-gray-800">Pesanan</Text>
             <Text className="text-sm text-gray-500">
@@ -30,7 +30,7 @@ export function NotificationSettings() {
         </View>
 
         {/* Chat Notifications */}
-        <View className="bg-white rounded-xl p-4 flex-row items-center justify-between">
+        <View className="bg-white rounded-xl p-4 flex-row items-center justify-between border border-gray-300">
           <View className="flex-1 mr-4">
             <Text className="text-base font-medium text-gray-800">Chat</Text>
             <Text className="text-sm text-gray-500">
@@ -46,7 +46,7 @@ export function NotificationSettings() {
         </View>
 
         {/* Promo Notifications */}
-        <View className="bg-white rounded-xl p-4 flex-row items-center justify-between">
+        <View className="bg-white rounded-xl p-4 flex-row items-center justify-between border border-gray-300">
           <View className="flex-1 mr-4">
             <Text className="text-base font-medium text-gray-800">Promosi</Text>
             <Text className="text-sm text-gray-500">
