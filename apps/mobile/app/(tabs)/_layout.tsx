@@ -24,10 +24,14 @@ export default function TabLayout() {
   const { isAuthenticated } = useAuth();
 
   const handleProtectedNavigation = (path: string) => {
+    if (__DEV__) {
+      router.push(path as any);
+      return;
+    }
     if (!isAuthenticated) {
       router.push(`/auth?returnTo=${path}`);
     } else {
-      router.push(path);
+      router.push(path as any);
     }
   };
 
@@ -83,7 +87,7 @@ export default function TabLayout() {
           title: "Jual",
           tabBarButton: () => (
             <TouchableOpacity
-              onPress={() => handleProtectedNavigation("/sell")}
+              onPress={() => handleProtectedNavigation("/(protected)/sell/foto")}
               className="items-center -mt-6"
               activeOpacity={0.8}
             >
@@ -116,12 +120,6 @@ export default function TabLayout() {
             ) : (
               <ChatLine color="#666666" size={24} />
             ),
-          tabBarButton: (props) => (
-            <TouchableOpacity
-              {...props}
-              onPress={() => handleProtectedNavigation("/chat")}
-            />
-          ),
         }}
       />
       <Tabs.Screen
@@ -134,12 +132,6 @@ export default function TabLayout() {
             ) : (
               <User color="#666666" size={24} />
             ),
-          tabBarButton: (props) => (
-            <TouchableOpacity
-              {...props}
-              onPress={() => handleProtectedNavigation("/settings")}
-            />
-          ),
         }}
       />
     </Tabs>
