@@ -1,6 +1,7 @@
 import { Tabs, useRouter } from "expo-router";
 import { View, Text, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useAuth } from "@/context/AuthContext";
 // Linear style (outline/regular)
 import {
   Home,
@@ -20,6 +21,15 @@ import {
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+
+  const handleProtectedNavigation = (path: string) => {
+    if (!isAuthenticated) {
+      router.push(`/auth?returnTo=${path}`);
+    } else {
+      router.push(path);
+    }
+  };
 
   return (
     <Tabs
@@ -73,7 +83,7 @@ export default function TabLayout() {
           title: "Jual",
           tabBarButton: () => (
             <TouchableOpacity
-              onPress={() => router.push("/sell")}
+              onPress={() => handleProtectedNavigation("/sell")}
               className="items-center -mt-6"
               activeOpacity={0.8}
             >
@@ -106,6 +116,12 @@ export default function TabLayout() {
             ) : (
               <ChatLine color="#666666" size={24} />
             ),
+          tabBarButton: (props) => (
+            <TouchableOpacity
+              {...props}
+              onPress={() => handleProtectedNavigation("/chat")}
+            />
+          ),
         }}
       />
       <Tabs.Screen
@@ -118,6 +134,12 @@ export default function TabLayout() {
             ) : (
               <User color="#666666" size={24} />
             ),
+          tabBarButton: (props) => (
+            <TouchableOpacity
+              {...props}
+              onPress={() => handleProtectedNavigation("/settings")}
+            />
+          ),
         }}
       />
     </Tabs>
