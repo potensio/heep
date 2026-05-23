@@ -1,7 +1,27 @@
-import { createContext, useContext, useState, useCallback, ReactNode, useRef } from "react";
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Modal, Pressable, Animated } from "react-native";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+  useRef,
+  useEffect,
+} from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+  Modal,
+  Pressable,
+  Animated,
+  Keyboard,
+} from "react-native";
 import { CloseSquare } from "@solar-icons/react-native/Linear";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CATEGORY_OPTIONS } from "@/features/sell/types";
+import { Button } from "@/components/ui/Button";
 
 export type SortOption = "relevan" | "terbaru" | "termurah" | "termahal";
 
@@ -13,7 +33,10 @@ export interface FilterState {
 }
 
 interface FilterSheetContextValue {
-  openFilterSheet: (onApply: (filters: FilterState) => void, initialFilters?: Partial<FilterState>) => void;
+  openFilterSheet: (
+    onApply: (filters: FilterState) => void,
+    initialFilters?: Partial<FilterState>,
+  ) => void;
 }
 
 const FilterSheetContext = createContext<FilterSheetContextValue | null>(null);
@@ -25,16 +48,6 @@ export function useFilterSheet() {
   }
   return context;
 }
-
-const categories = [
-  "Fashion Pria",
-  "Fashion Wanita",
-  "Elektronik",
-  "Aksesoris",
-  "Sepatu",
-  "Tas",
-  "Jam Tangan",
-];
 
 const sortOptions: { value: SortOption; label: string }[] = [
   { value: "relevan", label: "Relevan" },
@@ -53,16 +66,45 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
   const onApplyCallback = useRef<((filters: FilterState) => void) | null>(null);
   const [backdropOpacity] = useState(() => new Animated.Value(0));
   const [sheetTranslateY] = useState(() => new Animated.Value(300));
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Keyboard listener - seperti TikTok
+  useEffect(() => {
+    const showListener = Keyboard.addListener("keyboardWillShow", (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+    const hideListener = Keyboard.addListener("keyboardWillHide", () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      showListener.remove();
+      hideListener.remove();
+    };
+  }, []);
+
+  // Scroll ke bawah saat input focus
+  const handleInputFocus = useCallback(() => {
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({
+        y: 100,
+        animated: true,
+      });
+    }, 100);
+  }, []);
 
   const openFilterSheet = useCallback(
-    (onApply: (filters: FilterState) => void, initialFilters?: Partial<FilterState>) => {
+    (
+      onApply: (filters: FilterState) => void,
+      initialFilters?: Partial<FilterState>,
+    ) => {
       setSelectedCategories(initialFilters?.categories || []);
       setMinPrice(initialFilters?.minPrice?.toString() || "");
       setMaxPrice(initialFilters?.maxPrice?.toString() || "");
       setSelectedSort(initialFilters?.sortBy || "relevan");
       onApplyCallback.current = onApply;
       setVisible(true);
-      
+
       // Animate in
       Animated.parallel([
         Animated.timing(backdropOpacity, {
@@ -78,7 +120,7 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
         }),
       ]).start();
     },
-    [backdropOpacity, sheetTranslateY]
+    [backdropOpacity, sheetTranslateY],
   );
 
   const handleClose = useCallback(() => {
@@ -103,7 +145,7 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
     setSelectedCategories((prev) =>
       prev.includes(category)
         ? prev.filter((c) => c !== category)
-        : [...prev, category]
+        : [...prev, category],
     );
   }, []);
 
@@ -129,7 +171,7 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
   return (
     <FilterSheetContext.Provider value={{ openFilterSheet }}>
       {children}
-      
+
       <Modal
         visible={visible}
         transparent
@@ -151,7 +193,7 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
           <Pressable className="flex-1" onPress={handleClose} />
         </Animated.View>
 
-        {/* Sheet - slides up */}
+        {/* Sheet - stays in place, content scrolls */}
         <Animated.View
           style={{
             position: "absolute",
@@ -171,21 +213,28 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
             </View>
 
             {/* Header */}
-            <View className="flex-row justify-between items-center px-5 mb-4">
-              <Text className="text-lg font-heading font-medium text-gray-900">
-                Filter & Urutkan
+            <View className="flex-row justify-between items-center border-b border-gray-200 pb-3 px-5 mb-4">
+              <Text className="text-2xl font-heading font-medium text-gray-900">
+                Filter
               </Text>
               <TouchableOpacity onPress={handleClose}>
                 <CloseSquare size={24} color="#9CA3AF" />
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} className="px-5" style={{ maxHeight: 400 }}>
+            <ScrollView
+              ref={scrollViewRef}
+              showsVerticalScrollIndicator={false}
+              className="px-5"
+              style={{ maxHeight: 450 }}
+              contentContainerStyle={{ paddingBottom: 200 }}
+              keyboardShouldPersistTaps="handled"
+              scrollEnabled={true}
+              nestedScrollEnabled={true}
+            >
               {/* Sort Options */}
               <View className="mb-6">
-                <Text className="text-sm font-medium text-gray-700 mb-3">
-                  Urutkan
-                </Text>
+                <Text className="text-lg font-medium mb-3">Urutkan</Text>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -195,17 +244,17 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
                     <TouchableOpacity
                       key={option.value}
                       onPress={() => setSelectedSort(option.value)}
-                      className={`px-4 py-2 rounded-full border ${
+                      className={`p-2 rounded-lg border ${
                         selectedSort === option.value
-                          ? "bg-primary border-primary"
+                          ? "bg-primary/10 border-1.5 border-primary"
                           : "bg-white border-gray-200"
                       }`}
                     >
                       <Text
-                        className={`text-sm ${
+                        className={`text-lg font-semibold ${
                           selectedSort === option.value
-                            ? "text-white font-medium"
-                            : "text-gray-700"
+                            ? "text-primary"
+                            : "text-text-primary"
                         }`}
                       >
                         {option.label}
@@ -217,28 +266,26 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
 
               {/* Categories */}
               <View className="mb-6">
-                <Text className="text-sm font-medium text-gray-700 mb-3">
-                  Kategori
-                </Text>
+                <Text className="text-lg font-medium mb-3">Kategori</Text>
                 <View className="flex-row flex-wrap gap-2">
-                  {categories.map((category) => (
+                  {CATEGORY_OPTIONS.map((category) => (
                     <TouchableOpacity
-                      key={category}
-                      onPress={() => toggleCategory(category)}
-                      className={`px-4 py-2 rounded-full border ${
-                        selectedCategories.includes(category)
-                          ? "bg-primary border-primary"
+                      key={category.value}
+                      onPress={() => toggleCategory(category.label)}
+                      className={`p-2 rounded-lg border ${
+                        selectedCategories.includes(category.label)
+                          ? "bg-primary/10 border-1.5 border-primary"
                           : "bg-white border-gray-200"
                       }`}
                     >
                       <Text
-                        className={`text-sm ${
-                          selectedCategories.includes(category)
-                            ? "text-white"
-                            : "text-gray-700"
+                        className={`text-lg font-semibold ${
+                          selectedCategories.includes(category.label)
+                            ? "text-primary"
+                            : "text-text-primary"
                         }`}
                       >
-                        {category}
+                        {category.label}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -247,36 +294,36 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
 
               {/* Price Range */}
               <View className="mb-6">
-                <Text className="text-sm font-medium text-gray-700 mb-3">
-                  Rentang Harga
-                </Text>
+                <Text className="text-lg font-medium mb-3">Rentang Harga</Text>
                 <View className="flex-row items-center gap-3">
                   <View className="flex-1">
-                    <Text className="text-xs text-gray-500 mb-1">Minimum</Text>
-                    <View className="flex-row items-center bg-gray-50 rounded-xl px-3 py-2 border border-gray-200">
+                    <Text className="text-sm text-gray-500 mb-2">Minimum</Text>
+                    <View className="flex-row items-center bg-gray-50 rounded-lg px-3 py-3 border border-gray-200">
                       <Text className="text-gray-500 mr-1">Rp</Text>
                       <TextInput
                         value={minPrice}
                         onChangeText={setMinPrice}
+                        onFocus={handleInputFocus}
                         placeholder="0"
                         placeholderTextColor="#9CA3AF"
                         keyboardType="numeric"
-                        className="flex-1 text-gray-900 text-sm"
+                        className="flex-1 text-text-primary text-base"
                       />
                     </View>
                   </View>
-                  <Text className="text-gray-400 mt-4">—</Text>
+                  <Text className="text-gray-400 mt-6">—</Text>
                   <View className="flex-1">
-                    <Text className="text-xs text-gray-500 mb-1">Maksimum</Text>
-                    <View className="flex-row items-center bg-gray-50 rounded-xl px-3 py-2 border border-gray-200">
+                    <Text className="text-sm text-gray-500 mb-2">Maksimum</Text>
+                    <View className="flex-row items-center bg-gray-50 rounded-lg px-3 py-3 border border-gray-200">
                       <Text className="text-gray-500 mr-1">Rp</Text>
                       <TextInput
                         value={maxPrice}
                         onChangeText={setMaxPrice}
+                        onFocus={handleInputFocus}
                         placeholder="∞"
                         placeholderTextColor="#9CA3AF"
                         keyboardType="numeric"
-                        className="flex-1 text-gray-900 text-sm"
+                        className="flex-1 text-text-primary text-base"
                       />
                     </View>
                   </View>
@@ -286,22 +333,12 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
 
             {/* Action Buttons */}
             <View className="flex-row gap-3 px-5 mt-4 pt-4 border-t border-gray-100">
-              <TouchableOpacity
-                onPress={handleReset}
-                className="flex-1 py-3 rounded-xl border border-gray-300 bg-white"
-              >
-                <Text className="text-center text-gray-700 font-medium">
-                  Reset
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleApply}
-                className="flex-1 py-3 rounded-xl bg-primary"
-              >
-                <Text className="text-center text-white font-medium">
-                  Terapkan
-                </Text>
-              </TouchableOpacity>
+              <Button variant="outline" onPress={handleReset} style={{ flex: 1 }}>
+                Reset
+              </Button>
+              <Button variant="primary" onPress={handleApply} style={{ flex: 1 }}>
+                Terapkan
+              </Button>
             </View>
           </View>
         </Animated.View>
