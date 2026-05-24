@@ -6,6 +6,7 @@ interface SearchBarProps {
   onChangeText: (text: string) => void;
   onSubmit: () => void;
   placeholder?: string;
+  autoFocus?: boolean;
 }
 
 const INPUT_HEIGHT = 40;
@@ -16,6 +17,7 @@ export function SearchBar({
   onChangeText,
   onSubmit,
   placeholder = "Cari produk yang kamu inginkan...",
+  autoFocus = false,
 }: SearchBarProps) {
   return (
     <View
@@ -32,6 +34,7 @@ export function SearchBar({
         onChangeText={onChangeText}
         onSubmitEditing={onSubmit}
         returnKeyType="search"
+        autoFocus={autoFocus}
       />
       {value.length > 0 && (
         <TouchableOpacity onPress={() => onChangeText("")} className="p-1">
