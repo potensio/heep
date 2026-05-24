@@ -47,6 +47,7 @@ export function ProductDetailScreen({ id }: ProductDetailScreenProps) {
   return (
     <ProductDetail
       product={productData}
+      onBack={() => router.back()}
       onSellerPress={() => router.push(`/user/${productData.sellerId}`)}
       footerContent={footerContent}
     />

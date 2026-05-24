@@ -1,6 +1,6 @@
 import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Heart, Share } from "@solar-icons/react-native/Linear";
+import { Heart, Share, ArrowLeft } from "@solar-icons/react-native/Linear";
 import { Avatar } from "@/components/ui/Avatar";
 
 export interface ProductDetailData {
@@ -19,6 +19,7 @@ interface ProductDetailProps {
   product: ProductDetailData;
   showActions?: boolean;
   showSeller?: boolean;
+  onBack?: () => void;
   onShare?: () => void;
   onLike?: () => void;
   onSellerPress?: () => void;
@@ -34,6 +35,7 @@ export function ProductDetail({
   product,
   showActions = true,
   showSeller = true,
+  onBack,
   onShare,
   onLike,
   onSellerPress,
@@ -48,7 +50,16 @@ export function ProductDetail({
           className="flex-row items-center justify-between px-4 py-3 absolute top-0 left-0 right-0 z-10"
           style={{ paddingTop: insets.top + 8 }}
         >
-          <View className="w-10 h-10" />
+          {onBack ? (
+            <TouchableOpacity
+              onPress={onBack}
+              className="w-10 h-10 rounded-full bg-cream items-center justify-center shadow-sm"
+            >
+              <ArrowLeft size={20} className="text-gray-800" />
+            </TouchableOpacity>
+          ) : (
+            <View className="w-10 h-10" />
+          )}
 
           <View className="flex-row gap-2">
             <TouchableOpacity
