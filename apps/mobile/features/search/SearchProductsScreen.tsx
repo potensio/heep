@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SearchBar } from "./components/SearchBar";
 import { ProductCard } from "./components/ProductCard";
 import { EmptyState } from "./components/EmptyState";
+import { SearchHistory } from "./components/SearchHistory";
 import { useFilterSheet } from "./context/FilterSheetContext";
 import type { FilterState, SortOption } from "./context/FilterSheetContext";
 import { Filter, ArrowLeft } from "@solar-icons/react-native/Linear";
@@ -28,6 +29,8 @@ export function SearchProductsScreen({
   const insets = useSafeAreaInsets();
   const { openFilterSheet } = useFilterSheet();
   const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [hasSubmitted, setHasSubmitted] = useState(!!initialQuery.trim());
+  const [history, setHistory] = useState<string[]>([]);
   const [filteredProducts, setFilteredProducts] = useState(() => {
     if (!initialQuery.trim()) return mockProducts;
     return mockProducts.filter((p) =>
@@ -36,18 +39,38 @@ export function SearchProductsScreen({
   });
   const [sortBy, setSortBy] = useState<SortOption>("relevan");
 
-  const handleSearch = useCallback(() => {
-    const query = searchQuery.trim();
-    if (!query) {
-      setFilteredProducts(mockProducts);
-      return;
-    }
+  const addToHistory = useCallback((query: string) => {
+    const trimmed = query.trim();
+    if (!trimmed) return;
+    setHistory((prev) => [trimmed, ...prev.filter((h) => h !== trimmed)].slice(0, 10));
+  }, []);
+
+  const runSearch = useCallback((query: string) => {
+    const trimmed = query.trim();
+    addToHistory(trimmed);
     setFilteredProducts(
-      mockProducts.filter((p) =>
-        p.name.toLowerCase().includes(query.toLowerCase())
-      )
+      trimmed
+        ? mockProducts.filter((p) =>
+            p.name.toLowerCase().includes(trimmed.toLowerCase())
+          )
+        : mockProducts
     );
-  }, [searchQuery]);
+    setHasSubmitted(true);
+  }, [addToHistory]);
+
+  const handleChangeText = useCallback((text: string) => {
+    setSearchQuery(text);
+    if (text === "") setHasSubmitted(false);
+  }, []);
+
+  const handleSearch = useCallback(() => {
+    if (searchQuery.trim()) runSearch(searchQuery);
+  }, [searchQuery, runSearch]);
+
+  const handleHistorySelect = useCallback((query: string) => {
+    setSearchQuery(query);
+    runSearch(query);
+  }, [runSearch]);
 
   const handleFilter = useCallback((filters: FilterState) => {
     let filtered = [...mockProducts];
@@ -78,16 +101,13 @@ export function SearchProductsScreen({
 
   const handleSuggestionPress = useCallback((suggestion: string) => {
     setSearchQuery(suggestion);
-    setFilteredProducts(
-      mockProducts.filter((p) =>
-        p.name.toLowerCase().includes(suggestion.toLowerCase())
-      )
-    );
-  }, []);
+    runSearch(suggestion);
+  }, [runSearch]);
 
   return (
     <View className="flex-1 bg-background">
       <StatusBar style="dark" />
+
       <View
         className="bg-background px-5 pb-2"
         style={{ paddingTop: (insets.top > 0 ? insets.top : 24) + 16 }}
@@ -99,53 +119,88 @@ export function SearchProductsScreen({
           <View className="flex-1">
             <SearchBar
               value={searchQuery}
-              onChangeText={setSearchQuery}
+              onChangeText={handleChangeText}
               onSubmit={handleSearch}
-              autoFocus
+              autoFocus={!hasSubmitted}
             />
           </View>
-          <TouchableOpacity
-            className="items-center justify-center bg-white rounded-xl border border-gray-200"
-            style={{ width: 40, height: 40 }}
-            onPress={() => openFilterSheet(handleFilter, { sortBy })}
-          >
-            <Filter size={20} color="#374151" />
-          </TouchableOpacity>
+          {hasSubmitted && (
+            <TouchableOpacity
+              className="items-center justify-center bg-white rounded-xl border border-gray-200"
+              style={{ width: 40, height: 40 }}
+              onPress={() => openFilterSheet(handleFilter, { sortBy })}
+            >
+              <Filter size={20} color="#374151" />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
-      <ScrollView
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 24 }}
-      >
-        <View className="px-5 mt-6">
-          {searchQuery.length > 0 && (
-            <Text className="text-sm text-gray-500 mb-4">
-              {filteredProducts.length} hasil untuk "{searchQuery}"
-            </Text>
+      {!hasSubmitted ? (
+        <ScrollView
+          className="flex-1"
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 24 }}
+        >
+          <SearchHistory
+            history={history}
+            onSelect={handleHistorySelect}
+            onDelete={(query) => setHistory((prev) => prev.filter((h) => h !== query))}
+            onClearAll={() => setHistory([])}
+          />
+          {history.length === 0 && (
+            <View className="px-5 mt-6">
+              <Text className="text-sm font-medium text-gray-500 mb-3">
+                Coba cari
+              </Text>
+              <View className="flex-row flex-wrap gap-2">
+                {searchSuggestions.map((s) => (
+                  <TouchableOpacity
+                    key={s}
+                    onPress={() => handleSuggestionPress(s)}
+                    className="bg-white px-3 py-2 rounded-full border border-gray-200"
+                  >
+                    <Text className="text-sm text-gray-700">{s}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
           )}
-          <View className="flex-row flex-wrap">
-            {filteredProducts.map((product, index) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onPress={() => onProductPress(product.id)}
-                onSellerPress={() => onSellerPress(product.sellerId ?? "")}
-                width="48%"
-                marginRight={index % 2 === 0 ? "4%" : 0}
+        </ScrollView>
+      ) : (
+        <ScrollView
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 24 }}
+        >
+          <View className="px-5 mt-6">
+            {searchQuery.length > 0 && (
+              <Text className="text-sm text-gray-500 mb-4">
+                {filteredProducts.length} hasil untuk "{searchQuery}"
+              </Text>
+            )}
+            <View className="flex-row flex-wrap">
+              {filteredProducts.map((product, index) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onPress={() => onProductPress(product.id)}
+                  onSellerPress={() => onSellerPress(product.sellerId ?? "")}
+                  width="48%"
+                  marginRight={index % 2 === 0 ? "4%" : 0}
+                />
+              ))}
+            </View>
+            {filteredProducts.length === 0 && (
+              <EmptyState
+                query={searchQuery}
+                suggestions={searchSuggestions}
+                onSuggestionPress={handleSuggestionPress}
               />
-            ))}
+            )}
           </View>
-          {filteredProducts.length === 0 && (
-            <EmptyState
-              query={searchQuery}
-              suggestions={searchSuggestions}
-              onSuggestionPress={handleSuggestionPress}
-            />
-          )}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      )}
     </View>
   );
 }
