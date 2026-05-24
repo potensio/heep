@@ -10,8 +10,14 @@ import { useFilterSheet } from "./context/FilterSheetContext";
 import type { FilterState, SortOption } from "./context/FilterSheetContext";
 import { Filter, ArrowLeft } from "@solar-icons/react-native/Linear";
 import { mockProducts } from "@/lib/mockData";
+import { Button } from "@/components/ui";
 
-const searchSuggestions = ["Sepatu Nike", "Tas Laptop", "Kemeja Polos", "Jam Tangan"];
+const searchSuggestions = [
+  "Sepatu Nike",
+  "Tas Laptop",
+  "Kemeja Polos",
+  "Jam Tangan",
+];
 
 interface SearchProductsScreenProps {
   initialQuery?: string;
@@ -34,7 +40,7 @@ export function SearchProductsScreen({
   const [filteredProducts, setFilteredProducts] = useState(() => {
     if (!initialQuery.trim()) return mockProducts;
     return mockProducts.filter((p) =>
-      p.name.toLowerCase().includes(initialQuery.toLowerCase())
+      p.name.toLowerCase().includes(initialQuery.toLowerCase()),
     );
   });
   const [sortBy, setSortBy] = useState<SortOption>("relevan");
@@ -42,21 +48,26 @@ export function SearchProductsScreen({
   const addToHistory = useCallback((query: string) => {
     const trimmed = query.trim();
     if (!trimmed) return;
-    setHistory((prev) => [trimmed, ...prev.filter((h) => h !== trimmed)].slice(0, 10));
+    setHistory((prev) =>
+      [trimmed, ...prev.filter((h) => h !== trimmed)].slice(0, 10),
+    );
   }, []);
 
-  const runSearch = useCallback((query: string) => {
-    const trimmed = query.trim();
-    addToHistory(trimmed);
-    setFilteredProducts(
-      trimmed
-        ? mockProducts.filter((p) =>
-            p.name.toLowerCase().includes(trimmed.toLowerCase())
-          )
-        : mockProducts
-    );
-    setHasSubmitted(true);
-  }, [addToHistory]);
+  const runSearch = useCallback(
+    (query: string) => {
+      const trimmed = query.trim();
+      addToHistory(trimmed);
+      setFilteredProducts(
+        trimmed
+          ? mockProducts.filter((p) =>
+              p.name.toLowerCase().includes(trimmed.toLowerCase()),
+            )
+          : mockProducts,
+      );
+      setHasSubmitted(true);
+    },
+    [addToHistory],
+  );
 
   const handleChangeText = useCallback((text: string) => {
     setSearchQuery(text);
@@ -67,18 +78,21 @@ export function SearchProductsScreen({
     if (searchQuery.trim()) runSearch(searchQuery);
   }, [searchQuery, runSearch]);
 
-  const handleHistorySelect = useCallback((query: string) => {
-    setSearchQuery(query);
-    runSearch(query);
-  }, [runSearch]);
+  const handleHistorySelect = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+      runSearch(query);
+    },
+    [runSearch],
+  );
 
   const handleFilter = useCallback((filters: FilterState) => {
     let filtered = [...mockProducts];
     if (filters.categories.length > 0) {
       filtered = filtered.filter((p) =>
         filters.categories.some((cat) =>
-          (p.category ?? "").toLowerCase().includes(cat.toLowerCase())
-        )
+          (p.category ?? "").toLowerCase().includes(cat.toLowerCase()),
+        ),
       );
     }
     if (filters.minPrice !== null) {
@@ -90,19 +104,26 @@ export function SearchProductsScreen({
     setSortBy(filters.sortBy);
     filtered.sort((a, b) => {
       switch (filters.sortBy) {
-        case "terbaru": return parseInt(b.id) - parseInt(a.id);
-        case "termurah": return a.price - b.price;
-        case "termahal": return b.price - a.price;
-        default: return 0;
+        case "terbaru":
+          return parseInt(b.id) - parseInt(a.id);
+        case "termurah":
+          return a.price - b.price;
+        case "termahal":
+          return b.price - a.price;
+        default:
+          return 0;
       }
     });
     setFilteredProducts(filtered);
   }, []);
 
-  const handleSuggestionPress = useCallback((suggestion: string) => {
-    setSearchQuery(suggestion);
-    runSearch(suggestion);
-  }, [runSearch]);
+  const handleSuggestionPress = useCallback(
+    (suggestion: string) => {
+      setSearchQuery(suggestion);
+      runSearch(suggestion);
+    },
+    [runSearch],
+  );
 
   return (
     <View className="flex-1 bg-background">
@@ -113,9 +134,13 @@ export function SearchProductsScreen({
         style={{ paddingTop: (insets.top > 0 ? insets.top : 24) + 16 }}
       >
         <View className="flex-row items-center gap-2">
-          <TouchableOpacity onPress={onBack} className="p-1">
-            <ArrowLeft size={24} color="#374151" />
-          </TouchableOpacity>
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<ArrowLeft size={18} color="#374151" />}
+            onPress={onBack}
+          />
+
           <View className="flex-1">
             <SearchBar
               value={searchQuery}
@@ -145,7 +170,9 @@ export function SearchProductsScreen({
           <SearchHistory
             history={history}
             onSelect={handleHistorySelect}
-            onDelete={(query) => setHistory((prev) => prev.filter((h) => h !== query))}
+            onDelete={(query) =>
+              setHistory((prev) => prev.filter((h) => h !== query))
+            }
             onClearAll={() => setHistory([])}
           />
           {history.length === 0 && (
@@ -176,7 +203,7 @@ export function SearchProductsScreen({
           <View className="px-5 mt-6">
             {searchQuery.length > 0 && (
               <Text className="text-sm text-gray-500 mb-4">
-                {filteredProducts.length} hasil untuk "{searchQuery}"
+                {filteredProducts.length} hasil untuk &quot;{searchQuery}&quot;
               </Text>
             )}
             <View className="flex-row flex-wrap">
