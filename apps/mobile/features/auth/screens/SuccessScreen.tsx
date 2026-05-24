@@ -13,7 +13,7 @@ export function SuccessScreen() {
     if (params.returnTo) {
       router.replace(params.returnTo as any);
     } else {
-      router.replace('/beranda');
+      router.replace('/(tabs)');
     }
   };
 
