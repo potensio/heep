@@ -38,7 +38,7 @@ export function ProductDetailScreen({ id }: ProductDetailScreenProps) {
           },
         });
       }}
-      style={{ flex: 1 }}
+      style={{ width: '100%' }}
     >
       Mulai chat
     </Button>
