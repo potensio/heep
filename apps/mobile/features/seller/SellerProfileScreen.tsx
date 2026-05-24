@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft } from '@solar-icons/react-native/Linear';
 import { ProductCard } from '@/features/search/components/ProductCard';
@@ -57,11 +57,14 @@ const defaultSeller = {
   products: [],
 };
 
-export function SellerProfileScreen() {
-  const { id } = useLocalSearchParams();
+interface SellerProfileScreenProps {
+  id: string;
+}
+
+export function SellerProfileScreen({ id }: SellerProfileScreenProps) {
   const insets = useSafeAreaInsets();
 
-  const seller = mockSellers[id as string] || defaultSeller;
+  const seller = mockSellers[id] || defaultSeller;
 
   return (
     <View className="flex-1 bg-background">

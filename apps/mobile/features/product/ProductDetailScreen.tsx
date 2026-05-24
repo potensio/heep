@@ -1,10 +1,13 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { ProductDetail } from "./ProductDetail";
 import { mockProducts } from "@/lib/mockData";
 
-export function ProductDetailScreen() {
-  const { id } = useLocalSearchParams();
+interface ProductDetailScreenProps {
+  id: string;
+}
+
+export function ProductDetailScreen({ id }: ProductDetailScreenProps) {
   const router = useRouter();
 
   const product = mockProducts.find((p) => p.id === (id as string));

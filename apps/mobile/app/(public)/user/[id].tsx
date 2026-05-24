@@ -1,5 +1,7 @@
-import { SellerProfileScreen } from '@/features/seller/SellerProfileScreen';
+import { useLocalSearchParams } from "expo-router";
+import { SellerProfileScreen } from "@/features/seller/SellerProfileScreen";
 
 export default function UserProfileRoute() {
-  return <SellerProfileScreen />;
+  const { id } = useLocalSearchParams<{ id: string }>();
+  return <SellerProfileScreen id={id} />;
 }
