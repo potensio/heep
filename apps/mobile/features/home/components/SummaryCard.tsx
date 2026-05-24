@@ -1,9 +1,8 @@
 import { Text, View } from "react-native";
 import { Eye } from "@solar-icons/react-native/Linear";
-import type { StoreStats } from "@/types";
 
 interface SummaryCardProps {
-  stats: StoreStats;
+  stats: { productViews: number };
 }
 
 export function SummaryCard({ stats }: SummaryCardProps) {

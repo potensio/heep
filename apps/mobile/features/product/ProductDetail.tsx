@@ -43,7 +43,6 @@ export function ProductDetail({
 
   return (
     <View className="flex-1 bg-background">
-      {/* Header Actions */}
       {showActions && (
         <View
           className="flex-row items-center justify-between px-4 py-3 absolute top-0 left-0 right-0 z-10"
@@ -69,7 +68,6 @@ export function ProductDetail({
       )}
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Product Photos */}
         <View className="w-full aspect-square bg-gray-200">
           {product.photos[0] ? (
             <Image
@@ -84,7 +82,6 @@ export function ProductDetail({
           )}
         </View>
 
-        {/* Photo thumbnails if multiple */}
         {product.photos.length > 1 && (
           <View className="flex-row gap-2 px-4 py-3">
             {product.photos.slice(0, 5).map((photo, index) => (
@@ -104,9 +101,7 @@ export function ProductDetail({
           </View>
         )}
 
-        {/* Product Info */}
         <View className="px-5 pt-5 pb-8">
-          {/* Category & Condition Badges */}
           {(product.category || product.condition) && (
             <View className="flex-row gap-2 mb-3">
               {product.category && (
@@ -126,17 +121,14 @@ export function ProductDetail({
             </View>
           )}
 
-          {/* Price */}
           <Text className="text-2xl font-bold text-black mb-2">
             {formatRupiah(product.price)}
           </Text>
 
-          {/* Product Name */}
           <Text className="text-xl font-semibold text-gray-900 mb-4">
             {product.name || "Nama produk belum diisi"}
           </Text>
 
-          {/* Seller Info */}
           {showSeller && product.sellerName && (
             <TouchableOpacity
               className="flex-row items-center py-4 border-t border-b border-gray-200 mb-4"
@@ -159,7 +151,6 @@ export function ProductDetail({
             </TouchableOpacity>
           )}
 
-          {/* Description */}
           <View className="mb-6">
             <Text className="font-semibold text-gray-900 mb-2">
               Deskripsi Produk
@@ -177,7 +168,6 @@ export function ProductDetail({
         </View>
       </ScrollView>
 
-      {/* Footer */}
       {footerContent && (
         <View
           className="px-5 py-4 bg-cream border-t border-gray-200"

@@ -57,20 +57,19 @@ const defaultSeller = {
   products: [],
 };
 
-export function UserProfileScreen() {
+export function SellerProfileScreen() {
   const { id } = useLocalSearchParams();
   const insets = useSafeAreaInsets();
-  
+
   const seller = mockSellers[id as string] || defaultSeller;
 
   return (
     <View className="flex-1 bg-background">
-      {/* Header */}
-      <View 
+      <View
         className="flex-row items-center px-4 py-3 bg-background"
         style={{ paddingTop: insets.top + 8 }}
       >
-        <TouchableOpacity 
+        <TouchableOpacity
           onPress={() => router.back()}
           className="w-10 h-10 rounded-full bg-white items-center justify-center"
         >
@@ -80,7 +79,6 @@ export function UserProfileScreen() {
       </View>
 
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        {/* Profile Header */}
         <View className="items-center py-6 px-5">
           <View className="w-20 h-20 rounded-full bg-primary items-center justify-center mb-3">
             <Text className="text-2xl font-bold text-white">
@@ -91,7 +89,6 @@ export function UserProfileScreen() {
           <Text className="text-sm text-gray-500">Bergabung {seller.joinedDate}</Text>
         </View>
 
-        {/* Stats */}
         <View className="flex-row justify-around py-4 mx-5 bg-white rounded-2xl mb-4">
           <View className="items-center">
             <Text className="text-xl font-bold text-gray-900">{seller.productCount}</Text>
@@ -109,7 +106,6 @@ export function UserProfileScreen() {
           </View>
         </View>
 
-        {/* Products */}
         <View className="px-5 py-4">
           <Text className="text-base font-semibold text-gray-900 mb-3">Produk</Text>
           <View className="flex-row flex-wrap">

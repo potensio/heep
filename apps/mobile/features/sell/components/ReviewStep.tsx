@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, Gallery, PenNewSquare } from '@solar-icons/react-native/Linear';
 import { Button } from '@/components/ui/Button';
-import { ProductDetail, type ProductDetailData } from '@/components/product/ProductDetail';
+import { ProductDetail, type ProductDetailData } from '@/features/product/ProductDetail';
 import { CATEGORY_OPTIONS } from '../types';
 import type { ReviewStepProps } from '../types';
 

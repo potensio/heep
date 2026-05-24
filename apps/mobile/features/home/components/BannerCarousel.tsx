@@ -21,9 +21,9 @@ const SNAP_INTERVAL = CARD_WIDTH + SPACING;
 const HORIZONTAL_PADDING = (SCREEN_WIDTH - CARD_WIDTH) / 2;
 
 const BANNERS = [
-  { id: "1", source: require("@/public/fonts/banner-1.jpg") },
-  { id: "2", source: require("@/public/fonts/banner-2.jpg") },
-  { id: "3", source: require("@/public/fonts/banner-3.jpg") },
+  { id: "1", source: require("@/assets/images/banner-1.jpg") },
+  { id: "2", source: require("@/assets/images/banner-2.jpg") },
+  { id: "3", source: require("@/assets/images/banner-3.jpg") },
 ];
 
 // Extended array: [last, ...banners, ...banners, ...banners, first]

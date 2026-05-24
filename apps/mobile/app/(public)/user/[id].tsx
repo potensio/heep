@@ -1,5 +1,5 @@
-import { UserProfileScreen } from '@/features/account';
+import { SellerProfileScreen } from '@/features/seller/SellerProfileScreen';
 
 export default function UserProfileRoute() {
-  return <UserProfileScreen />;
+  return <SellerProfileScreen />;
 }

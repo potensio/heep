@@ -6,7 +6,7 @@ import { EmptyChatState } from './components/EmptyChatState';
 import { mockConversations } from './mockData';
 import type { Conversation } from './types';
 
-export function ChatScreen() {
+export function ConversationListScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 

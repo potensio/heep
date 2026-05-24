@@ -1,5 +1,14 @@
 import { Text, View } from "react-native";
-import type { Order } from "@/types";
+
+interface Order {
+  orderNumber: string;
+  productName: string;
+  quantity: number;
+  totalPrice: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  createdAt: string;
+  productImage?: string;
+}
 
 interface OrderCardProps {
   order: Order;

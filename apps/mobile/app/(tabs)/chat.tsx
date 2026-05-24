@@ -1,5 +1,5 @@
-import { ChatScreen } from "@/features/chat/ChatScreen";
+import { ConversationListScreen } from "@/features/chat/ConversationListScreen";
 
 export default function ChatTab() {
-  return <ChatScreen />;
+  return <ConversationListScreen />;
 }

@@ -7,13 +7,13 @@ import {
   Home,
   ChatLine,
   User,
-  Cart5,
+  Bell,
   AddSquare,
 } from "@solar-icons/react-native/Linear";
 // Bold style (filled)
 import {
   Home as HomeBold,
-  Cart5 as Cart5Bold,
+  Bell as BellBold,
   ChatLine as ChatLineBold,
   User as UserBold,
 } from "@solar-icons/react-native/Bold";
@@ -70,14 +70,14 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="cari"
+        name="inbox"
         options={{
-          title: "Cari",
+          title: "Inbox",
           tabBarIcon: ({ focused }) =>
             focused ? (
-              <Cart5Bold color="#101828" size={24} />
+              <BellBold color="#101828" size={24} />
             ) : (
-              <Cart5 color="#666666" size={24} />
+              <Bell color="#666666" size={24} />
             ),
         }}
       />
