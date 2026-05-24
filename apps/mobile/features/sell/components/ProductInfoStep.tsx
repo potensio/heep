@@ -1,12 +1,12 @@
 // features/sell/components/ProductInfoStep.tsx
-import { useState } from "react";
 import {
-  View,
+  ActionSheetIOS,
+  Platform,
+  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  Platform,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
@@ -34,7 +34,21 @@ export function ProductInfoStep({
   isDevMode = false,
 }: ProductInfoStepProps) {
   const insets = useSafeAreaInsets();
-  const [showConditionPicker, setShowConditionPicker] = useState(false);
+
+  const showIOSConditionPicker = () => {
+    const options = ["Batal", ...CONDITION_OPTIONS];
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        options,
+        cancelButtonIndex: 0,
+      },
+      (buttonIndex) => {
+        if (buttonIndex !== 0) {
+          onFormChange({ condition: CONDITION_OPTIONS[buttonIndex - 1] });
+        }
+      }
+    );
+  };
 
   const validateAndProceed = () => {
     if (formData.name.length < 3) {
@@ -96,25 +110,25 @@ export function ProductInfoStep({
             Kondisi <Text className="text-red-500">*</Text>
           </Text>
 
-          {Platform.OS === "ios" ? (
-            <TouchableOpacity
-              onPress={() => setShowConditionPicker(true)}
-              className={`${INPUT_CONTAINER} px-4 flex-row items-center justify-between`}
-              style={{ height: INPUT_HEIGHT }}
-              activeOpacity={0.7}
-            >
-              <Text
-                style={{
-                  fontSize: INPUT_FONT_SIZE,
-                  color: formData.condition ? "#111827" : "#9CA3AF",
-                }}
+          <View className={INPUT_CONTAINER}>
+            {Platform.OS === "ios" ? (
+              <TouchableOpacity
+                onPress={showIOSConditionPicker}
+                className="px-4 flex-row items-center justify-between"
+                style={{ height: INPUT_HEIGHT }}
+                activeOpacity={0.7}
               >
-                {formData.condition || "Pilih kondisi..."}
-              </Text>
-              <View className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-400" />
-            </TouchableOpacity>
-          ) : (
-            <View className={INPUT_CONTAINER}>
+                <Text
+                  style={{
+                    fontSize: INPUT_FONT_SIZE,
+                    color: formData.condition ? "#111827" : "#9CA3AF",
+                  }}
+                >
+                  {formData.condition || "Pilih kondisi..."}
+                </Text>
+                <View className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-400" />
+              </TouchableOpacity>
+            ) : (
               <Picker
                 selectedValue={formData.condition}
                 onValueChange={(value) => onFormChange({ condition: value })}
@@ -133,36 +147,9 @@ export function ProductInfoStep({
                   />
                 ))}
               </Picker>
-            </View>
-          )}
-        </View>
-
-        {/* iOS Picker Modal */}
-        {Platform.OS === "ios" && showConditionPicker && (
-          <View className="bg-gray-50 border border-gray-200 rounded-xl mb-4 overflow-hidden">
-            <View className="flex-row justify-between items-center px-4 py-2 border-b border-gray-200">
-              <Text className="text-sm font-medium text-gray-700">
-                Pilih Kondisi
-              </Text>
-              <TouchableOpacity onPress={() => setShowConditionPicker(false)}>
-                <Text className="text-primary font-medium">Selesai</Text>
-              </TouchableOpacity>
-            </View>
-            <Picker
-              selectedValue={formData.condition}
-              onValueChange={(value) => onFormChange({ condition: value })}
-            >
-              <Picker.Item label="Pilih kondisi" value="" />
-              {CONDITION_OPTIONS.map((condition) => (
-                <Picker.Item
-                  key={condition}
-                  label={condition}
-                  value={condition}
-                />
-              ))}
-            </Picker>
+            )}
           </View>
-        )}
+        </View>
 
         {/* Nama Produk */}
         <View className="mb-5">

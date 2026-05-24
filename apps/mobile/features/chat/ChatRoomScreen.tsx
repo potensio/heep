@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "@solar-icons/react-native/Linear";
@@ -76,7 +76,12 @@ export function ChatRoomScreen({ conversation, initialMessages }: ChatRoomScreen
   };
 
   return (
-    <View className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
+    <KeyboardAvoidingView
+      className="flex-1 bg-background"
+      style={{ paddingTop: insets.top }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0}
+    >
       <View className="bg-background px-4 py-3 flex-row items-center border-b border-neutral-200">
         <TouchableOpacity
           onPress={() => router.back()}
@@ -105,8 +110,9 @@ export function ChatRoomScreen({ conversation, initialMessages }: ChatRoomScreen
       <ScrollView
         ref={scrollViewRef}
         className="flex-1 px-4"
-        contentContainerStyle={{ paddingBottom: 16 }}
+        contentContainerStyle={{ paddingBottom: 16, flexGrow: 1 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {messages.length === 0 ? (
           <View className="flex-1 items-center justify-center py-20">
@@ -120,6 +126,6 @@ export function ChatRoomScreen({ conversation, initialMessages }: ChatRoomScreen
       </ScrollView>
 
       <ChatInput onSend={handleSend} />
-    </View>
+    </KeyboardAvoidingView>
   );
 }

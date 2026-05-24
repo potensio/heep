@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Camera, Plain2 } from '@solar-icons/react-native/Linear';
+import { useState, useEffect } from "react";
+import { View, Text, TextInput, TouchableOpacity, Image, Keyboard } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Camera } from "@solar-icons/react-native/Linear";
 
 interface ChatInputProps {
   onSend: (text: string, image?: string) => void;
@@ -9,37 +9,54 @@ interface ChatInputProps {
 
 const INPUT_HEIGHT = 44;
 const ICON_SIZE = 20;
-const BUTTON_SIZE = 36;
 
 export function ChatInput({ onSend }: ChatInputProps) {
   const insets = useSafeAreaInsets();
-  const [text, setText] = useState('');
+  const [text, setText] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardWillShow", () => {
+      setIsKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardWillHide", () => {
+      setIsKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   const handleSend = () => {
     if (text.trim() || selectedImage) {
       onSend(text.trim(), selectedImage || undefined);
-      setText('');
+      setText("");
       setSelectedImage(null);
     }
   };
 
   const handleImagePick = () => {
     const mockImages = [
-      'https://picsum.photos/seed/chatnew1/400/300',
-      'https://picsum.photos/seed/chatnew2/400/300',
-      'https://picsum.photos/seed/chatnew3/400/300',
+      "https://picsum.photos/seed/chatnew1/400/300",
+      "https://picsum.photos/seed/chatnew2/400/300",
+      "https://picsum.photos/seed/chatnew3/400/300",
     ];
-    const randomImage = mockImages[Math.floor(Math.random() * mockImages.length)];
+    const randomImage =
+      mockImages[Math.floor(Math.random() * mockImages.length)];
     setSelectedImage(randomImage);
   };
 
   const canSend = text.trim().length > 0 || selectedImage;
 
+  const bottomPadding = isKeyboardVisible ? 8 : (insets.bottom > 0 ? insets.bottom : 12);
+
   return (
     <View
       className="bg-background border-t border-neutral-200"
-      style={{ paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }}
+      style={{ paddingBottom: bottomPadding }}
     >
       {selectedImage && (
         <View className="px-4 pt-3 relative">
@@ -60,14 +77,13 @@ export function ChatInput({ onSend }: ChatInputProps) {
         <TouchableOpacity
           onPress={handleImagePick}
           className="items-center justify-center"
-          style={{ width: BUTTON_SIZE, height: BUTTON_SIZE }}
           activeOpacity={0.7}
         >
           <Camera size={ICON_SIZE} color="#666666" />
         </TouchableOpacity>
         <View
-          className="flex-1 border border-neutral-300 rounded-xl bg-white px-4"
-          style={{ height: INPUT_HEIGHT }}
+          className="flex-1 border border-neutral-300 rounded-xl bg-white"
+          style={{ height: INPUT_HEIGHT, justifyContent: "center", paddingHorizontal: 16 }}
         >
           <TextInput
             value={text}
@@ -75,23 +91,12 @@ export function ChatInput({ onSend }: ChatInputProps) {
             placeholder="Tulis pesan..."
             placeholderTextColor="#9CA3AF"
             className="text-base text-neutral-900"
-            style={{ height: INPUT_HEIGHT }}
             maxLength={1000}
+            returnKeyType="send"
+            onSubmitEditing={handleSend}
+            style={{ paddingVertical: 0, lineHeight: 18, fontSize: 16 }}
           />
         </View>
-        <TouchableOpacity
-          onPress={handleSend}
-          disabled={!canSend}
-          className="items-center justify-center rounded-xl"
-          style={{
-            width: INPUT_HEIGHT,
-            height: INPUT_HEIGHT,
-            backgroundColor: canSend ? '#c5e302' : '#E5E7EB',
-          }}
-          activeOpacity={0.7}
-        >
-          <Plain2 size={ICON_SIZE} color={canSend ? '#0A0A0A' : '#9CA3AF'} />
-        </TouchableOpacity>
       </View>
     </View>
   );
