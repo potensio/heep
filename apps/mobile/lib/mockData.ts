@@ -1,12 +1,4 @@
-export interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  seller: string;
-  sellerId: string;
-  category: string;
-}
+import type { Product } from '@/lib/types';
 
 export const mockProducts: Product[] = [
   {

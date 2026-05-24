@@ -1,6 +1,7 @@
 // features/sell/context/SellFormContext.tsx
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
-import type { SellFormData, ProductCategory, ProductCondition } from '../types';
+import type { SellFormData } from '../types';
+import type { ProductCategory, ProductCondition } from '@/lib/types';
 
 const initialFormData: SellFormData = {
   photos: [],

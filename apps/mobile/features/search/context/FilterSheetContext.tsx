@@ -20,7 +20,7 @@ import {
 } from "react-native";
 import { CloseSquare } from "@solar-icons/react-native/Linear";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CATEGORY_OPTIONS } from "@/features/sell/types";
+import { CATEGORY_OPTIONS } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 
 export type SortOption = "relevan" | "terbaru" | "termurah" | "termahal";

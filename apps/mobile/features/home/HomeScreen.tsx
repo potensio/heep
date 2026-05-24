@@ -106,7 +106,7 @@ export function HomeScreen() {
                   key={product.id}
                   product={product}
                   onPress={() => handleProductPress(product.id)}
-                  onSellerPress={() => handleSellerPress(product.sellerId)}
+                  onSellerPress={() => handleSellerPress(product.sellerId ?? '')}
                   width="48%"
                   marginRight={index % 2 === 0 ? "4%" : 0}
                 />

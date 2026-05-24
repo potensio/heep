@@ -1,6 +1,6 @@
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { Avatar, UnreadBadge } from '@/components/ui/Avatar';
-import type { Conversation } from '../types';
+import type { Conversation } from '@/lib/types';
 
 interface ConversationCardProps {
   conversation: Conversation;

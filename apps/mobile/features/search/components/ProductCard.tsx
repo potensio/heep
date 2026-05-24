@@ -6,16 +6,7 @@ import {
   DimensionValue,
 } from "react-native";
 import { ArrowRight, User } from "@solar-icons/react-native/Linear";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  seller: string;
-  sellerId: string;
-  category: string;
-}
+import type { Product } from "@/lib/types";
 
 interface ProductCardProps {
   product: Product;

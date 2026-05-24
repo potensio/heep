@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { ConversationCard } from './components/ConversationCard';
 import { EmptyChatState } from './components/EmptyChatState';
 import { mockConversations } from './mockData';
-import type { Conversation } from './types';
+import type { Conversation } from '@/lib/types';
 
 export function ConversationListScreen() {
   const insets = useSafeAreaInsets();

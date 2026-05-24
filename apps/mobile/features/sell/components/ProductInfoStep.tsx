@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
 import { ArrowLeft, Tag } from "@solar-icons/react-native/Linear";
 import { Button } from "@/components/ui/Button";
-import { CATEGORY_OPTIONS, CONDITION_OPTIONS } from "../types";
+import { CATEGORY_OPTIONS, CONDITION_OPTIONS } from "@/lib/types";
 import type { ProductInfoStepProps } from "../types";
 
 // Native input container styling - height 50px to match Picker, font 16px

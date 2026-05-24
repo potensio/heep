@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
-import type { Product } from "../types";
+import type { Product } from "@/lib/types";
 
 interface ProductContextCardProps {
   product: Product;

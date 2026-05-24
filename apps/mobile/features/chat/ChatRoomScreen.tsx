@@ -9,7 +9,7 @@ import { MessageBubble } from "./components/MessageBubble";
 import { DateSeparator } from "./components/DateSeparator";
 import { ChatInput } from "./components/ChatInput";
 import { CURRENT_USER_ID } from "./mockData";
-import type { Conversation, Message } from "./types";
+import type { Conversation, Message } from "@/lib/types";
 
 interface ChatRoomScreenProps {
   conversation: Conversation;

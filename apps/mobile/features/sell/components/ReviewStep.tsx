@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft, Gallery, PenNewSquare } from '@solar-icons/react-native/Linear';
 import { Button } from '@/components/ui/Button';
 import { ProductDetail, type ProductDetailData } from '@/features/product/ProductDetail';
-import { CATEGORY_OPTIONS } from '../types';
+import { CATEGORY_OPTIONS } from '@/lib/types';
 import type { ReviewStepProps } from '../types';
 
 function formatRupiah(value: number): string {

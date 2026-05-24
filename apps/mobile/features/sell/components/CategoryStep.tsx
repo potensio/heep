@@ -20,7 +20,7 @@ import {
   Cup,
   Widget,
 } from "@solar-icons/react-native/Linear";
-import { CATEGORY_OPTIONS, type ProductCategory } from "../types";
+import { CATEGORY_OPTIONS, type ProductCategory } from "@/lib/types";
 import type { CategoryStepProps } from "../types";
 
 const iconMap: Record<

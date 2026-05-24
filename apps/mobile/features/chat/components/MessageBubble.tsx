@@ -1,5 +1,5 @@
 import { View, Text, Image } from "react-native";
-import type { Message } from "../types";
+import type { Message } from "@/lib/types";
 
 interface MessageBubbleProps {
   message: Message;

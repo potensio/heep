@@ -1,4 +1,4 @@
-import type { Conversation, Message } from './types';
+import type { Conversation, Message } from '@/lib/types';
 
 const hoursAgo = (hours: number) => {
   const date = new Date();

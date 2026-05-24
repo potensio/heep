@@ -53,7 +53,7 @@ export function SearchProductsScreen() {
       if (filters.categories.length > 0) {
         filtered = filtered.filter((product) =>
           filters.categories.some((cat) =>
-            product.category.toLowerCase().includes(cat.toLowerCase())
+            (product.category ?? '').toLowerCase().includes(cat.toLowerCase())
           )
         );
       }
@@ -158,7 +158,7 @@ export function SearchProductsScreen() {
                 key={product.id}
                 product={product}
                 onPress={() => handleProductPress(product.id)}
-                onSellerPress={() => handleSellerPress(product.sellerId)}
+                onSellerPress={() => handleSellerPress(product.sellerId ?? '')}
                 width="48%"
                 marginRight={index % 2 === 0 ? "4%" : 0}
               />
