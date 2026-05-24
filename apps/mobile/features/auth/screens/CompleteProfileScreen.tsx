@@ -1,15 +1,15 @@
-// features/auth/screens/CompleteProfileScreen.tsx
 import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState } from 'react';
-import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GenderSelector } from '../components/GenderSelector';
 
 type Gender = 'pria' | 'wanita' | null;
 
-export function CompleteProfileScreen() {
-  const router = useRouter();
-  const params = useLocalSearchParams<{ returnTo?: string }>();
+interface CompleteProfileScreenProps {
+  onSubmit: () => void;
+}
+
+export function CompleteProfileScreen({ onSubmit }: CompleteProfileScreenProps) {
   const insets = useSafeAreaInsets();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -18,15 +18,10 @@ export function CompleteProfileScreen() {
 
   const handleSubmit = async () => {
     if (!name.trim() || !email.trim() || !gender) return;
-    
     setIsLoading(true);
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
-      router.replace({ 
-        pathname: '/auth/success',
-        params: { returnTo: params.returnTo }
-      });
+      onSubmit();
     }, 1000);
   };
 
@@ -47,7 +42,6 @@ export function CompleteProfileScreen() {
           }}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Title */}
           <Text className="text-2xl font-heading font-medium text-gray-900 mb-2">
             Lengkapi Profil
           </Text>
@@ -55,11 +49,8 @@ export function CompleteProfileScreen() {
             Berikan informasi untuk melanjutkan
           </Text>
 
-          {/* Name Input */}
           <View className="mb-5">
-            <Text className="text-sm text-gray-600 mb-2 font-medium">
-              Nama Lengkap
-            </Text>
+            <Text className="text-sm text-gray-600 mb-2 font-medium">Nama Lengkap</Text>
             <View className="bg-white rounded-xl border border-gray-200" style={{ height: 52 }}>
               <TextInput
                 value={name}
@@ -77,11 +68,8 @@ export function CompleteProfileScreen() {
             </View>
           </View>
 
-          {/* Email Input */}
           <View className="mb-5">
-            <Text className="text-sm text-gray-600 mb-2 font-medium">
-              Email
-            </Text>
+            <Text className="text-sm text-gray-600 mb-2 font-medium">Email</Text>
             <View className="bg-white rounded-xl border border-gray-200" style={{ height: 52 }}>
               <TextInput
                 value={email}
@@ -102,30 +90,18 @@ export function CompleteProfileScreen() {
             </View>
           </View>
 
-          {/* Gender Selector */}
           <View className="mb-8">
-            <Text className="text-sm text-gray-600 mb-2 font-medium">
-              Jenis Kelamin
-            </Text>
+            <Text className="text-sm text-gray-600 mb-2 font-medium">Jenis Kelamin</Text>
             <GenderSelector value={gender} onChange={setGender} />
           </View>
 
-          {/* Submit Button */}
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={!isValid || isLoading}
-            className={`
-              rounded-xl py-4 items-center
-              ${isValid && !isLoading ? 'bg-black' : 'bg-gray-300'}
-            `}
+            className={`rounded-xl py-4 items-center ${isValid && !isLoading ? 'bg-black' : 'bg-gray-300'}`}
             activeOpacity={0.8}
           >
-            <Text
-              className={`
-                text-base font-semibold
-                ${isValid && !isLoading ? 'text-white' : 'text-gray-500'}
-              `}
-            >
+            <Text className={`text-base font-semibold ${isValid && !isLoading ? 'text-white' : 'text-gray-500'}`}>
               {isLoading ? 'Menyimpan...' : 'Selesai'}
             </Text>
           </TouchableOpacity>
