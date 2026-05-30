@@ -6,6 +6,7 @@ export interface AccessPayload {
   sub: string;
   type: 'access';
   exp: number;
+  [key: string]: unknown;
 }
 
 function nowSeconds(): number {
