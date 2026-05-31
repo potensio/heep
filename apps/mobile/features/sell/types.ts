@@ -1,9 +1,11 @@
-import type { ProductCategory, ProductCondition, Location } from '@/lib/types';
+import type { CategoryId, SubcategoryId } from '@bantujual/categories';
+import type { Location } from '@/lib/types';
 
 export interface SellFormData {
   photos: string[];
-  category: ProductCategory | '';
-  condition: ProductCondition | '';
+  category: CategoryId | '';
+  subcategory: SubcategoryId | '';
+  attributes: Record<string, string | number>;
   name: string;
   price: number;
   description: string;
@@ -21,7 +23,6 @@ export interface SellWizardState {
 
 export interface SellWizardProps {
   onPublish: (formData: SellFormData) => Promise<string>;
-  onViewProduct: (productId: string) => void;
   onCancel: () => void;
   isDevMode?: boolean;
 }
@@ -34,8 +35,8 @@ export interface PhotoUploadStepProps {
 }
 
 export interface CategoryStepProps {
-  selectedCategory: ProductCategory | '';
-  onCategorySelect: (category: ProductCategory) => void;
+  selectedCategory: CategoryId | '';
+  onCategorySelect: (category: CategoryId) => void;
   onNext: () => void;
   onBack: () => void;
 }
@@ -59,6 +60,5 @@ export interface ReviewStepProps {
 
 export interface SuccessScreenProps {
   productId: string;
-  onViewProduct: () => void;
-  onBackToHome?: () => void;
+  onBackToHome: () => void;
 }

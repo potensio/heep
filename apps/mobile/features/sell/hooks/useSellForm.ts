@@ -5,7 +5,8 @@ import type { SellFormData, WizardStep } from '../types';
 const initialFormData: SellFormData = {
   photos: [],
   category: '',
-  condition: '',
+  subcategory: '',
+  attributes: {},
   name: '',
   price: 0,
   description: '',
@@ -32,10 +33,7 @@ export function useSellForm() {
 
   const prevStep = useCallback(() => {
     setCurrentStep(prev => {
-      // Skip category step when going back to photos from info
-      if (prev === 3) {
-        return 1 as WizardStep; // From info, go directly to photos
-      }
+      if (prev === 3) return 1 as WizardStep;
       return prev > 1 ? (prev - 1) as WizardStep : prev;
     });
   }, []);
