@@ -11,6 +11,7 @@ export interface VerifiedUser {
   id: string;
   email: string;
   name: string | null;
+  phone: string | null;
   profileCompleted: boolean;
 }
 
@@ -36,4 +37,23 @@ export async function verifyOtp(
   code: string,
 ): Promise<{ accessToken: string; refreshToken: string; user: VerifiedUser }> {
   return post('/auth/otp/verify', { email, code });
+}
+
+export async function updateProfile(
+  token: string,
+  data: { name: string; gender: 'male' | 'female'; phone: string },
+): Promise<VerifiedUser> {
+  const res = await fetch(`${BASE}/users/me`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new ApiError(res.status, text || `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<VerifiedUser>;
 }
