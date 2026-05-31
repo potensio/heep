@@ -1,14 +1,19 @@
 import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
-import { User } from "@solar-icons/react-native/Linear";
+import { User, MapPoint } from "@solar-icons/react-native/Linear";
+import { CityPicker } from "@/features/shared/components/CityPicker";
+import { useAuth } from "@/context/AuthContext";
+import { updateProfile } from "@/lib/api";
+import type { Location } from "@/lib/types";
 
-// Consistent input styling matching ProductInfoStep
 const INPUT_HEIGHT = 50;
 const INPUT_FONT_SIZE = 16;
 
 export function ProfileSettings() {
-  const [name, setName] = useState("Andi Pratama");
-  const [email, setEmail] = useState("andi.pratama@email.com");
+  const { user, token, updateUser } = useAuth();
+  const [name, setName] = useState(user?.name ?? "");
+  const [email] = useState(user?.email ?? "");
+  const [showCityPicker, setShowCityPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSave = async () => {
@@ -16,12 +21,28 @@ export function ProfileSettings() {
       Alert.alert("Error", "Nama tidak boleh kosong");
       return;
     }
-
+    if (!token) return;
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const updatedUser = await updateProfile(token, { name: name.trim() });
+      updateUser({ ...updatedUser, location: user?.location ?? null });
       Alert.alert("Sukses", "Profil berhasil diperbarui");
-    }, 1000);
+    } catch {
+      Alert.alert("Error", "Gagal menyimpan profil");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLocationSelect = async (location: Location) => {
+    setShowCityPicker(false);
+    if (!token) return;
+    try {
+      const updatedUser = await updateProfile(token, { location });
+      updateUser({ ...updatedUser, location });
+    } catch {
+      // best-effort
+    }
   };
 
   return (
@@ -54,14 +75,32 @@ export function ProfileSettings() {
           <Text className="text-sm font-medium text-gray-700 mb-2">Email</Text>
           <TextInput
             value={email}
-            onChangeText={setEmail}
-            placeholder="Masukkan email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            className="border border-gray-300 rounded-xl bg-white px-4 text-gray-900"
+            editable={false}
+            className="border border-gray-200 rounded-xl bg-gray-50 px-4 text-gray-400"
             placeholderTextColor="#9CA3AF"
             style={{ height: INPUT_HEIGHT, fontSize: INPUT_FONT_SIZE }}
           />
+        </View>
+
+        <View>
+          <Text className="text-sm font-medium text-gray-700 mb-2">Kota</Text>
+          <TouchableOpacity
+            onPress={() => setShowCityPicker(true)}
+            className="border border-gray-300 rounded-xl bg-white px-4 flex-row items-center"
+            style={{ height: INPUT_HEIGHT }}
+            activeOpacity={0.8}
+          >
+            <MapPoint size={16} color={user?.location ? '#155DFC' : '#9CA3AF'} />
+            <Text
+              className="flex-1 ml-2"
+              style={{
+                fontSize: INPUT_FONT_SIZE,
+                color: user?.location ? '#111827' : '#9CA3AF',
+              }}
+            >
+              {user?.location ? user.location.name : 'Belum diatur'}
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -75,6 +114,14 @@ export function ProfileSettings() {
           {isLoading ? "Menyimpan..." : "Simpan"}
         </Text>
       </TouchableOpacity>
+
+      {showCityPicker && (
+        <CityPicker
+          value={user?.location ?? null}
+          onSelect={handleLocationSelect}
+          onClose={() => setShowCityPicker(false)}
+        />
+      )}
     </View>
   );
 }
