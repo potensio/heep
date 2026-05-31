@@ -1,12 +1,12 @@
 // features/sell/context/SellFormContext.tsx
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 import type { SellFormData } from '../types';
-import type { ProductCategory, ProductCondition } from '@/lib/types';
 
 const initialFormData: SellFormData = {
   photos: [],
   category: '',
-  condition: '',
+  subcategory: '',
+  attributes: {},
   name: '',
   price: 0,
   description: '',
@@ -41,12 +41,11 @@ export function SellFormProvider({ children }: { children: ReactNode }) {
     setPublishedProductId(null);
   }, []);
 
-  // Check if form has any user-entered data
   const hasData = useMemo(
     () =>
       formData.photos.length > 0 ||
       formData.category !== '' ||
-      formData.condition !== '' ||
+      formData.subcategory !== '' ||
       formData.name !== '' ||
       formData.price !== 0 ||
       formData.description !== '' ||
