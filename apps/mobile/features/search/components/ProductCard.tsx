@@ -5,7 +5,7 @@ import {
   Image,
   DimensionValue,
 } from "react-native";
-import { ArrowRight, User } from "@solar-icons/react-native/Linear";
+import { ArrowRight, User, MapPoint } from "@solar-icons/react-native/Linear";
 import type { Product } from "@/lib/types";
 
 interface ProductCardProps {
@@ -48,18 +48,24 @@ export function ProductCard({
           {product.name}
         </Text>
         <Text className="text-sm mb-2">{formatPrice(product.price)}</Text>
-        <View className="flex-row items-center justify-between">
-          <TouchableOpacity
-            className="flex-row items-center"
-            onPress={onSellerPress}
-            hitSlop={{ top: 10, bottom: 10, left: 0, right: 0 }}
-          >
-            <User size={12} color="#9CA3AF" />
+        <TouchableOpacity
+          className="flex-row items-center"
+          onPress={onSellerPress}
+          hitSlop={{ top: 10, bottom: 10, left: 0, right: 0 }}
+        >
+          <User size={12} color="#9CA3AF" />
+          <Text className="text-xs text-gray-500 ml-1" numberOfLines={1}>
+            {product.seller}
+          </Text>
+        </TouchableOpacity>
+        {product.location && (
+          <View className="flex-row items-center mt-1">
+            <MapPoint size={10} color="#9CA3AF" />
             <Text className="text-xs text-gray-500 ml-1" numberOfLines={1}>
-              {product.seller}
+              {product.location.name}
             </Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );

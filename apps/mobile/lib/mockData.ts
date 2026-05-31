@@ -1,4 +1,9 @@
-import type { Product } from '@/lib/types';
+import type { Product, Location } from '@/lib/types';
+
+const jakarta: Location = { name: 'Jakarta', placeId: 'mock-jakarta', lat: -6.2088, lng: 106.8456 };
+const surabaya: Location = { name: 'Surabaya', placeId: 'mock-surabaya', lat: -7.2575, lng: 112.7521 };
+const bandung: Location = { name: 'Bandung', placeId: 'mock-bandung', lat: -6.9175, lng: 107.6191 };
+const medan: Location = { name: 'Medan', placeId: 'mock-medan', lat: 3.5952, lng: 98.6722 };
 
 export const mockProducts: Product[] = [
   {
@@ -9,6 +14,7 @@ export const mockProducts: Product[] = [
     seller: "Andi",
     sellerId: "seller-1",
     category: "Fashion",
+    location: jakarta,
   },
   {
     id: "2",
@@ -18,6 +24,7 @@ export const mockProducts: Product[] = [
     seller: "Budi",
     sellerId: "seller-2",
     category: "Aksesoris",
+    location: bandung,
   },
   {
     id: "3",
@@ -27,6 +34,7 @@ export const mockProducts: Product[] = [
     seller: "Citra",
     sellerId: "seller-3",
     category: "Fashion",
+    location: surabaya,
   },
   {
     id: "4",
@@ -36,6 +44,7 @@ export const mockProducts: Product[] = [
     seller: "Dian",
     sellerId: "seller-4",
     category: "Aksesoris",
+    location: jakarta,
   },
   {
     id: "5",
@@ -45,6 +54,7 @@ export const mockProducts: Product[] = [
     seller: "Eka",
     sellerId: "seller-5",
     category: "Fashion",
+    location: bandung,
   },
   {
     id: "6",
@@ -54,6 +64,7 @@ export const mockProducts: Product[] = [
     seller: "Fani",
     sellerId: "seller-6",
     category: "Aksesoris",
+    location: medan,
   },
   {
     id: "7",
@@ -63,6 +74,7 @@ export const mockProducts: Product[] = [
     seller: "Gina",
     sellerId: "seller-7",
     category: "Fashion",
+    location: surabaya,
   },
   {
     id: "8",
@@ -72,6 +84,7 @@ export const mockProducts: Product[] = [
     seller: "Hadi",
     sellerId: "seller-8",
     category: "Aksesoris",
+    location: jakarta,
   },
   {
     id: "9",
@@ -81,6 +94,7 @@ export const mockProducts: Product[] = [
     seller: "Irma",
     sellerId: "seller-9",
     category: "Fashion",
+    location: bandung,
   },
   {
     id: "10",
@@ -90,6 +104,7 @@ export const mockProducts: Product[] = [
     seller: "Joko",
     sellerId: "seller-10",
     category: "Aksesoris",
+    location: surabaya,
   },
   {
     id: "11",
@@ -99,6 +114,7 @@ export const mockProducts: Product[] = [
     seller: "Kirana",
     sellerId: "seller-11",
     category: "Fashion",
+    location: jakarta,
   },
   {
     id: "12",
@@ -108,5 +124,6 @@ export const mockProducts: Product[] = [
     seller: "Leo",
     sellerId: "seller-12",
     category: "Aksesoris",
+    location: medan,
   },
 ];
