@@ -11,8 +11,15 @@ export default function OtpRoute() {
     <OtpScreen
       email={email ?? ''}
       onSuccess={(user, token) => {
-        login(user, token);
-        router.replace((returnTo as any) || '/(tabs)');
+        if (!user.profileCompleted) {
+          router.push({
+            pathname: '/auth/complete-profile',
+            params: { token, email: user.email, returnTo: returnTo ?? '' },
+          });
+        } else {
+          login(user, token);
+          router.replace((returnTo as any) || '/(tabs)');
+        }
       }}
       onBack={() => router.back()}
     />
