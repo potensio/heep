@@ -1,17 +1,16 @@
-// src/core/db/schema.ts
 import {
-  pgTable, pgEnum, uuid, text, integer, boolean, timestamp, index,
+  pgTable, pgEnum, uuid, text, integer, boolean, timestamp, jsonb, index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
+import { CATEGORIES } from '@bantujual/categories';
 
 export const genderEnum = pgEnum('gender', ['male', 'female']);
 
-export const productCategoryEnum = pgEnum('product_category', [
-  'komputer', 'handphone-tablet', 'elektronik-lain', 'fashion-pria',
-  'fashion-wanita', 'sepatu-tas', 'rumah-tangga', 'mobil', 'motor',
-  'properti', 'hobi-olahraga', 'alat-musik', 'bayi-anak',
-  'kesehatan-kecantikan', 'makanan-minuman', 'lainnya',
-]);
+const categoryIds = CATEGORIES.map(c => c.id) as [string, ...string[]];
+export const productCategoryEnum = pgEnum('product_category', categoryIds);
+
+const subcategoryIds = CATEGORIES.flatMap(c => c.subcategories.map(s => s.id)) as [string, ...string[]];
+export const productSubcategoryEnum = pgEnum('product_subcategory', subcategoryIds);
 
 export const productConditionEnum = pgEnum('product_condition', [
   'Baru', 'Masih Bagus', 'Masih Layak', 'Apa adanya',
@@ -54,14 +53,20 @@ export const products = pgTable('products', {
   id: uuid('id').primaryKey().defaultRandom(),
   sellerId: uuid('seller_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   name: text('name').notNull(),
-  price: integer('price').notNull(), // rupiah
+  price: integer('price').notNull(),
   description: text('description').notNull().default(''),
   category: productCategoryEnum('category').notNull(),
-  condition: productConditionEnum('condition').notNull(),
+  subcategory: productSubcategoryEnum('subcategory').notNull(),
+  attributes: jsonb('attributes').notNull().default({}),
   status: productStatusEnum('status').notNull().default('active'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [index('products_seller_id_idx').on(t.sellerId)]);
+}, (t) => [
+  index('products_seller_id_idx').on(t.sellerId),
+  index('products_category_idx').on(t.category),
+  index('products_subcategory_idx').on(t.subcategory),
+  index('products_attributes_idx').using('gin', t.attributes),
+]);
 
 export const productImages = pgTable('product_images', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -89,7 +94,6 @@ export const messages = pgTable('messages', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index('messages_conversation_id_idx').on(t.conversationId)]);
 
-// ---- Relations ----
 export const usersRelations = relations(users, ({ many }) => ({
   products: many(products),
 }));
