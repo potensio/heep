@@ -18,7 +18,7 @@ export default function KategoriStep() {
   return (
     <CategoryStep
       selectedCategory={formData.category}
-      onCategorySelect={(category) => updateFormData({ category })}
+      onCategorySelect={(category) => updateFormData({ category, subcategory: '', attributes: {} })}
       onNext={handleNext}
       onBack={handleBack}
     />
