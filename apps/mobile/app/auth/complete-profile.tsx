@@ -12,6 +12,11 @@ export default function CompleteProfileRoute() {
     returnTo?: string;
   }>();
 
+  if (!token) {
+    router.replace('/auth');
+    return null;
+  }
+
   const handleSubmit = (user: VerifiedUser) => {
     login(user, token);
     router.push({ pathname: '/auth/success', params: { returnTo: returnTo ?? '' } });
@@ -20,7 +25,7 @@ export default function CompleteProfileRoute() {
   return (
     <CompleteProfileScreen
       email={email ?? ''}
-      token={token ?? ''}
+      token={token}
       onSubmit={handleSubmit}
     />
   );
