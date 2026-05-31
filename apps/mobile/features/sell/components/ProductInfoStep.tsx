@@ -260,27 +260,22 @@ export function ProductInfoStep({
           </Text>
         </View>
 
-        {/* Deskripsi */}
-        <View className="mb-5">
-          <Text className="text-sm font-medium text-gray-700 mb-2">
-            Deskripsi <Text className="text-gray-400">(opsional)</Text>
-          </Text>
-          <TextInput
-            className={`${INPUT_CONTAINER} px-4 pt-3 text-gray-900`}
-            value={formData.description}
-            onChangeText={(text) => onFormChange({ description: text })}
-            placeholder="Jelaskan kondisi barang, ukuran, warna, dll"
-            placeholderTextColor="#9CA3AF"
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-            style={{ height: 100, fontSize: INPUT_FONT_SIZE }}
-            maxLength={500}
+        {/* Dynamic Attribute Fields */}
+        {formData.subcategory !== '' && allAttributes.map((attr) => (
+          <AttributeField
+            key={attr.id}
+            attribute={attr}
+            value={formData.attributes[attr.id]}
+            onChange={(val) =>
+              onFormChange({ attributes: { ...formData.attributes, [attr.id]: val } })
+            }
+            onClear={() => {
+              const next = { ...formData.attributes };
+              delete next[attr.id];
+              onFormChange({ attributes: next });
+            }}
           />
-          <Text className="text-xs text-gray-400 mt-1 text-right">
-            {formData.description.length}/500
-          </Text>
-        </View>
+        ))}
 
         {/* Lokasi */}
         <View className="mb-5">
@@ -303,22 +298,27 @@ export function ProductInfoStep({
           </TouchableOpacity>
         </View>
 
-        {/* Dynamic Attribute Fields */}
-        {formData.subcategory !== '' && allAttributes.map((attr) => (
-          <AttributeField
-            key={attr.id}
-            attribute={attr}
-            value={formData.attributes[attr.id]}
-            onChange={(val) =>
-              onFormChange({ attributes: { ...formData.attributes, [attr.id]: val } })
-            }
-            onClear={() => {
-              const next = { ...formData.attributes };
-              delete next[attr.id];
-              onFormChange({ attributes: next });
-            }}
+        {/* Deskripsi */}
+        <View className="mb-5">
+          <Text className="text-sm font-medium text-gray-700 mb-2">
+            Deskripsi <Text className="text-gray-400">(opsional)</Text>
+          </Text>
+          <TextInput
+            className={`${INPUT_CONTAINER} px-4 pt-3 text-gray-900`}
+            value={formData.description}
+            onChangeText={(text) => onFormChange({ description: text })}
+            placeholder="Jelaskan kondisi barang, ukuran, warna, dll"
+            placeholderTextColor="#9CA3AF"
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+            style={{ height: 100, fontSize: INPUT_FONT_SIZE }}
+            maxLength={500}
           />
-        ))}
+          <Text className="text-xs text-gray-400 mt-1 text-right">
+            {formData.description.length}/500
+          </Text>
+        </View>
       </ScrollView>
 
       {showCityPicker && (
