@@ -1,31 +1,51 @@
-import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View, Text, TextInput, TouchableOpacity, ScrollView,
+  KeyboardAvoidingView, Platform,
+} from 'react-native';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GenderSelector } from '../components/GenderSelector';
+import { updateProfile, ApiError, type VerifiedUser } from '@/lib/api';
 
-type Gender = 'pria' | 'wanita' | null;
+type LocalGender = 'pria' | 'wanita' | null;
 
 interface CompleteProfileScreenProps {
-  onSubmit: () => void;
+  email: string;
+  token: string;
+  onSubmit: (user: VerifiedUser) => void;
 }
 
-export function CompleteProfileScreen({ onSubmit }: CompleteProfileScreenProps) {
+export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfileScreenProps) {
   const insets = useSafeAreaInsets();
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [gender, setGender] = useState<Gender>(null);
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState<LocalGender>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
-    if (!name.trim() || !email.trim() || !gender) return;
+    if (!name.trim() || !phone.trim() || !gender) return;
     setIsLoading(true);
-    setTimeout(() => {
+    setError(null);
+    try {
+      const updatedUser = await updateProfile(token, {
+        name: name.trim(),
+        gender: gender === 'pria' ? 'male' : 'female',
+        phone: phone.trim(),
+      });
+      onSubmit(updatedUser);
+    } catch (e) {
+      setError(
+        e instanceof ApiError && e.status < 500
+          ? 'Terjadi kesalahan. Periksa data Anda.'
+          : 'Server error. Coba beberapa saat lagi.',
+      );
+    } finally {
       setIsLoading(false);
-      onSubmit();
-    }, 1000);
+    }
   };
 
-  const isValid = name.trim().length > 0 && email.trim().length > 0 && gender !== null;
+  const isValid = name.trim().length > 0 && phone.trim().length > 0 && gender !== null;
 
   return (
     <View className="flex-1 bg-background">
@@ -62,29 +82,31 @@ export function CompleteProfileScreen({ onSubmit }: CompleteProfileScreenProps) 
                   height: '100%',
                   fontSize: 16,
                   paddingHorizontal: 16,
-                  ...(Platform.OS === 'android' ? { includeFontPadding: false, textAlignVertical: 'center' } : {}),
+                  ...(Platform.OS === 'android'
+                    ? { includeFontPadding: false, textAlignVertical: 'center' }
+                    : {}),
                 }}
               />
             </View>
           </View>
 
           <View className="mb-5">
-            <Text className="text-sm text-gray-600 mb-2 font-medium">Email</Text>
+            <Text className="text-sm text-gray-600 mb-2 font-medium">Nomor Handphone</Text>
             <View className="bg-white rounded-xl border border-gray-200" style={{ height: 52 }}>
               <TextInput
-                value={email}
-                onChangeText={setEmail}
-                placeholder="Masukkan email"
+                value={phone}
+                onChangeText={setPhone}
+                placeholder="Contoh: 08123456789"
                 placeholderTextColor="#9CA3AF"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
+                keyboardType="phone-pad"
                 style={{
                   width: '100%',
                   height: '100%',
                   fontSize: 16,
                   paddingHorizontal: 16,
-                  ...(Platform.OS === 'android' ? { includeFontPadding: false, textAlignVertical: 'center' } : {}),
+                  ...(Platform.OS === 'android'
+                    ? { includeFontPadding: false, textAlignVertical: 'center' }
+                    : {}),
                 }}
               />
             </View>
@@ -95,13 +117,19 @@ export function CompleteProfileScreen({ onSubmit }: CompleteProfileScreenProps) 
             <GenderSelector value={gender} onChange={setGender} />
           </View>
 
+          {error !== null && (
+            <Text className="text-sm text-red-500 mb-4">{error}</Text>
+          )}
+
           <TouchableOpacity
             onPress={handleSubmit}
             disabled={!isValid || isLoading}
             className={`rounded-xl py-4 items-center ${isValid && !isLoading ? 'bg-black' : 'bg-gray-300'}`}
             activeOpacity={0.8}
           >
-            <Text className={`text-base font-semibold ${isValid && !isLoading ? 'text-white' : 'text-gray-500'}`}>
+            <Text
+              className={`text-base font-semibold ${isValid && !isLoading ? 'text-white' : 'text-gray-500'}`}
+            >
               {isLoading ? 'Menyimpan...' : 'Selesai'}
             </Text>
           </TouchableOpacity>

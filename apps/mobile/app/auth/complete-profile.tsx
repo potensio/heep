@@ -1,15 +1,27 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { CompleteProfileScreen } from '@/features/auth/screens/CompleteProfileScreen';
+import { useAuth } from '@/context/AuthContext';
+import type { VerifiedUser } from '@/lib/api';
 
 export default function CompleteProfileRoute() {
   const router = useRouter();
-  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
+  const { login } = useAuth();
+  const { email, token, returnTo } = useLocalSearchParams<{
+    email: string;
+    token: string;
+    returnTo?: string;
+  }>();
+
+  const handleSubmit = (user: VerifiedUser) => {
+    login(user, token);
+    router.push({ pathname: '/auth/success', params: { returnTo: returnTo ?? '' } });
+  };
 
   return (
     <CompleteProfileScreen
-      onSubmit={() =>
-        router.push({ pathname: '/auth/success', params: { returnTo: returnTo ?? '' } })
-      }
+      email={email ?? ''}
+      token={token ?? ''}
+      onSubmit={handleSubmit}
     />
   );
 }
