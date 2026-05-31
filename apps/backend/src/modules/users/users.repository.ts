@@ -14,6 +14,7 @@ export interface UpdateUserInput {
   avatarUrl?: string;
   gender?: 'male' | 'female';
   profileCompleted?: boolean;
+  phone?: string;
 }
 
 export interface UsersRepository {

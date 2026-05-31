@@ -31,7 +31,7 @@ function makeFakeAuthRepo() {
 
 const fakeUser: User = {
   id: 'user-1', email: 'u@example.com', name: null, avatarUrl: null,
-  gender: null, profileCompleted: false, createdAt: new Date(), updatedAt: new Date(),
+  gender: null, phone: null, profileCompleted: false, createdAt: new Date(), updatedAt: new Date(),
 };
 const fakeUsersService = { findOrCreateByEmail: async () => fakeUser, getMe: async () => fakeUser } as any;
 
