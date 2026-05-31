@@ -3,17 +3,19 @@ import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft } from '@solar-icons/react-native/Linear';
 import { OtpInput } from '../components/OtpInput';
+import { requestOtp, verifyOtp, ApiError, type VerifiedUser } from '@/lib/api';
 
 interface OtpScreenProps {
-  phone: string;
-  onVerify: () => void;
+  email: string;
+  onSuccess: (user: VerifiedUser, token: string) => void;
   onBack: () => void;
 }
 
-export function OtpScreen({ phone, onVerify, onBack }: OtpScreenProps) {
+export function OtpScreen({ email, onSuccess, onBack }: OtpScreenProps) {
   const insets = useSafeAreaInsets();
   const [otp, setOtp] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
@@ -29,21 +31,32 @@ export function OtpScreen({ phone, onVerify, onBack }: OtpScreenProps) {
   const handleVerify = async () => {
     if (otp.length !== 6) return;
     setIsLoading(true);
-    setTimeout(() => {
+    setError(null);
+    try {
+      const { accessToken, user } = await verifyOtp(email, otp);
+      onSuccess(user, accessToken);
+    } catch (e) {
+      setError(
+        e instanceof ApiError && e.status === 401
+          ? 'Kode salah atau sudah kadaluarsa.'
+          : 'Terjadi kesalahan. Coba lagi.',
+      );
+    } finally {
       setIsLoading(false);
-      onVerify();
-    }, 1000);
+    }
   };
 
-  const handleResend = () => {
+  const handleResend = async () => {
     if (!canResend) return;
     setCanResend(false);
     setCountdown(60);
+    setError(null);
+    try {
+      await requestOtp(email);
+    } catch {
+      setError('Gagal mengirim ulang kode. Coba lagi.');
+    }
   };
-
-  const maskedPhone = phone
-    ? `+62 ${phone.slice(0, 3)}****${phone.slice(-3)}`
-    : '';
 
   const isComplete = otp.length === 6;
 
@@ -70,14 +83,17 @@ export function OtpScreen({ phone, onVerify, onBack }: OtpScreenProps) {
           </TouchableOpacity>
 
           <Text className="text-2xl font-heading font-medium text-gray-900 mb-2">
-            Verifikasi Nomor HP
+            Verifikasi Email
           </Text>
           <Text className="text-base text-gray-600 mb-8">
-            Masukkan kode 6 digit yang dikirim ke {maskedPhone}
+            Masukkan kode 6 digit yang dikirim ke {email}
           </Text>
 
-          <View className="mb-8">
+          <View className="mb-4">
             <OtpInput value={otp} onChangeText={setOtp} disabled={isLoading} />
+            {error !== null && (
+              <Text className="text-sm text-red-500 mt-2 text-center">{error}</Text>
+            )}
           </View>
 
           <TouchableOpacity

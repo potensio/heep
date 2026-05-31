@@ -1,16 +1,19 @@
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { OtpScreen } from '@/features/auth/screens/OtpScreen';
+import { useAuth } from '@/context/AuthContext';
 
 export default function OtpRoute() {
   const router = useRouter();
-  const { phone, returnTo } = useLocalSearchParams<{ phone: string; returnTo?: string }>();
+  const { login } = useAuth();
+  const { email, returnTo } = useLocalSearchParams<{ email: string; returnTo?: string }>();
 
   return (
     <OtpScreen
-      phone={phone ?? ''}
-      onVerify={() =>
-        router.push({ pathname: '/auth/complete-profile', params: { returnTo: returnTo ?? '' } })
-      }
+      email={email ?? ''}
+      onSuccess={(user, token) => {
+        login(user, token);
+        router.replace((returnTo as any) || '/(tabs)');
+      }}
       onBack={() => router.back()}
     />
   );
