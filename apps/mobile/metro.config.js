@@ -5,6 +5,12 @@ const path = require("path");
 const config = getDefaultConfig(__dirname);
 
 config.watchFolders = [path.resolve(__dirname, "../../packages")];
+config.resolver = {
+  ...config.resolver,
+  extraNodeModules: {
+    "@bantujual/categories": path.resolve(__dirname, "../../packages/categories"),
+  },
+};
 
 module.exports = withNativeWind(config, {
   input: "./global.css",
