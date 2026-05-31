@@ -9,6 +9,7 @@ const initialFormData: SellFormData = {
   name: '',
   price: 0,
   description: '',
+  location: null,
 };
 
 export function useSellForm() {

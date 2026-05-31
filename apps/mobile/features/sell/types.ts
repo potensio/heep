@@ -1,4 +1,4 @@
-import type { ProductCategory, ProductCondition } from '@/lib/types';
+import type { ProductCategory, ProductCondition, Location } from '@/lib/types';
 
 export interface SellFormData {
   photos: string[];
@@ -7,6 +7,7 @@ export interface SellFormData {
   name: string;
   price: number;
   description: string;
+  location: Location | null;
 }
 
 export type WizardStep = 1 | 2 | 3 | 4;

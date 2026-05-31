@@ -1,3 +1,10 @@
+export interface Location {
+  name: string;
+  placeId: string;
+  lat: number;
+  lng: number;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -12,6 +19,7 @@ export interface Product {
   seller?: string;
   sellerId?: string;
   category?: string;
+  location?: Location;
 }
 
 export interface Message {
