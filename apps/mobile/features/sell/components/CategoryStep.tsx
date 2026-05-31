@@ -5,7 +5,6 @@ import {
   Bus,
   Buildings,
   Smartphone,
-  Widget,
 } from "@solar-icons/react-native/Linear";
 import { Button } from "@/components/ui/Button";
 import { CATEGORIES } from "@bantujual/categories";
@@ -16,7 +15,6 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; color?: strin
   Car: Bus, // Solar Linear has no Car icon; Bus is the closest vehicle icon
   Buildings,
   Smartphone,
-  Widget,
 };
 
 export function CategoryStep({
@@ -27,10 +25,6 @@ export function CategoryStep({
 }: CategoryStepProps) {
   const insets = useSafeAreaInsets();
 
-  const handleCategorySelect = (categoryId: CategoryId) => {
-    onCategorySelect(categoryId);
-  };
-
   const handleNext = () => {
     if (selectedCategory) {
       onNext();
@@ -38,7 +32,7 @@ export function CategoryStep({
   };
 
   const renderIcon = (iconName: string, size: number, color?: string) => {
-    const Icon = iconMap[iconName] || Widget;
+    const Icon = iconMap[iconName] || Bus;
     return <Icon size={size} color={color} />;
   };
 
@@ -62,7 +56,7 @@ export function CategoryStep({
             return (
               <TouchableOpacity
                 key={category.id}
-                onPress={() => handleCategorySelect(category.id as CategoryId)}
+                onPress={() => onCategorySelect(category.id as CategoryId)}
                 className={`flex-row items-center px-4 py-3 rounded-xl border ${
                   isSelected
                     ? "bg-primary border-primary"
