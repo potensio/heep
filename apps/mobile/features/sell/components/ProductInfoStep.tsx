@@ -27,10 +27,12 @@ function AttributeField({
   attribute,
   value,
   onChange,
+  onClear,
 }: {
   attribute: CategoryAttribute;
   value: string | number | undefined;
   onChange: (val: string | number) => void;
+  onClear?: () => void;
 }) {
   const showIOSPicker = () => {
     if (attribute.type !== 'select' || !attribute.options) return;
@@ -113,7 +115,11 @@ function AttributeField({
         onChangeText={(text) => {
           if (attribute.type === 'number') {
             const num = text.replace(/[^0-9]/g, '');
-            onChange(num ? parseInt(num, 10) : '');
+            if (num) {
+              onChange(parseInt(num, 10));
+            } else {
+              onClear?.();
+            }
           } else {
             onChange(text);
           }
@@ -148,24 +154,9 @@ export function ProductInfoStep({
     s => s.id === formData.subcategory
   );
   const allAttributes: CategoryAttribute[] = [
-    ...(selectedCategoryDef?.sharedAttributes ?? []),
-    ...(selectedSubcategoryDef?.attributes ?? []),
-  ] as CategoryAttribute[];
-
-  const validateAndProceed = () => {
-    if (formData.name.length < 3) return;
-    if (formData.price < 1000) return;
-    if (!formData.location) return;
-    if (!formData.subcategory) return;
-    const requiredFilled = allAttributes
-      .filter(a => a.required)
-      .every(a => {
-        const v = formData.attributes[a.id];
-        return v !== undefined && v !== '';
-      });
-    if (!requiredFilled) return;
-    onNext();
-  };
+    ...((selectedCategoryDef?.sharedAttributes ?? []) as CategoryAttribute[]),
+    ...((selectedSubcategoryDef?.attributes ?? []) as CategoryAttribute[]),
+  ];
 
   const isNameValid = formData.name.length >= 3;
   const isPriceValid = formData.price >= 1000;
@@ -181,6 +172,11 @@ export function ProductInfoStep({
     isNameValid && isPriceValid && isLocationValid &&
     isSubcategoryValid && requiredAttributesFilled
   );
+
+  const validateAndProceed = () => {
+    if (!canProceed) return;
+    onNext();
+  };
 
   const handlePriceChange = (text: string) => {
     const numeric = text.replace(/[^0-9]/g, '');
@@ -342,6 +338,11 @@ export function ProductInfoStep({
             onChange={(val) =>
               onFormChange({ attributes: { ...formData.attributes, [attr.id]: val } })
             }
+            onClear={() => {
+              const next = { ...formData.attributes };
+              delete next[attr.id];
+              onFormChange({ attributes: next });
+            }}
           />
         ))}
       </ScrollView>
