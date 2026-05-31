@@ -1,4 +1,5 @@
 // features/sell/components/ProductInfoStep.tsx
+import { useEffect, useState } from 'react';
 import {
   ActionSheetIOS,
   Platform,
@@ -10,7 +11,9 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Picker } from "@react-native-picker/picker";
-import { ArrowLeft, Tag } from "@solar-icons/react-native/Linear";
+import { ArrowLeft, MapPoint, Tag } from "@solar-icons/react-native/Linear";
+import { CityPicker } from '@/features/shared/components/CityPicker';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from "@/components/ui/Button";
 import { CATEGORY_OPTIONS, CONDITION_OPTIONS } from "@/lib/types";
 import type { ProductInfoStepProps } from "../types";
@@ -34,6 +37,14 @@ export function ProductInfoStep({
   isDevMode = false,
 }: ProductInfoStepProps) {
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
+  const [showCityPicker, setShowCityPicker] = useState(false);
+
+  useEffect(() => {
+    if (!formData.location && user?.location) {
+      onFormChange({ location: user.location });
+    }
+  }, []);
 
   const showIOSConditionPicker = () => {
     const options = ["Batal", ...CONDITION_OPTIONS];
@@ -62,7 +73,8 @@ export function ProductInfoStep({
 
   const isNameValid = formData.name.length >= 3;
   const isPriceValid = formData.price >= 1000;
-  const canProceed = isDevMode || (isNameValid && isPriceValid);
+  const isLocationValid = formData.location !== null;
+  const canProceed = isDevMode || (isNameValid && isPriceValid && isLocationValid);
 
   const handlePriceChange = (text: string) => {
     // Remove non-numeric characters
@@ -235,7 +247,36 @@ export function ProductInfoStep({
             {formData.description.length}/500
           </Text>
         </View>
+
+        {/* Lokasi */}
+        <View className="mb-5">
+          <Text className="text-sm font-medium text-gray-700 mb-2">
+            Lokasi <Text className="text-red-500">*</Text>
+          </Text>
+          <TouchableOpacity
+            onPress={() => setShowCityPicker(true)}
+            className={INPUT_CONTAINER}
+            style={{ height: INPUT_HEIGHT, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16 }}
+            activeOpacity={0.8}
+          >
+            <MapPoint size={16} color={formData.location ? '#155DFC' : '#9CA3AF'} />
+            <Text
+              className="flex-1 ml-2"
+              style={{ fontSize: INPUT_FONT_SIZE, color: formData.location ? '#111827' : '#9CA3AF' }}
+            >
+              {formData.location ? formData.location.name : 'Pilih kota...'}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
+
+      {showCityPicker && (
+        <CityPicker
+          value={formData.location}
+          onSelect={(loc) => { onFormChange({ location: loc }); setShowCityPicker(false); }}
+          onClose={() => setShowCityPicker(false)}
+        />
+      )}
 
       {/* Footer with CTAs */}
       <View

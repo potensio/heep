@@ -42,16 +42,17 @@ export function SellFormProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Check if form has any user-entered data
-  const hasData = useMemo(() => {
-    return (
+  const hasData = useMemo(
+    () =>
       formData.photos.length > 0 ||
       formData.category !== '' ||
       formData.condition !== '' ||
       formData.name !== '' ||
-      formData.price > 0 ||
-      formData.description !== ''
-    );
-  }, [formData]);
+      formData.price !== 0 ||
+      formData.description !== '' ||
+      formData.location !== null,
+    [formData],
+  );
 
   const setSubmitting = useCallback((value: boolean) => {
     setIsSubmitting(value);
