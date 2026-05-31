@@ -171,4 +171,7 @@ export const CATEGORIES = [
 ] as const
 
 export type CategoryId = (typeof CATEGORIES)[number]['id']
+// Note: SubcategoryId is a flat union across all categories — it does not enforce
+// that a given subcategory belongs to a specific parent category. Use
+// CATEGORIES.find(c => c.id === categoryId)?.subcategories to validate the pairing.
 export type SubcategoryId = (typeof CATEGORIES)[number]['subcategories'][number]['id']
