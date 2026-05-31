@@ -28,8 +28,35 @@ export const CATEGORIES = [
     label: 'Kendaraan',
     icon: 'Car',
     subcategories: [
-      { id: 'mobil', label: 'Mobil', attributes: [] },
-      { id: 'motor', label: 'Motor', attributes: [] },
+      {
+        id: 'mobil',
+        label: 'Mobil',
+        attributes: [
+          {
+            id: 'brand',
+            label: 'Merk',
+            type: 'select',
+            options: [
+              'Toyota', 'Honda', 'Daihatsu', 'Suzuki', 'Mitsubishi',
+              'Nissan', 'Mazda', 'Isuzu', 'Wuling', 'BMW', 'Mercedes-Benz', 'Lainnya',
+            ],
+            required: true,
+          },
+        ],
+      },
+      {
+        id: 'motor',
+        label: 'Motor',
+        attributes: [
+          {
+            id: 'brand',
+            label: 'Merk',
+            type: 'select',
+            options: ['Honda', 'Yamaha', 'Kawasaki', 'Suzuki', 'Vespa', 'TVS', 'Royal Enfield', 'Lainnya'],
+            required: true,
+          },
+        ],
+      },
     ],
     sharedAttributes: [
       {
@@ -49,17 +76,6 @@ export const CATEGORIES = [
         id: 'mileage',
         label: 'Kilometer',
         type: 'number',
-        required: true,
-      },
-      {
-        id: 'brand',
-        label: 'Merk',
-        type: 'select',
-        options: [
-          'Toyota', 'Honda', 'Daihatsu', 'Suzuki', 'Mitsubishi',
-          'Nissan', 'Mazda', 'BMW', 'Mercedes-Benz',
-          'Yamaha', 'Kawasaki', 'Vespa', 'Lainnya',
-        ],
         required: true,
       },
       {
@@ -148,8 +164,20 @@ export const CATEGORIES = [
     label: 'Handphone & Tablet',
     icon: 'Smartphone',
     subcategories: [
-      { id: 'handphone', label: 'Handphone', attributes: [] },
-      { id: 'tablet', label: 'Tablet', attributes: [] },
+      {
+        id: 'handphone',
+        label: 'Handphone',
+        attributes: [
+          { id: 'brand', label: 'Merk', type: 'text', required: true },
+        ],
+      },
+      {
+        id: 'tablet',
+        label: 'Tablet',
+        attributes: [
+          { id: 'brand', label: 'Merk', type: 'text', required: true },
+        ],
+      },
       { id: 'aksesoris-gadget', label: 'Aksesoris Gadget', attributes: [] },
     ],
     sharedAttributes: [
@@ -158,12 +186,6 @@ export const CATEGORIES = [
         label: 'Kondisi',
         type: 'select',
         options: ['Baru', 'Bekas'],
-        required: true,
-      },
-      {
-        id: 'brand',
-        label: 'Merk',
-        type: 'text',
         required: true,
       },
     ],
