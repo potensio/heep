@@ -1,14 +1,12 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRef, useMemo, useCallback } from "react";
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowLeft } from "@solar-icons/react-native/Linear";
-import {
-  Bus,
-  Buildings,
-  Smartphone,
-} from "@solar-icons/react-native/Linear";
+import { Bus, Buildings, Smartphone } from "@solar-icons/react-native/Linear";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { Button } from "@/components/ui/Button";
 import { CATEGORIES } from "@bantujual/categories";
-import type { CategoryId } from "@bantujual/categories";
+import type { CategoryId, SubcategoryId } from "@bantujual/categories";
 import type { CategoryStepProps } from "../types";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
@@ -19,17 +17,29 @@ const iconMap: Record<string, React.ComponentType<{ size?: number; color?: strin
 
 export function CategoryStep({
   selectedCategory,
+  selectedSubcategory,
   onCategorySelect,
+  onSubcategorySelect,
   onNext,
   onBack,
 }: CategoryStepProps) {
   const insets = useSafeAreaInsets();
+  const sheetRef = useRef<BottomSheetModal>(null);
+  const snapPoints = useMemo(() => ["40%"], []);
 
-  const handleNext = () => {
-    if (selectedCategory) {
-      onNext();
+  const selectedCategoryDef = CATEGORIES.find(c => c.id === selectedCategory);
+
+  const handleCategoryPress = useCallback((categoryId: CategoryId) => {
+    if (categoryId !== selectedCategory) {
+      onCategorySelect(categoryId);
     }
-  };
+    sheetRef.current?.present();
+  }, [onCategorySelect, selectedCategory]);
+
+  const handleSubcategorySelect = useCallback((subcategoryId: SubcategoryId) => {
+    onSubcategorySelect(subcategoryId);
+    sheetRef.current?.dismiss();
+  }, [onSubcategorySelect]);
 
   const renderIcon = (iconName: string, size: number, color?: string) => {
     const Icon = iconMap[iconName] || Bus;
@@ -56,7 +66,7 @@ export function CategoryStep({
             return (
               <TouchableOpacity
                 key={category.id}
-                onPress={() => onCategorySelect(category.id as CategoryId)}
+                onPress={() => handleCategoryPress(category.id as CategoryId)}
                 className={`flex-row items-center px-4 py-3 rounded-xl border ${
                   isSelected
                     ? "bg-primary border-primary"
@@ -94,14 +104,51 @@ export function CategoryStep({
             onPress={onBack}
           />
           <Button
-            onPress={handleNext}
-            disabled={!selectedCategory}
+            onPress={onNext}
+            disabled={!selectedCategory || !selectedSubcategory}
             style={{ flex: 1 }}
           >
             Lanjut
           </Button>
         </View>
       </View>
+
+      <BottomSheetModal
+        ref={sheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+      >
+        <BottomSheetView style={[styles.sheetContent, { paddingBottom: insets.bottom + 16 }]}>
+          <Text style={styles.sheetTitle}>
+            Pilih Jenis {selectedCategoryDef?.label}
+          </Text>
+          <View style={styles.chipsRow}>
+            {selectedCategoryDef?.subcategories.map((sub) => {
+              const isSelected = selectedSubcategory === sub.id;
+              return (
+                <TouchableOpacity
+                  key={sub.id}
+                  onPress={() => handleSubcategorySelect(sub.id as SubcategoryId)}
+                  className={`px-4 py-3 rounded-xl border ${
+                    isSelected ? "bg-primary border-primary" : "bg-white border-gray-200"
+                  }`}
+                  activeOpacity={0.8}
+                >
+                  <Text className={`text-sm font-medium ${isSelected ? "text-white" : "text-gray-700"}`}>
+                    {sub.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </BottomSheetView>
+      </BottomSheetModal>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  sheetContent: { paddingHorizontal: 20 },
+  sheetTitle: { fontSize: 20, fontFamily: "Fjalla-One", marginBottom: 16 },
+  chipsRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+});

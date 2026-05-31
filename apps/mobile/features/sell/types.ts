@@ -36,7 +36,9 @@ export interface PhotoUploadStepProps {
 
 export interface CategoryStepProps {
   selectedCategory: CategoryId | '';
+  selectedSubcategory: SubcategoryId | '';
   onCategorySelect: (category: CategoryId) => void;
+  onSubcategorySelect: (subcategory: SubcategoryId) => void;
   onNext: () => void;
   onBack: () => void;
 }

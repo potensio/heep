@@ -208,7 +208,9 @@ export function ProductInfoStep({
           <View className="flex-row items-center bg-orange/10 border border-orange/20 rounded-xl px-4 py-3">
             <Tag size={18} color="#F97316" />
             <Text className="ml-2 text-gray-900 font-medium">
-              {selectedCategoryDef?.label ?? formData.category}
+              {selectedCategoryDef && selectedSubcategoryDef
+                ? `${selectedCategoryDef.label} › ${selectedSubcategoryDef.label}`
+                : selectedCategoryDef?.label ?? formData.category}
             </Text>
           </View>
         </View>
@@ -300,34 +302,6 @@ export function ProductInfoStep({
             </Text>
           </TouchableOpacity>
         </View>
-
-        {/* Subkategori */}
-        {selectedCategoryDef && (
-          <View className="mb-5">
-            <Text className="text-sm font-medium text-gray-700 mb-2">
-              Jenis <Text className="text-red-500">*</Text>
-            </Text>
-            <View className="flex-row flex-wrap gap-2">
-              {selectedCategoryDef.subcategories.map((sub) => {
-                const isSelected = formData.subcategory === sub.id;
-                return (
-                  <TouchableOpacity
-                    key={sub.id}
-                    onPress={() => onFormChange({ subcategory: sub.id as typeof formData.subcategory, attributes: {} })}
-                    className={`px-4 py-2.5 rounded-xl border ${
-                      isSelected ? 'bg-primary border-primary' : 'bg-white border-gray-200'
-                    }`}
-                    activeOpacity={0.8}
-                  >
-                    <Text className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-gray-700'}`}>
-                      {sub.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        )}
 
         {/* Dynamic Attribute Fields */}
         {formData.subcategory !== '' && allAttributes.map((attr) => (
