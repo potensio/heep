@@ -1,3 +1,5 @@
+import type { Location } from '@/lib/types';
+
 const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 export class ApiError extends Error {
@@ -13,6 +15,7 @@ export interface VerifiedUser {
   name: string | null;
   phone: string | null;
   profileCompleted: boolean;
+  location: Location | null;
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
@@ -41,7 +44,12 @@ export async function verifyOtp(
 
 export async function updateProfile(
   token: string,
-  data: { name: string; gender: 'male' | 'female'; phone: string },
+  data: {
+    name?: string;
+    gender?: 'male' | 'female';
+    phone?: string;
+    location?: Location;
+  },
 ): Promise<VerifiedUser> {
   const res = await fetch(`${BASE}/users/me`, {
     method: 'PATCH',
