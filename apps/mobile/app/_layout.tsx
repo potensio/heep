@@ -11,11 +11,11 @@ import {
   PlusJakartaSans_700Bold,
 } from "@expo-google-fonts/plus-jakarta-sans";
 import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { FilterSheetProvider } from "@/features/search/context/FilterSheetContext";
 import { AuthProvider } from "@/context/AuthContext";
 import "../global.css";
 
-// Disable Reanimated strict mode warnings
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false,
@@ -39,12 +39,14 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <AuthProvider>
           <FilterSheetProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="(tabs)" />
-              <Stack.Screen name="(public)" />
-              <Stack.Screen name="(protected)" />
-              <Stack.Screen name="auth" />
-            </Stack>
+            <BottomSheetModalProvider>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="(public)" />
+                <Stack.Screen name="(protected)" />
+                <Stack.Screen name="auth" />
+              </Stack>
+            </BottomSheetModalProvider>
           </FilterSheetProvider>
         </AuthProvider>
       </SafeAreaProvider>
