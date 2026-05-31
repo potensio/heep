@@ -14,6 +14,8 @@
     "db:migrate": "tsx src/core/db/migrate.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1057.0",
+    "@aws-sdk/s3-request-presigner": "^3.1057.0",
     "@hono/node-server": "^1.13.0",
     "@hono/zod-validator": "^0.4.0",
     "bcryptjs": "^2.4.3",
