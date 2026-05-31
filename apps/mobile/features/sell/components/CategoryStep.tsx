@@ -1,49 +1,21 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowLeft } from "@solar-icons/react-native/Linear";
-import { Button } from "@/components/ui/Button";
 import {
-  Monitor,
-  Smartphone,
-  Cpu,
-  TShirt,
-  Skirt,
-  Bag,
-  House,
-  Bus,
-  Scooter,
+  Car,
   Buildings,
-  Volleyball,
-  MusicNote,
-  Balloon,
-  Cosmetic,
-  Cup,
+  Smartphone,
   Widget,
 } from "@solar-icons/react-native/Linear";
-import { CATEGORY_OPTIONS, type ProductCategory } from "@/lib/types";
+import { Button } from "@/components/ui/Button";
+import { CATEGORIES } from "@bantujual/categories";
+import type { CategoryId } from "@bantujual/categories";
 import type { CategoryStepProps } from "../types";
 
-const iconMap: Record<
-  string,
-  React.ComponentType<{ size?: number; color?: string }>
-> = {
-  Monitor,
-  Smartphone,
-  Mobile: Smartphone,
-  Cpu,
-  TShirt,
-  Skirt,
-  Bag,
-  House,
-  Bus,
-  Car: Bus,
-  Scooter,
+const iconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
+  Car,
   Buildings,
-  Volleyball,
-  MusicNote,
-  Balloon,
-  Cosmetic,
-  Cup,
+  Smartphone,
   Widget,
 };
 
@@ -55,8 +27,8 @@ export function CategoryStep({
 }: CategoryStepProps) {
   const insets = useSafeAreaInsets();
 
-  const handleCategorySelect = (category: ProductCategory) => {
-    onCategorySelect(category);
+  const handleCategorySelect = (categoryId: CategoryId) => {
+    onCategorySelect(categoryId);
   };
 
   const handleNext = () => {
@@ -65,13 +37,9 @@ export function CategoryStep({
     }
   };
 
-  const renderCategoryIcon = (
-    iconName: string,
-    size: number = 28,
-    color?: string,
-  ) => {
-    const IconComponent = iconMap[iconName] || Widget;
-    return <IconComponent size={size} color={color} />;
+  const renderIcon = (iconName: string, size: number, color?: string) => {
+    const Icon = iconMap[iconName] || Widget;
+    return <Icon size={size} color={color} />;
   };
 
   return (
@@ -88,14 +56,13 @@ export function CategoryStep({
           Pilih kategori yang sesuai dengan produk yang akan dijual.
         </Text>
 
-        {/* Category Chips - Centered, Medium Pills */}
         <View className="flex-row flex-wrap justify-center gap-2.5">
-          {CATEGORY_OPTIONS.map((category) => {
-            const isSelected = selectedCategory === category.value;
+          {CATEGORIES.map((category) => {
+            const isSelected = selectedCategory === category.id;
             return (
               <TouchableOpacity
-                key={category.value}
-                onPress={() => handleCategorySelect(category.value)}
+                key={category.id}
+                onPress={() => handleCategorySelect(category.id as CategoryId)}
                 className={`flex-row items-center px-4 py-3 rounded-xl border ${
                   isSelected
                     ? "bg-primary border-primary"
@@ -103,12 +70,11 @@ export function CategoryStep({
                 }`}
                 activeOpacity={0.8}
               >
-                {renderCategoryIcon(
+                {renderIcon(
                   category.icon,
                   18,
                   isSelected ? "#FFFFFF" : "#155DFC",
                 )}
-
                 <Text
                   className={`ml-2 text-sm font-medium ${
                     isSelected ? "text-white" : "text-gray-700"
@@ -122,14 +88,17 @@ export function CategoryStep({
         </View>
       </ScrollView>
 
-      {/* Footer with CTAs */}
       <View
         className="absolute bottom-0 left-0 right-0 bg-background px-5 pt-4 pb-6 border-t border-gray-100"
         style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
         <View className="flex-row gap-3 items-center">
-          <Button variant="outline" size="sm" icon={<ArrowLeft size={18} color="#000000" />} onPress={onBack} />
-
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<ArrowLeft size={18} color="#000000" />}
+            onPress={onBack}
+          />
           <Button
             onPress={handleNext}
             disabled={!selectedCategory}
