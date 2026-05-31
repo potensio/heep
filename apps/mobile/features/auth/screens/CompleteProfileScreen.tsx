@@ -4,8 +4,11 @@ import {
 } from 'react-native';
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MapPoint } from '@solar-icons/react-native/Linear';
 import { GenderSelector } from '../components/GenderSelector';
+import { CityPicker } from '@/features/shared/components/CityPicker';
 import { updateProfile, ApiError, type VerifiedUser } from '@/lib/api';
+import type { Location } from '@/lib/types';
 
 type LocalGender = 'pria' | 'wanita' | null;
 
@@ -20,11 +23,13 @@ export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfil
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [gender, setGender] = useState<LocalGender>(null);
+  const [location, setLocation] = useState<Location | null>(null);
+  const [showCityPicker, setShowCityPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
-    if (!name.trim() || !phone.trim() || !gender) return;
+    if (!name.trim() || !phone.trim() || !gender || !location) return;
     setIsLoading(true);
     setError(null);
     try {
@@ -32,8 +37,9 @@ export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfil
         name: name.trim(),
         gender: gender === 'pria' ? 'male' : 'female',
         phone: phone.trim(),
+        location,
       });
-      onSubmit(updatedUser);
+      onSubmit({ ...updatedUser, location });
     } catch (e) {
       setError(
         e instanceof ApiError && e.status < 500
@@ -45,7 +51,7 @@ export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfil
     }
   };
 
-  const isValid = name.trim().length > 0 && phone.trim().length > 0 && gender !== null;
+  const isValid = name.trim().length > 0 && phone.trim().length > 0 && gender !== null && location !== null;
 
   return (
     <View className="flex-1 bg-background">
@@ -112,6 +118,24 @@ export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfil
             </View>
           </View>
 
+          <View className="mb-5">
+            <Text className="text-sm text-gray-600 mb-2 font-medium">Kota</Text>
+            <TouchableOpacity
+              onPress={() => setShowCityPicker(true)}
+              className="bg-white rounded-xl border border-gray-200 flex-row items-center px-4"
+              style={{ height: 52 }}
+              activeOpacity={0.8}
+            >
+              <MapPoint size={16} color={location ? '#155DFC' : '#9CA3AF'} />
+              <Text
+                className="flex-1 ml-2"
+                style={{ fontSize: 16, color: location ? '#111827' : '#9CA3AF' }}
+              >
+                {location ? location.name : 'Pilih kota...'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <View className="mb-8">
             <Text className="text-sm text-gray-600 mb-2 font-medium">Jenis Kelamin</Text>
             <GenderSelector value={gender} onChange={setGender} />
@@ -135,6 +159,14 @@ export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfil
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {showCityPicker && (
+        <CityPicker
+          value={location}
+          onSelect={(loc) => { setLocation(loc); setShowCityPicker(false); }}
+          onClose={() => setShowCityPicker(false)}
+        />
+      )}
     </View>
   );
 }
