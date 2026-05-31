@@ -271,16 +271,16 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
                   {CATEGORIES.map((category) => (
                     <TouchableOpacity
                       key={category.id}
-                      onPress={() => toggleCategory(category.label)}
+                      onPress={() => toggleCategory(category.id)}
                       className={`p-2 rounded-lg border ${
-                        selectedCategories.includes(category.label)
+                        selectedCategories.includes(category.id)
                           ? "bg-primary/10 border-1.5 border-primary"
                           : "bg-white border-gray-200"
                       }`}
                     >
                       <Text
                         className={`text-lg font-semibold ${
-                          selectedCategories.includes(category.label)
+                          selectedCategories.includes(category.id)
                             ? "text-primary"
                             : "text-text-primary"
                         }`}
