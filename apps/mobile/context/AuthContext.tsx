@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import type { Location } from '@/lib/types';
 
 export interface User {
   id: string;
@@ -6,6 +7,7 @@ export interface User {
   name: string | null;
   phone: string | null;
   profileCompleted: boolean;
+  location: Location | null;
 }
 
 interface AuthContextType {
@@ -15,6 +17,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (user: User, token: string) => void;
   logout: () => void;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,8 +39,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(null);
   }, []);
 
+  const updateUser = useCallback((updatedUser: User) => {
+    setUser(updatedUser);
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, token, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, token, isLoading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
