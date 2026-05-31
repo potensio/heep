@@ -16,6 +16,11 @@ const EnvSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default('BantuJual <noreply@bantujual.app>'),
   WEB_ORIGIN: z.string().default('http://localhost:5173'),
+  R2_ACCOUNT_ID: z.string().optional(),
+  R2_ACCESS_KEY_ID: z.string().optional(),
+  R2_SECRET_ACCESS_KEY: z.string().optional(),
+  R2_BUCKET_NAME: z.string().optional(),
+  R2_PUBLIC_URL: z.string().optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
