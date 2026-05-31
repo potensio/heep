@@ -22,7 +22,7 @@ export interface CategoryDefinition {
   sharedAttributes: CategoryAttribute[]
 }
 
-export const CATEGORIES: readonly CategoryDefinition[] = [
+export const CATEGORIES = [
   {
     id: 'kendaraan',
     label: 'Kendaraan',
