@@ -42,8 +42,10 @@ export async function getCityLocation(placeId: string, name: string): Promise<Lo
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Places API error: ${res.status}`);
   const data = (await res.json()) as {
+    status: string;
     result: { geometry?: { location: { lat: number; lng: number } } };
   };
+  if (data.status !== 'OK') throw new Error(`Places Details API: ${data.status}`);
   const coords = data.result?.geometry?.location;
   if (!coords) throw new Error(`No geometry for place: ${placeId}`);
   return { name, placeId, lat: coords.lat, lng: coords.lng };

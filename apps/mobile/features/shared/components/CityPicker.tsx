@@ -18,7 +18,7 @@ interface CityPickerProps {
 
 export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
   const ref = useRef<BottomSheetModal>(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(value?.name ?? '');
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const insets = useSafeAreaInsets();
@@ -27,8 +27,11 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
     ref.current?.present();
   }, []);
 
+  const lastQueryRef = useRef('');
+
   const handleChangeText = useCallback(async (text: string) => {
     setQuery(text);
+    lastQueryRef.current = text;
     if (text.length < 2) {
       setSuggestions([]);
       return;
@@ -36,9 +39,13 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
     setIsLoading(true);
     try {
       const results = await searchCities(text);
-      setSuggestions(results);
+      if (text === lastQueryRef.current) {
+        setSuggestions(results);
+      }
     } finally {
-      setIsLoading(false);
+      if (text === lastQueryRef.current) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -46,9 +53,8 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
     try {
       const location = await getCityLocation(suggestion.placeId, suggestion.name);
       onSelect(location);
-      ref.current?.dismiss();
     } catch {
-      // getCityLocation failed (network error or missing geometry) — sheet stays open
+      // getCityLocation failed — sheet stays open so user can try again
     }
   }, [onSelect]);
 
