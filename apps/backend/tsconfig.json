@@ -12,7 +12,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "verbatimModuleSyntax": false
+    "verbatimModuleSyntax": false,
+    "paths": {
+      "@bantujual/categories": ["../../packages/categories/index.ts"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

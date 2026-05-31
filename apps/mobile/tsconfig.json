@@ -5,7 +5,8 @@
     "jsx": "react-native",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@bantujual/categories": ["../../packages/categories/index.ts"]
     }
   },
   "include": [

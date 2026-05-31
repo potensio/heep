@@ -1,9 +1,10 @@
 const { getDefaultConfig } = require("expo/metro-config");
+const { withNativeWind } = require("nativewind/metro");
+const path = require("path");
 
 const config = getDefaultConfig(__dirname);
 
-// NativeWind v4 metro configuration
-const { withNativeWind } = require("nativewind/metro");
+config.watchFolders = [path.resolve(__dirname, "../../packages")];
 
 module.exports = withNativeWind(config, {
   input: "./global.css",
