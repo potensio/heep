@@ -1,51 +1,43 @@
 // features/sell/components/ReviewStep.tsx
-import { View, Text, TouchableOpacity } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Gallery, PenNewSquare } from '@solar-icons/react-native/Linear';
+import { View } from 'react-native';
+import { ArrowLeft } from '@solar-icons/react-native/Linear';
 import { Button } from '@/components/ui/Button';
 import { ProductDetail, type ProductDetailData } from '@/features/product/ProductDetail';
-import { CATEGORY_OPTIONS } from '@/lib/types';
+import { CATEGORIES } from '@bantujual/categories';
 import type { ReviewStepProps } from '../types';
 
-function formatRupiah(value: number): string {
-  if (!value || value === 0) return 'Rp 0';
-  return 'Rp ' + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-}
-
-function getCategoryLabel(categoryValue: string): string {
-  const category = CATEGORY_OPTIONS.find(cat => cat.value === categoryValue);
-  return category?.label || categoryValue;
-}
-
-function getConditionLabel(conditionValue: string): string {
-  if (!conditionValue) return '-';
-  return conditionValue;
-}
-
-export function ReviewStep({ 
-  formData, 
-  isSubmitting, 
-  onEditPhotos, 
-  onEditInfo, 
-  onPublish, 
-  onBack 
+export function ReviewStep({
+  formData,
+  isSubmitting,
+  onEditPhotos,
+  onEditInfo,
+  onPublish,
+  onBack,
 }: ReviewStepProps) {
-  const insets = useSafeAreaInsets();
+  const categoryDef = CATEGORIES.find(c => c.id === formData.category);
+  const subcategoryDef = categoryDef?.subcategories.find(s => s.id === formData.subcategory);
+  const categoryLabel = subcategoryDef
+    ? `${categoryDef?.label} › ${subcategoryDef.label}`
+    : categoryDef?.label ?? formData.category;
 
-  // Convert formData to ProductDetailData format
   const productForPreview: ProductDetailData = {
     name: formData.name,
     price: formData.price,
     description: formData.description,
     photos: formData.photos,
-    category: getCategoryLabel(formData.category),
-    condition: getConditionLabel(formData.condition),
+    category: categoryLabel,
+    condition: formData.attributes.condition ? String(formData.attributes.condition) : undefined,
   };
 
   const footerContent = (
     <View className="flex-row gap-3 items-center">
-      <Button variant="outline" size="sm" icon={<ArrowLeft size={18} color="#000000" />} onPress={onBack} disabled={isSubmitting} />
-      
+      <Button
+        variant="outline"
+        size="sm"
+        icon={<ArrowLeft size={18} color="#000000" />}
+        onPress={onBack}
+        disabled={isSubmitting}
+      />
       <Button
         onPress={onPublish}
         disabled={isSubmitting}
