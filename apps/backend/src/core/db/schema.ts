@@ -1,5 +1,5 @@
 import {
-  pgTable, pgEnum, uuid, text, integer, boolean, timestamp, jsonb, index,
+  pgTable, pgEnum, uuid, text, integer, boolean, timestamp, jsonb, index, doublePrecision,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { CATEGORIES } from '@bantujual/categories';
@@ -12,13 +12,8 @@ export const productCategoryEnum = pgEnum('product_category', categoryIds);
 const subcategoryIds = CATEGORIES.flatMap(c => c.subcategories.map(s => s.id)) as [string, ...string[]];
 export const productSubcategoryEnum = pgEnum('product_subcategory', subcategoryIds);
 
-// Kept for potential future use (e.g., legacy data migration). Condition is now
-// stored per-category in the products.attributes jsonb column.
-export const productConditionEnum = pgEnum('product_condition', [
-  'Baru', 'Masih Bagus', 'Masih Layak', 'Apa adanya',
-]);
-
-export const productStatusEnum = pgEnum('product_status', ['active', 'sold', 'draft']);
+export const listingStatusEnum = pgEnum('listing_status', ['draft', 'active', 'sold']);
+export const approvalStatusEnum = pgEnum('approval_status', ['pending', 'rejected', 'approved']);
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -60,7 +55,13 @@ export const products = pgTable('products', {
   category: productCategoryEnum('category').notNull(),
   subcategory: productSubcategoryEnum('subcategory').notNull(),
   attributes: jsonb('attributes').notNull().default({}),
-  status: productStatusEnum('status').notNull().default('active'),
+  listingStatus: listingStatusEnum('listing_status').notNull().default('draft'),
+  approvalStatus: approvalStatusEnum('approval_status').notNull().default('pending'),
+  expiresAt: timestamp('expires_at', { withTimezone: true }),
+  locationName: text('location_name'),
+  locationPlaceId: text('location_place_id'),
+  locationLat: doublePrecision('location_lat'),
+  locationLng: doublePrecision('location_lng'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [
