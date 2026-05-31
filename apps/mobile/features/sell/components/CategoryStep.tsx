@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ArrowLeft } from "@solar-icons/react-native/Linear";
 import {
-  Car,
+  Bus,
   Buildings,
   Smartphone,
   Widget,
@@ -13,7 +13,7 @@ import type { CategoryId } from "@bantujual/categories";
 import type { CategoryStepProps } from "../types";
 
 const iconMap: Record<string, React.ComponentType<{ size?: number; color?: string }>> = {
-  Car,
+  Car: Bus, // Solar Linear has no Car icon; Bus is the closest vehicle icon
   Buildings,
   Smartphone,
   Widget,
