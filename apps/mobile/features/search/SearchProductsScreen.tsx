@@ -8,7 +8,11 @@ import { EmptyState } from "./components/EmptyState";
 import { SearchHistory } from "./components/SearchHistory";
 import { useFilterSheet } from "./context/FilterSheetContext";
 import type { FilterState, SortOption } from "./context/FilterSheetContext";
-import { Filter, ArrowLeft } from "@solar-icons/react-native/Linear";
+import { Filter, ArrowLeft, MapPoint } from "@solar-icons/react-native/Linear";
+import { CityPicker } from "@/features/shared/components/CityPicker";
+import { useAuth } from "@/context/AuthContext";
+import { updateProfile } from "@/lib/api";
+import type { Location } from "@/lib/types";
 import { mockProducts } from "@/lib/mockData";
 import { Button } from "@/components/ui";
 
@@ -34,6 +38,20 @@ export function SearchProductsScreen({
 }: SearchProductsScreenProps) {
   const insets = useSafeAreaInsets();
   const { openFilterSheet } = useFilterSheet();
+  const { user, token, updateUser } = useAuth();
+  const [showCityPicker, setShowCityPicker] = useState(false);
+
+  const handleLocationSelect = useCallback(async (location: Location) => {
+    setShowCityPicker(false);
+    if (!token) return;
+    try {
+      const updatedUser = await updateProfile(token, { location });
+      updateUser({ ...updatedUser, location });
+    } catch {
+      // best-effort — picker is already dismissed
+    }
+  }, [token, updateUser]);
+
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [hasSubmitted, setHasSubmitted] = useState(!!initialQuery.trim());
   const [history, setHistory] = useState<string[]>([]);
@@ -141,6 +159,13 @@ export function SearchProductsScreen({
             onPress={onBack}
           />
 
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<MapPoint size={18} color={user?.location ? '#155DFC' : '#6B7280'} />}
+            onPress={() => setShowCityPicker(true)}
+          />
+
           <View className="flex-1">
             <SearchBar
               value={searchQuery}
@@ -160,6 +185,15 @@ export function SearchProductsScreen({
           )}
         </View>
       </View>
+
+      {hasSubmitted && user?.location && (
+        <View className="px-5 pb-2">
+          <Text className="text-xs text-gray-500">
+            Menampilkan produk di{' '}
+            <Text className="font-semibold text-gray-700">{user.location.name}</Text>
+          </Text>
+        </View>
+      )}
 
       {!hasSubmitted ? (
         <ScrollView
@@ -227,6 +261,14 @@ export function SearchProductsScreen({
             )}
           </View>
         </ScrollView>
+      )}
+
+      {showCityPicker && (
+        <CityPicker
+          value={user?.location ?? null}
+          onSelect={handleLocationSelect}
+          onClose={() => setShowCityPicker(false)}
+        />
       )}
     </View>
   );
