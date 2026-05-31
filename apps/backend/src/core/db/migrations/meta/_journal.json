@@ -22,6 +22,13 @@
       "when": 1780260135077,
       "tag": "0002_peaceful_butterfly",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1748736000000,
+      "tag": "0003_listing_approval_status",
+      "breakpoints": true
     }
   ]
 }
