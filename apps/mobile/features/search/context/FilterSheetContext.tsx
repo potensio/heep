@@ -20,7 +20,7 @@ import {
 } from "react-native";
 import { CloseSquare } from "@solar-icons/react-native/Linear";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CATEGORY_OPTIONS } from "@/lib/types";
+import { CATEGORIES } from "@bantujual/categories";
 import { Button } from "@/components/ui/Button";
 
 export type SortOption = "relevan" | "terbaru" | "termurah" | "termahal";
@@ -268,9 +268,9 @@ export function FilterSheetProvider({ children }: { children: ReactNode }) {
               <View className="mb-6">
                 <Text className="text-lg font-medium mb-3">Kategori</Text>
                 <View className="flex-row flex-wrap gap-2">
-                  {CATEGORY_OPTIONS.map((category) => (
+                  {CATEGORIES.map((category) => (
                     <TouchableOpacity
-                      key={category.value}
+                      key={category.id}
                       onPress={() => toggleCategory(category.label)}
                       className={`p-2 rounded-lg border ${
                         selectedCategories.includes(category.label)
