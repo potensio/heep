@@ -12,6 +12,8 @@ export const productCategoryEnum = pgEnum('product_category', categoryIds);
 const subcategoryIds = CATEGORIES.flatMap(c => c.subcategories.map(s => s.id)) as [string, ...string[]];
 export const productSubcategoryEnum = pgEnum('product_subcategory', subcategoryIds);
 
+// Kept for potential future use (e.g., legacy data migration). Condition is now
+// stored per-category in the products.attributes jsonb column.
 export const productConditionEnum = pgEnum('product_condition', [
   'Baru', 'Masih Bagus', 'Masih Layak', 'Apa adanya',
 ]);
