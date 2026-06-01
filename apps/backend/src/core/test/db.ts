@@ -1,24 +1,30 @@
 import { beforeAll, beforeEach } from 'vitest';
-import { migrate } from 'drizzle-orm/postgres-js/migrator';
-import { db, sql } from '../db/client';
+import { migrate } from 'drizzle-orm/neon-http/migrator';
+import { sql } from 'drizzle-orm';
+import { createDb } from '../db/client';
+
+const databaseUrl = process.env.DATABASE_URL;
+if (!databaseUrl) throw new Error('DATABASE_URL must be set for tests');
+
+export const testDb = createDb(databaseUrl);
 
 let migrated = false;
 
 export async function migrateTestDb(): Promise<void> {
   if (migrated) return;
-  await migrate(db, { migrationsFolder: 'src/core/db/migrations' });
+  await migrate(testDb, { migrationsFolder: 'src/core/db/migrations' });
   migrated = true;
 }
 
-// Wipe every public table between tests. Order-independent thanks to CASCADE.
 export async function truncateAll(): Promise<void> {
-  const rows = await sql<{ tablename: string }[]>`
+  const result = await testDb.execute<{ tablename: string }>(sql`
     SELECT tablename FROM pg_tables
     WHERE schemaname = 'public' AND tablename <> '__drizzle_migrations'
-  `;
+  `);
+  const rows = result.rows;
   if (rows.length === 0) return;
-  const list = rows.map((r) => `"${r.tablename}"`).join(', ');
-  await sql.unsafe(`TRUNCATE ${list} RESTART IDENTITY CASCADE`);
+  const list = rows.map((r: any) => `"${r.tablename}"`).join(', ');
+  await testDb.execute(sql.raw(`TRUNCATE ${list} RESTART IDENTITY CASCADE`));
 }
 
 // Call at the top level of an integration test file to migrate once + reset per test.

@@ -10,8 +10,6 @@ describe('parseEnv', () => {
 
   it('applies defaults for optional vars', () => {
     const env = parseEnv(valid);
-    expect(env.NODE_ENV).toBe('development');
-    expect(env.PORT).toBe(3000);
     expect(env.ACCESS_TOKEN_TTL).toBe(900);
     expect(env.OTP_TTL).toBe(300);
   });
@@ -21,7 +19,7 @@ describe('parseEnv', () => {
   });
 
   it('coerces numeric strings', () => {
-    const env = parseEnv({ ...valid, PORT: '8080' });
-    expect(env.PORT).toBe(8080);
+    const env = parseEnv({ ...valid, ACCESS_TOKEN_TTL: '1800' });
+    expect(env.ACCESS_TOKEN_TTL).toBe(1800);
   });
 });
