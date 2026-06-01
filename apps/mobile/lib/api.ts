@@ -43,6 +43,12 @@ export async function verifyOtp(
   return post('/auth/otp/verify', { email, code });
 }
 
+export async function refreshTokens(
+  refreshToken: string,
+): Promise<{ accessToken: string; refreshToken: string; user: VerifiedUser }> {
+  return post('/auth/refresh', { refreshToken });
+}
+
 export async function updateProfile(
   token: string,
   data: {
