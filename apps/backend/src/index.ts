@@ -1,7 +1,6 @@
-// TODO(Task 7): Replace with CF Workers entry point — this file will be rewritten.
-// TODO: env singleton removed; env is now injected via CF Workers Env (Task 6).
 import { createApp } from './app';
 
-const app = createApp();
+// ChatRoomDO exported in Task 10 once implemented
+// export { ChatRoomDO } from './modules/chat/ChatRoomDO';
 
-export default app;
+export default { fetch: createApp().fetch };
