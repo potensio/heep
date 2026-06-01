@@ -3,10 +3,37 @@ import { zValidator } from '@hono/zod-validator';
 import { requireAuth } from '../../core/middleware/auth';
 import type { AppVariables } from '../../types/hono';
 import { productsService } from './products.service';
-import { presignSchema, createProductSchema } from './products.validation';
+import { presignSchema, createProductSchema, feedQuerySchema, searchQuerySchema } from './products.validation';
 
 export const productsRoutes = new Hono<{ Variables: AppVariables }>();
 
+// Read routes — unauthenticated, registered before /:id to prevent param capture
+productsRoutes.get('/feed', zValidator('query', feedQuerySchema), async (c) => {
+  const { cursor, limit } = c.req.valid('query');
+  const result = await productsService.listFeed({ cursor, limit });
+  return c.json(result);
+});
+
+productsRoutes.get('/search', zValidator('query', searchQuerySchema), async (c) => {
+  const q = c.req.valid('query');
+  const result = await productsService.searchProducts({
+    q: q.q,
+    category: q.category,
+    minPrice: q.minPrice,
+    maxPrice: q.maxPrice,
+    sortBy: q.sortBy,
+    cursor: q.cursor,
+    limit: q.limit,
+  });
+  return c.json(result);
+});
+
+productsRoutes.get('/:id', async (c) => {
+  const product = await productsService.getProduct(c.req.param('id'));
+  return c.json({ product });
+});
+
+// Write routes — authenticated
 productsRoutes.post('/images/presign', requireAuth, zValidator('json', presignSchema), async (c) => {
   const { count } = c.req.valid('json');
   const uploads = await productsService.presignUpload(count);

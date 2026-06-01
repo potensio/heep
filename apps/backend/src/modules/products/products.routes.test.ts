@@ -3,6 +3,10 @@ import { useTestDb } from '../../core/test/db';
 import { createApp } from '../../app';
 import { signAccessToken } from '../../core/jwt';
 import { usersRepository } from '../users/users.repository';
+import { db } from '../../core/db/client';
+import { products as productsTable } from '../../core/db/schema';
+import { eq } from 'drizzle-orm';
+import { productsRepository } from './products.repository';
 
 useTestDb();
 
@@ -131,5 +135,118 @@ describe('POST /products', () => {
       body: JSON.stringify({ ...validPayload, photos: ['../../etc/passwd'] }),
     });
     expect(res.status).toBe(400);
+  });
+});
+
+const baseProductInput = {
+  name: 'Toyota Avanza 2020',
+  price: 150_000_000,
+  description: 'Kondisi baik',
+  category: 'kendaraan',
+  subcategory: 'mobil',
+  attributes: { brand: 'Toyota', condition: 'Bekas', year: 2020, mileage: 30000, fuel: 'Bensin' },
+  listingStatus: 'active' as const,
+  approvalStatus: 'pending' as const,
+  expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+  locationName: 'Jakarta Selatan',
+  locationPlaceId: 'ChIJplace123',
+  locationLat: -6.2146,
+  locationLng: 106.8451,
+  photos: [{ url: 'https://cdn.example.com/img.jpg', position: 0 }],
+};
+
+async function seedApproved(email: string, nameOverride?: string) {
+  const user = await usersRepository.create({ email });
+  const { product } = await productsRepository.create({
+    sellerId: user.id,
+    ...baseProductInput,
+    ...(nameOverride ? { name: nameOverride } : {}),
+  });
+  await db.update(productsTable).set({ approvalStatus: 'approved' }).where(eq(productsTable.id, product.id));
+  return { user, product };
+}
+
+describe('GET /products/feed', () => {
+  it('returns empty items when no approved listings', async () => {
+    const res = await createApp().request('/products/feed');
+    expect(res.status).toBe(200);
+    const body = await res.json() as any;
+    expect(body.items).toHaveLength(0);
+    expect(body.nextCursor).toBeNull();
+  });
+
+  it('returns active+approved products with seller and photos', async () => {
+    await seedApproved('feed-ok@example.com');
+    const res = await createApp().request('/products/feed');
+    expect(res.status).toBe(200);
+    const body = await res.json() as any;
+    expect(body.items.length).toBeGreaterThan(0);
+    expect(body.items[0]).toHaveProperty('id');
+    expect(body.items[0]).toHaveProperty('photos');
+    expect(body.items[0]).toHaveProperty('seller');
+  });
+
+  it('paginates using limit and nextCursor', async () => {
+    for (let i = 0; i < 3; i++) {
+      await seedApproved(`feed-page-${i}@example.com`);
+    }
+    const page1 = await createApp().request('/products/feed?limit=2');
+    expect(page1.status).toBe(200);
+    const b1 = await page1.json() as any;
+    expect(b1.items).toHaveLength(2);
+    expect(b1.nextCursor).not.toBeNull();
+
+    const page2 = await createApp().request(`/products/feed?limit=2&cursor=${encodeURIComponent(b1.nextCursor)}`);
+    const b2 = await page2.json() as any;
+    expect(b2.items).toHaveLength(1);
+    expect(b2.nextCursor).toBeNull();
+  });
+
+  it('returns 400 for limit > 50', async () => {
+    const res = await createApp().request('/products/feed?limit=99');
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('GET /products/search', () => {
+  it('filters by q (case-insensitive)', async () => {
+    await seedApproved('search-toyota@example.com', 'Toyota Avanza 2020');
+    await seedApproved('search-honda@example.com', 'Honda Jazz');
+    const res = await createApp().request('/products/search?q=toyota');
+    expect(res.status).toBe(200);
+    const body = await res.json() as any;
+    expect(body.items.length).toBeGreaterThan(0);
+    expect(body.items.every((i: any) => i.name.toLowerCase().includes('toyota'))).toBe(true);
+  });
+
+  it('returns empty for non-matching q', async () => {
+    await seedApproved('search-none@example.com');
+    const res = await createApp().request('/products/search?q=zzznomatch');
+    expect(res.status).toBe(200);
+    const body = await res.json() as any;
+    expect(body.items).toHaveLength(0);
+  });
+
+  it('rejects invalid sortBy', async () => {
+    const res = await createApp().request('/products/search?sortBy=invalid');
+    expect(res.status).toBe(400);
+  });
+});
+
+describe('GET /products/:id', () => {
+  it('returns 404 for unknown id', async () => {
+    const res = await createApp().request('/products/00000000-0000-0000-0000-000000000000');
+    expect(res.status).toBe(404);
+  });
+
+  it('returns product detail with photos and seller', async () => {
+    const { product, user } = await seedApproved('detail-route@example.com');
+    const res = await createApp().request(`/products/${product.id}`);
+    expect(res.status).toBe(200);
+    const body = await res.json() as any;
+    expect(body.product.id).toBe(product.id);
+    expect(Array.isArray(body.product.photos)).toBe(true);
+    expect(body.product.seller.id).toBe(user.id);
+    expect(body.product.description).toBeDefined();
   });
 });
