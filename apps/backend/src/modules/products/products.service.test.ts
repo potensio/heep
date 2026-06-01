@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createProductsService } from './products.service';
 import { FakeStorageService } from '../../core/storage';
-import type { ProductsRepository, Product, ProductImage, CreateProductRepoInput } from './products.repository';
+import type { ProductsRepository, Product, ProductImage, CreateProductRepoInput, ProductListRow, ProductDetailRow } from './products.repository';
 
 const stubProduct: Product = {
   id: 'prod-uuid',
@@ -140,5 +140,87 @@ describe('createProductsService', () => {
         attributes: { condition: 'Baru' },
       }),
     ).resolves.toBeDefined();
+  });
+});
+
+const stubListRow: ProductListRow = {
+  id: 'prod-1',
+  name: 'Avanza',
+  price: 150_000_000,
+  category: 'kendaraan',
+  subcategory: 'mobil',
+  locationName: 'Jakarta',
+  locationLat: -6.2,
+  locationLng: 106.8,
+  createdAt: new Date('2024-01-01'),
+  seller: { id: 'seller-1', name: 'Andi', avatarUrl: null },
+  firstImageUrl: 'https://cdn.example.com/img.jpg',
+};
+
+const stubDetailRow: ProductDetailRow = {
+  id: 'prod-1',
+  name: 'Avanza',
+  price: 150_000_000,
+  description: 'Kondisi baik',
+  category: 'kendaraan',
+  subcategory: 'mobil',
+  attributes: { brand: 'Toyota' },
+  listingStatus: 'active',
+  approvalStatus: 'approved',
+  locationName: 'Jakarta',
+  locationLat: -6.2,
+  locationLng: 106.8,
+  createdAt: new Date('2024-01-01'),
+  seller: { id: 'seller-1', name: 'Andi', avatarUrl: null },
+  photos: [{ url: 'https://cdn.example.com/img.jpg', position: 0 }],
+};
+
+describe('createProductsService — read methods', () => {
+  function makeReadRepo() {
+    const base = makeFakeRepo();
+    return {
+      ...base,
+      repo: {
+        ...base.repo,
+        async list(_filters: unknown) { return { rows: [stubListRow], nextCursor: null }; },
+        async findById(id: string) { return id === 'prod-1' ? stubDetailRow : null; },
+        async countForSeller(_id: string) { return 0; },
+      },
+    };
+  }
+
+  it('listFeed maps ProductListRow to ProductListItem shape', async () => {
+    const { repo } = makeReadRepo();
+    const svc = createProductsService({ repo, storage: fakeStorage });
+    const result = await svc.listFeed({});
+    expect(result.items).toHaveLength(1);
+    expect(result.items[0].id).toBe('prod-1');
+    expect(result.items[0].photos).toEqual([{ url: 'https://cdn.example.com/img.jpg', position: 0 }]);
+    expect(result.items[0].location).toEqual({ name: 'Jakarta', lat: -6.2, lng: 106.8 });
+    expect(result.nextCursor).toBeNull();
+  });
+
+  it('searchProducts passes filters through to repo.list', async () => {
+    let capturedFilters: unknown = null;
+    const { repo } = makeReadRepo();
+    const spyRepo = { ...repo, async list(f: unknown) { capturedFilters = f; return { rows: [], nextCursor: null }; } };
+    const svc = createProductsService({ repo: spyRepo, storage: fakeStorage });
+    await svc.searchProducts({ q: 'avanza', sortBy: 'termurah' });
+    expect(capturedFilters).toMatchObject({ q: 'avanza', sortBy: 'termurah' });
+  });
+
+  it('getProduct returns ProductDetailItem for known id', async () => {
+    const { repo } = makeReadRepo();
+    const svc = createProductsService({ repo, storage: fakeStorage });
+    const item = await svc.getProduct('prod-1');
+    expect(item.id).toBe('prod-1');
+    expect(item.description).toBe('Kondisi baik');
+    expect(item.photos).toHaveLength(1);
+  });
+
+  it('getProduct throws NotFoundError for unknown id', async () => {
+    const { repo } = makeReadRepo();
+    const svc = createProductsService({ repo, storage: fakeStorage });
+    await expect(svc.getProduct('unknown')).rejects.toMatchObject({ status: 404 });
   });
 });

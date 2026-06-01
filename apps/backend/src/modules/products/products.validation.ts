@@ -27,3 +27,19 @@ export const createProductSchema = z.object({
 
 export type PresignInput = z.infer<typeof presignSchema>;
 export type CreateProductInput = z.infer<typeof createProductSchema>;
+
+export const feedQuerySchema = z.object({
+  cursor: z.string().optional(),
+  limit: z.coerce.number().int().min(1).max(50).optional().default(20),
+});
+
+export const searchQuerySchema = feedQuerySchema.extend({
+  q: z.string().max(100).optional(),
+  category: z.string().optional(),
+  minPrice: z.coerce.number().int().min(0).optional(),
+  maxPrice: z.coerce.number().int().min(0).optional(),
+  sortBy: z.enum(['terbaru', 'termurah', 'termahal']).optional().default('terbaru'),
+});
+
+export type FeedQuery = z.infer<typeof feedQuerySchema>;
+export type SearchQuery = z.infer<typeof searchQuerySchema>;

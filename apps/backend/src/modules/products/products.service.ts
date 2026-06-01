@@ -1,11 +1,12 @@
 import { CATEGORIES } from '@bantujual/categories';
-import { ValidationError } from '../../core/errors';
+import { NotFoundError, ValidationError } from '../../core/errors';
 import { storageService, type StorageService } from '../../core/storage';
 import {
   productsRepository,
+  type ListFilters,
+  type ProductDetailRow,
+  type ProductListRow,
   type ProductsRepository,
-  type Product,
-  type ProductImage,
 } from './products.repository';
 import type { CreateProductInput } from './products.validation';
 
@@ -46,9 +47,71 @@ function validatePhotoKeys(keys: string[]): void {
   if (invalid.length > 0) throw new ValidationError('Invalid photo keys');
 }
 
+export interface ProductListItem {
+  id: string;
+  name: string;
+  price: number;
+  photos: { url: string; position: number }[];
+  category: string;
+  subcategory: string;
+  location: { name: string; lat: number; lng: number } | null;
+  seller: { id: string; name: string | null; avatarUrl: string | null };
+  createdAt: string;
+}
+
+export interface ProductDetailItem extends ProductListItem {
+  description: string;
+  attributes: Record<string, string | number>;
+  listingStatus: string;
+  approvalStatus: string;
+}
+
+export interface PaginatedItems<T> {
+  items: T[];
+  nextCursor: string | null;
+}
+
+function toListItem(row: ProductListRow): ProductListItem {
+  return {
+    id: row.id,
+    name: row.name,
+    price: row.price,
+    photos: row.firstImageUrl ? [{ url: row.firstImageUrl, position: 0 }] : [],
+    category: row.category,
+    subcategory: row.subcategory,
+    location:
+      row.locationName != null
+        ? { name: row.locationName, lat: row.locationLat!, lng: row.locationLng! }
+        : null,
+    seller: row.seller,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+function toDetailItem(row: ProductDetailRow): ProductDetailItem {
+  return {
+    id: row.id,
+    name: row.name,
+    price: row.price,
+    photos: row.photos,
+    category: row.category,
+    subcategory: row.subcategory,
+    description: row.description,
+    attributes: row.attributes,
+    listingStatus: row.listingStatus,
+    approvalStatus: row.approvalStatus,
+    location:
+      row.locationName != null
+        ? { name: row.locationName, lat: row.locationLat!, lng: row.locationLng! }
+        : null,
+    seller: row.seller,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
 export interface ProductWithImages {
-  product: Product;
-  images: ProductImage[];
+  product: import('./products.repository').Product;
+  images: import('./products.repository').ProductImage[];
 }
 
 export function createProductsService(deps: ProductsDeps) {
@@ -68,9 +131,10 @@ export function createProductsService(deps: ProductsDeps) {
         position,
       }));
 
-      const expiresAt = input.listingStatus === 'active'
-        ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        : null;
+      const expiresAt =
+        input.listingStatus === 'active'
+          ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          : null;
 
       return repo.create({
         sellerId,
@@ -89,6 +153,31 @@ export function createProductsService(deps: ProductsDeps) {
         locationLng: input.location.lng,
         photos,
       });
+    },
+
+    async listFeed(input: {
+      cursor?: string;
+      limit?: number;
+      sellerId?: string;
+    }): Promise<PaginatedItems<ProductListItem>> {
+      const { rows, nextCursor } = await repo.list({
+        sortBy: 'terbaru',
+        cursor: input.cursor,
+        limit: input.limit,
+        sellerId: input.sellerId,
+      });
+      return { items: rows.map(toListItem), nextCursor };
+    },
+
+    async searchProducts(input: ListFilters): Promise<PaginatedItems<ProductListItem>> {
+      const { rows, nextCursor } = await repo.list(input);
+      return { items: rows.map(toListItem), nextCursor };
+    },
+
+    async getProduct(id: string): Promise<ProductDetailItem> {
+      const row = await repo.findById(id);
+      if (!row) throw new NotFoundError('Product not found');
+      return toDetailItem(row);
     },
   };
 }
