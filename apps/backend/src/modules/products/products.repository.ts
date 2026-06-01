@@ -236,7 +236,11 @@ export const productsRepository: ProductsRepository = {
       })
       .from(products)
       .innerJoin(users, eq(products.sellerId, users.id))
-      .where(eq(products.id, id))
+      .where(and(
+        eq(products.id, id),
+        eq(products.listingStatus, 'active'),
+        eq(products.approvalStatus, 'approved'),
+      ))
       .limit(1);
 
     if (!row) return null;

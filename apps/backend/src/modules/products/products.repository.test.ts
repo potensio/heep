@@ -170,9 +170,16 @@ describe('productsRepository.findById', () => {
     expect(await productsRepository.findById('00000000-0000-0000-0000-000000000000')).toBeNull();
   });
 
-  it('returns product with all photos and seller', async () => {
-    const user = await usersRepository.create({ email: 'detail@example.com' });
+  it('returns null for pending product (not approved)', async () => {
+    const user = await usersRepository.create({ email: 'pending-detail@example.com' });
     const { product } = await productsRepository.create({ sellerId: user.id, ...baseInput });
+    // product is active but approvalStatus='pending' by default in baseInput
+    expect(await productsRepository.findById(product.id)).toBeNull();
+  });
+
+  it('returns product with all photos and seller when active+approved', async () => {
+    const user = await usersRepository.create({ email: 'approved-detail@example.com' });
+    const product = await createApproved(user.id);
     const row = await productsRepository.findById(product.id);
     expect(row).not.toBeNull();
     expect(row!.id).toBe(product.id);
