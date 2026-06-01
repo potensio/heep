@@ -14,7 +14,6 @@ import { useAuth } from "@/context/AuthContext";
 import { updateProfile } from "@/lib/api";
 import type { Location } from "@/lib/types";
 import { useProductSearch } from "./hooks/useProductSearch";
-import { Button } from "@/components/ui";
 
 const searchSuggestions = [
   "Sepatu Nike",
@@ -130,25 +129,19 @@ export function SearchProductsScreen({
       <StatusBar style="dark" />
 
       <View
-        className="bg-background px-5 pb-2"
-        style={{ paddingTop: (insets.top > 0 ? insets.top : 24) + 16 }}
+        className="bg-background px-4 pb-2"
+        style={{ paddingTop: insets.top + 12 }}
       >
         <View className="flex-row items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<ArrowLeft size={18} color="#374151" />}
-            onPress={onBack}
-          />
+          <TouchableOpacity onPress={onBack} className="p-1">
+            <ArrowLeft size={24} color="#0A0A0A" />
+          </TouchableOpacity>
 
-          <Button
-            variant="ghost"
-            size="sm"
-            icon={<MapPoint size={18} color={user?.location ? '#155DFC' : '#6B7280'} />}
-            onPress={() => setShowCityPicker(true)}
-          />
+          <TouchableOpacity onPress={() => setShowCityPicker(true)} className="p-1">
+            <MapPoint size={22} color={user?.location ? '#155DFC' : '#6B7280'} />
+          </TouchableOpacity>
 
-          <View className="flex-1">
+          <View className="flex-1 ml-1">
             <SearchBar
               value={searchQuery}
               onChangeText={handleChangeText}
@@ -158,11 +151,10 @@ export function SearchProductsScreen({
           </View>
           {hasSubmitted && (
             <TouchableOpacity
-              className="items-center justify-center bg-white rounded-xl border border-gray-200"
-              style={{ width: 40, height: 40 }}
               onPress={() => openFilterSheet(handleFilter, { sortBy })}
+              className="p-1"
             >
-              <Filter size={20} color="#374151" />
+              <Filter size={22} color="#0A0A0A" />
             </TouchableOpacity>
           )}
         </View>

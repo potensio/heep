@@ -24,14 +24,12 @@ export interface SellWizardState {
 export interface SellWizardProps {
   onPublish: (formData: SellFormData) => Promise<string>;
   onCancel: () => void;
-  isDevMode?: boolean;
 }
 
 export interface PhotoUploadStepProps {
   photos: string[];
   onPhotosChange: (photos: string[]) => void;
   onNext: () => void;
-  isDevMode?: boolean;
 }
 
 export interface CategoryStepProps {
@@ -48,7 +46,6 @@ export interface ProductInfoStepProps {
   onFormChange: (data: Partial<SellFormData>) => void;
   onNext: () => void;
   onBack: () => void;
-  isDevMode?: boolean;
 }
 
 export interface ReviewStepProps {

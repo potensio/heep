@@ -14,7 +14,7 @@ export default function AccountTab() {
       onNavigateToNotifications={() => router.push('/(protected)/settings/notifikasi')}
       onLogout={() => {
         logout();
-        router.replace('/(tabs)');
+        router.replace('/auth');
       }}
     />
   );

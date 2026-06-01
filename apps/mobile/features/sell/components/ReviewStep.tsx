@@ -52,7 +52,6 @@ export function ReviewStep({
   return (
     <ProductDetail
       product={productForPreview}
-      showActions={false}
       showSeller={false}
       footerContent={footerContent}
     />

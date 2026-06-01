@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import {
   ActionSheetIOS,
+  KeyboardAvoidingView,
   Platform,
   ScrollView,
   Text,
@@ -137,7 +138,6 @@ export function ProductInfoStep({
   onFormChange,
   onNext,
   onBack,
-  isDevMode = false,
 }: ProductInfoStepProps) {
   const insets = useSafeAreaInsets();
   const { user } = useAuth();
@@ -168,10 +168,9 @@ export function ProductInfoStep({
       const v = formData.attributes[a.id];
       return v !== undefined && v !== '';
     });
-  const canProceed = isDevMode || (
+  const canProceed =
     isNameValid && isPriceValid && isLocationValid &&
-    isSubcategoryValid && requiredAttributesFilled
-  );
+    isSubcategoryValid && requiredAttributesFilled;
 
   const validateAndProceed = () => {
     if (!canProceed) return;
@@ -189,11 +188,15 @@ export function ProductInfoStep({
   };
 
   return (
-    <View className="flex-1 bg-background">
+    <KeyboardAvoidingView
+      className="flex-1 bg-background"
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <ScrollView
         className="flex-1 px-5 pt-4"
         contentContainerStyle={{ paddingBottom: 180 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         <Text className="text-2xl font-heading font-medium text-gray-900 mb-2">
           Info Produk
@@ -341,7 +344,7 @@ export function ProductInfoStep({
             onPress={onBack}
           />
           <Button
-            onPress={isDevMode ? onNext : validateAndProceed}
+            onPress={validateAndProceed}
             disabled={!canProceed}
             style={{ flex: 1 }}
           >
@@ -349,6 +352,6 @@ export function ProductInfoStep({
           </Button>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

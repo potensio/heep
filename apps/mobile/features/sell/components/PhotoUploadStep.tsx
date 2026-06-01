@@ -11,7 +11,6 @@ export function PhotoUploadStep({
   photos,
   onPhotosChange,
   onNext,
-  isDevMode = false,
 }: PhotoUploadStepProps) {
   const insets = useSafeAreaInsets();
 
@@ -47,7 +46,7 @@ export function PhotoUploadStep({
   };
 
   const handleNext = () => {
-    if (photos.length < 1 && !isDevMode) {
+    if (photos.length < 1) {
       Alert.alert(
         "Foto Diperlukan",
         "Tambahkan minimal 1 foto untuk melanjutkan",
@@ -57,7 +56,7 @@ export function PhotoUploadStep({
     onNext();
   };
 
-  const canProceed = photos.length >= 1 || isDevMode;
+  const canProceed = photos.length >= 1;
 
   return (
     <View className="flex-1 bg-background">

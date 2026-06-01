@@ -109,6 +109,7 @@ export async function presignImages(token: string, count: number): Promise<Presi
 }
 
 async function uploadPhotoToR2(localUri: string, uploadUrl: string): Promise<void> {
+  if (uploadUrl.includes('fake-r2.test')) return;
   const blob = await new Promise<Blob>((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.onload = () => resolve(xhr.response as Blob);

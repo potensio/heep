@@ -1,7 +1,11 @@
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Heart, Share, ArrowLeft } from "@solar-icons/react-native/Linear";
+import { View, Text, Image, ScrollView, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
+import { Heart, Share, CloseCircle } from "@solar-icons/react-native/Linear";
 import { Avatar } from "@/components/ui/Avatar";
+import { useCallback, useRef, useState } from "react";
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export interface ProductDetailData {
   name: string;
@@ -17,11 +21,7 @@ export interface ProductDetailData {
 
 interface ProductDetailProps {
   product: ProductDetailData;
-  showActions?: boolean;
   showSeller?: boolean;
-  onBack?: () => void;
-  onShare?: () => void;
-  onLike?: () => void;
   onSellerPress?: () => void;
   footerContent?: React.ReactNode;
 }
@@ -31,87 +31,239 @@ function formatRupiah(value: number): string {
   return "Rp " + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
+// Fullscreen image preview modal with pinch-to-zoom
+function ImagePreviewModal({
+  visible,
+  imageUri,
+  onClose,
+}: {
+  visible: boolean;
+  imageUri: string | null;
+  onClose: () => void;
+}) {
+  const scale = useSharedValue(1);
+  const savedScale = useSharedValue(1);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const savedTranslateX = useSharedValue(0);
+  const savedTranslateY = useSharedValue(0);
+
+  const pinchGesture = Gesture.Pinch()
+    .onStart(() => {
+      savedScale.value = scale.value;
+    })
+    .onUpdate((e) => {
+      scale.value = Math.min(Math.max(savedScale.value * e.scale, 1), 4);
+    });
+
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      savedTranslateX.value = translateX.value;
+      savedTranslateY.value = translateY.value;
+    })
+    .onUpdate((e) => {
+      if (scale.value > 1) {
+        translateX.value = savedTranslateX.value + e.translationX;
+        translateY.value = savedTranslateY.value + e.translationY;
+      }
+    });
+
+  const doubleTapGesture = Gesture.Tap()
+    .numberOfTaps(2)
+    .onEnd(() => {
+      if (scale.value > 1) {
+        scale.value = withTiming(1);
+        translateX.value = withTiming(0);
+        translateY.value = withTiming(0);
+      } else {
+        scale.value = withTiming(2);
+      }
+    });
+
+  const tapGesture = Gesture.Tap()
+    .numberOfTaps(1)
+    .onEnd(() => {
+      if (scale.value === 1) {
+        runOnJS(onClose)();
+      }
+    });
+
+  const composed = Gesture.Simultaneous(
+    Gesture.Exclusive(doubleTapGesture, tapGesture),
+    Gesture.Simultaneous(pinchGesture, panGesture)
+  );
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
+  }));
+
+  const resetTransform = useCallback(() => {
+    scale.value = 1;
+    translateX.value = 0;
+    translateY.value = 0;
+    savedScale.value = 1;
+    savedTranslateX.value = 0;
+    savedTranslateY.value = 0;
+  }, [scale, translateX, translateY, savedScale, savedTranslateX, savedTranslateY]);
+
+  const handleClose = useCallback(() => {
+    resetTransform();
+    onClose();
+  }, [resetTransform, onClose]);
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
+      <View className="flex-1 bg-black/95">
+        <GestureDetector gesture={composed}>
+          <Animated.View className="flex-1 items-center justify-center">
+            {imageUri && (
+              <Animated.Image
+                source={{ uri: imageUri }}
+                className="w-full h-full"
+                resizeMode="contain"
+                style={animatedStyle}
+              />
+            )}
+          </Animated.View>
+        </GestureDetector>
+
+        <TouchableOpacity
+          onPress={handleClose}
+          className="absolute top-12 right-4 w-10 h-10 rounded-full bg-white/20 items-center justify-center"
+        >
+          <CloseCircle size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  );
+}
+
 export function ProductDetail({
   product,
-  showActions = true,
   showSeller = true,
-  onBack,
-  onShare,
-  onLike,
   onSellerPress,
   footerContent,
 }: ProductDetailProps) {
-  const insets = useSafeAreaInsets();
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
+  const flatListRef = useRef<FlatList>(null);
+
+  const handleScroll = useCallback((event: any) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(offsetX / SCREEN_WIDTH);
+    setActiveImageIndex(index);
+  }, []);
+
+  const scrollToImage = useCallback((index: number) => {
+    flatListRef.current?.scrollToIndex({ index, animated: true });
+  }, []);
+
+  const openPreview = useCallback((uri: string) => {
+    setPreviewImageUri(uri);
+    setPreviewVisible(true);
+  }, []);
+
+  const closePreview = useCallback(() => {
+    setPreviewVisible(false);
+    setPreviewImageUri(null);
+  }, []);
+
+  const renderImageItem = useCallback(({ item }: { item: string }) => (
+    <TouchableOpacity
+      onPress={() => openPreview(item)}
+      activeOpacity={0.9}
+      style={{ width: SCREEN_WIDTH }}
+      className="aspect-square bg-gray-200"
+    >
+      <Image
+        source={{ uri: item }}
+        className="w-full h-full"
+        resizeMode="cover"
+      />
+    </TouchableOpacity>
+  ), [openPreview]);
+
+  const renderThumbnailItem = useCallback(({ item, index }: { item: string; index: number }) => (
+    <TouchableOpacity
+      onPress={() => scrollToImage(index)}
+      className={`w-16 h-16 rounded-lg overflow-hidden border-2 mr-2 ${
+        activeImageIndex === index ? "border-primary" : "border-transparent"
+      }`}
+    >
+      <Image
+        source={{ uri: item }}
+        className="w-full h-full"
+        resizeMode="cover"
+      />
+    </TouchableOpacity>
+  ), [activeImageIndex, scrollToImage]);
+
+  const getItemLayout = useCallback((_: any, index: number) => ({
+    length: SCREEN_WIDTH,
+    offset: SCREEN_WIDTH * index,
+    index,
+  }), []);
 
   return (
     <View className="flex-1 bg-background">
-      {showActions && (
-        <View
-          className="flex-row items-center justify-between px-4 py-3 absolute top-0 left-0 right-0 z-10"
-          style={{ paddingTop: insets.top + 8 }}
-        >
-          {onBack ? (
-            <TouchableOpacity
-              onPress={onBack}
-              className="w-10 h-10 rounded-full bg-cream items-center justify-center shadow-sm"
-            >
-              <ArrowLeft size={20} className="text-gray-800" />
-            </TouchableOpacity>
-          ) : (
-            <View className="w-10 h-10" />
-          )}
-
-          <View className="flex-row gap-2">
-            <TouchableOpacity
-              onPress={onShare}
-              className="w-10 h-10 rounded-full bg-cream items-center justify-center shadow-sm"
-            >
-              <Share size={20} className="text-gray-800" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={onLike}
-              className="w-10 h-10 rounded-full bg-cream items-center justify-center shadow-sm"
-            >
-              <Heart size={20} className="text-gray-800" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="w-full aspect-square bg-gray-200">
-          {product.photos[0] ? (
-            <Image
-              source={{ uri: product.photos[0] }}
-              className="w-full h-full"
-              resizeMode="cover"
+      {/* Main scrollable content */}
+      <ScrollView className="flex-1" showsVerticalScrollIndicator={true} bounces={true}>
+        {/* Image Carousel */}
+        {product.photos.length > 0 ? (
+          <>
+            {/* Main image carousel */}
+            <FlatList
+              ref={flatListRef}
+              data={product.photos}
+              keyExtractor={(item, index) => `image-${index}`}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              getItemLayout={getItemLayout}
+              renderItem={renderImageItem}
             />
-          ) : (
-            <View className="w-full h-full items-center justify-center bg-gray-100">
-              <Text className="text-gray-400">Tidak ada foto</Text>
-            </View>
-          )}
-        </View>
 
-        {product.photos.length > 1 && (
-          <View className="flex-row gap-2 px-4 py-3">
-            {product.photos.slice(0, 5).map((photo, index) => (
-              <View
-                key={index}
-                className={`w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                  index === 0 ? "border-primary" : "border-transparent"
-                }`}
-              >
-                <Image
-                  source={{ uri: photo }}
-                  className="w-full h-full"
-                  resizeMode="cover"
+            {/* Pagination dots */}
+            {product.photos.length > 1 && (
+              <View className="flex-row justify-center gap-2 py-3">
+                {product.photos.map((_, index) => (
+                  <View
+                    key={index}
+                    className={`h-2 rounded-full transition-all ${
+                      activeImageIndex === index ? "w-4 bg-primary" : "w-2 bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </View>
+            )}
+
+            {/* Thumbnail row */}
+            {product.photos.length > 1 && (
+              <View className="px-4 pb-3">
+                <FlatList
+                  data={product.photos}
+                  keyExtractor={(item, index) => `thumb-${index}`}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={renderThumbnailItem}
                 />
               </View>
-            ))}
+            )}
+          </>
+        ) : (
+          <View className="w-full aspect-square items-center justify-center bg-gray-100">
+            <Text className="text-gray-400">Tidak ada foto</Text>
           </View>
         )}
 
+        {/* Product info */}
         <View className="px-5 pt-5 pb-8">
           {(product.category || product.condition) && (
             <View className="flex-row gap-2 mb-3">
@@ -179,14 +331,19 @@ export function ProductDetail({
         </View>
       </ScrollView>
 
+      {/* Footer */}
       {footerContent && (
-        <View
-          className="px-5 py-4 bg-cream border-t border-gray-200"
-          style={{ paddingBottom: Math.max(insets.bottom + 12, 20) }}
-        >
+        <View className="px-5 py-4 bg-cream border-t border-gray-200">
           {footerContent}
         </View>
       )}
+
+      {/* Image preview modal */}
+      <ImagePreviewModal
+        visible={previewVisible}
+        imageUri={previewImageUri}
+        onClose={closePreview}
+      />
     </View>
   );
 }

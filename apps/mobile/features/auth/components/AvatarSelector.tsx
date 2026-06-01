@@ -1,16 +1,16 @@
-import { View, Image, TouchableOpacity } from 'react-native';
-import { useEffect } from 'react';
+import { View, Image, TouchableOpacity } from "react-native";
+import { useEffect } from "react";
 
 export const AVATARS = [
-  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-a.png',
-  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-b.png',
-  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-c.png',
-  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-d.png',
-  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-e.png',
-  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-female-a.png',
-  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-female-b.png',
-  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-female-c.png',
-  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-female-d.png',
+  "https://media.thenightshift.dev/default-avatar/avatar-male-a.png",
+  "https://media.thenightshift.dev/default-avatar/avatar-male-b.png",
+  "https://media.thenightshift.dev/default-avatar/avatar-male-c.png",
+  "https://media.thenightshift.dev/default-avatar/avatar-male-d.png",
+  "https://media.thenightshift.dev/default-avatar/avatar-male-e.png",
+  "https://media.thenightshift.dev/default-avatar/avatar-female-a.png",
+  "https://media.thenightshift.dev/default-avatar/avatar-female-b.png",
+  "https://media.thenightshift.dev/default-avatar/avatar-female-c.png",
+  "https://media.thenightshift.dev/default-avatar/avatar-female-d.png",
 ];
 
 // Preload all avatar images
@@ -44,10 +44,10 @@ export function AvatarSelector({ value, onChange }: AvatarSelectorProps) {
               height: 64,
               borderRadius: 32,
               borderWidth: value === url ? 3 : 2,
-              borderColor: value === url ? '#155DFC' : '#D1D5DB',
-              overflow: 'hidden',
-              alignItems: 'center',
-              justifyContent: 'center',
+              borderColor: value === url ? "#155DFC" : "#D1D5DB",
+              overflow: "hidden",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <Image
@@ -69,10 +69,10 @@ export function AvatarSelector({ value, onChange }: AvatarSelectorProps) {
               height: 64,
               borderRadius: 32,
               borderWidth: value === url ? 3 : 2,
-              borderColor: value === url ? '#155DFC' : '#D1D5DB',
-              overflow: 'hidden',
-              alignItems: 'center',
-              justifyContent: 'center',
+              borderColor: value === url ? "#155DFC" : "#D1D5DB",
+              overflow: "hidden",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <Image

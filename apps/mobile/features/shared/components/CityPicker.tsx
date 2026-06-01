@@ -1,9 +1,9 @@
-import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   FlatList, StyleSheet, ActivityIndicator,
+  Modal, Pressable, Animated, Keyboard,
 } from 'react-native';
-import { BottomSheetModal, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapPoint, CloseSquare } from '@solar-icons/react-native/Linear';
 import { searchCities, getCityLocation } from '@/lib/googlePlaces';
@@ -17,15 +17,59 @@ interface CityPickerProps {
 }
 
 export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
-  const ref = useRef<BottomSheetModal>(null);
+  const insets = useSafeAreaInsets();
   const [query, setQuery] = useState(value?.name ?? '');
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const insets = useSafeAreaInsets();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const sheetTranslateY = useRef(new Animated.Value(300)).current;
 
   useEffect(() => {
-    ref.current?.present();
+    Animated.parallel([
+      Animated.timing(backdropOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.spring(sheetTranslateY, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 65,
+        friction: 11,
+      }),
+    ]).start();
   }, []);
+
+  useEffect(() => {
+    const showListener = Keyboard.addListener('keyboardWillShow', (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+    });
+    const hideListener = Keyboard.addListener('keyboardWillHide', () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      showListener.remove();
+      hideListener.remove();
+    };
+  }, []);
+
+  const handleClose = useCallback(() => {
+    Keyboard.dismiss();
+    Animated.parallel([
+      Animated.timing(backdropOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(sheetTranslateY, {
+        toValue: 300,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => onClose());
+  }, [onClose, backdropOpacity, sheetTranslateY]);
 
   const lastQueryRef = useRef('');
 
@@ -54,78 +98,130 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
       const location = await getCityLocation(suggestion.placeId, suggestion.name);
       onSelect(location);
     } catch {
-      // getCityLocation failed — sheet stays open so user can try again
+      // stays open so user can retry
     }
   }, [onSelect]);
 
-  const snapPoints = useMemo(() => ['60%'], []);
-
   return (
-    <BottomSheetModal
-      ref={ref}
-      snapPoints={snapPoints}
-      onDismiss={onClose}
-      enablePanDownToClose
+    <Modal
+      visible
+      transparent
+      animationType="none"
+      onRequestClose={handleClose}
+      statusBarTranslucent
     >
-      <BottomSheetView style={[styles.container, { paddingBottom: insets.bottom + 16 }]}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Pilih Kota</Text>
-          <TouchableOpacity onPress={() => ref.current?.dismiss()}>
-            <CloseSquare size={24} color="#9CA3AF" />
-          </TouchableOpacity>
-        </View>
+      <Animated.View
+        style={{
+          flex: 1,
+          backgroundColor: 'black',
+          opacity: backdropOpacity.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 0.5],
+          }),
+        }}
+      >
+        <Pressable style={{ flex: 1 }} onPress={handleClose} />
+      </Animated.View>
 
-        <View style={styles.inputRow}>
-          <MapPoint size={18} color="#9CA3AF" />
-          <TextInput
-            style={styles.input}
-            placeholder="Cari kota..."
-            placeholderTextColor="#9CA3AF"
-            value={query}
-            onChangeText={handleChangeText}
-            autoFocus
-          />
-          {isLoading && <ActivityIndicator size="small" color="#9CA3AF" />}
-        </View>
+      <Animated.View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          transform: [{ translateY: sheetTranslateY }],
+          paddingBottom: keyboardHeight || insets.bottom + 16,
+        }}
+      >
+        <View style={styles.sheet}>
+          {/* Handle */}
+          <View style={styles.handleRow}>
+            <View style={styles.handle} />
+          </View>
 
-        <FlatList
-          data={suggestions}
-          keyExtractor={(item) => item.placeId}
-          keyboardShouldPersistTaps="handled"
-          renderItem={({ item }) => (
-            <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item)}>
-              <MapPoint size={16} color="#6B7280" />
-              <Text style={styles.resultText}>{item.name}</Text>
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.title}>Pilih Kota</Text>
+            <TouchableOpacity onPress={handleClose}>
+              <CloseSquare size={24} color="#9CA3AF" />
             </TouchableOpacity>
-          )}
-          ListEmptyComponent={
-            query.length >= 2 && !isLoading ? (
-              <Text style={styles.emptyText}>Kota tidak ditemukan</Text>
-            ) : null
-          }
-        />
-      </BottomSheetView>
-    </BottomSheetModal>
+          </View>
+
+          {/* Search input */}
+          <View style={styles.inputRow}>
+            <MapPoint size={18} color="#9CA3AF" />
+            <TextInput
+              style={styles.input}
+              placeholder="Cari kota..."
+              placeholderTextColor="#9CA3AF"
+              value={query}
+              onChangeText={handleChangeText}
+              autoFocus
+            />
+            {isLoading && <ActivityIndicator size="small" color="#9CA3AF" />}
+          </View>
+
+          {/* Results */}
+          <FlatList
+            data={suggestions}
+            keyExtractor={(item) => item.placeId}
+            keyboardShouldPersistTaps="handled"
+            style={{ maxHeight: 240 }}
+            renderItem={({ item }) => (
+              <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item)}>
+                <MapPoint size={16} color="#6B7280" />
+                <Text style={styles.resultText}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+            ListEmptyComponent={
+              query.length >= 2 && !isLoading ? (
+                <Text style={styles.emptyText}>Kota tidak ditemukan</Text>
+              ) : null
+            }
+          />
+        </View>
+      </Animated.View>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 20 },
+  sheet: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 8,
+  },
+  handleRow: { alignItems: 'center', paddingVertical: 12 },
+  handle: { width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 },
   header: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    alignItems: 'center', marginBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   title: { fontSize: 20, fontFamily: 'Fjalla-One' },
   inputRow: {
-    flexDirection: 'row', alignItems: 'center',
-    borderWidth: 1, borderColor: '#D1D5DB', borderRadius: 12,
-    height: 48, paddingHorizontal: 12, marginBottom: 12, backgroundColor: 'white',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#D1D5DB',
+    borderRadius: 12,
+    height: 48,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    backgroundColor: 'white',
   },
   input: { flex: 1, marginLeft: 8, fontSize: 16 },
   resultItem: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#F3F4F6',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
   },
   resultText: { fontSize: 16, color: '#111827' },
-  emptyText: { color: '#9CA3AF', textAlign: 'center', marginTop: 24 },
+  emptyText: { color: '#9CA3AF', textAlign: 'center', marginTop: 24, marginBottom: 16 },
 });
