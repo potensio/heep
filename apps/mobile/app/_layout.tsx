@@ -14,12 +14,16 @@ import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-rean
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { FilterSheetProvider } from "@/features/search/context/FilterSheetContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { preloadAvatars } from "@/features/auth/components/AvatarSelector";
 import "../global.css";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
   strict: false,
 });
+
+// Preload avatars at app start
+preloadAvatars();
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({

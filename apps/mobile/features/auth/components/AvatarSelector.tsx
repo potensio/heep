@@ -1,6 +1,7 @@
 import { View, Image, TouchableOpacity } from 'react-native';
+import { useEffect } from 'react';
 
-const AVATARS = [
+export const AVATARS = [
   'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-a.png',
   'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-b.png',
   'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-c.png',
@@ -12,12 +13,24 @@ const AVATARS = [
   'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-female-d.png',
 ];
 
+// Preload all avatar images
+export function preloadAvatars() {
+  AVATARS.forEach((url) => {
+    Image.prefetch(url);
+  });
+}
+
 interface AvatarSelectorProps {
   value: string | null;
   onChange: (url: string) => void;
 }
 
 export function AvatarSelector({ value, onChange }: AvatarSelectorProps) {
+  // Ensure avatars are preloaded when component mounts
+  useEffect(() => {
+    preloadAvatars();
+  }, []);
+
   return (
     <View className="items-center">
       <View className="flex-row gap-3 mb-3">
