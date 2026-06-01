@@ -64,6 +64,8 @@ export function createChatRepository(db: Database): ChatRepository {
 
     async createMessage({ conversationId, senderId, text, imageUrl }) {
       const [row] = await db.insert(messages).values({ conversationId, senderId, text, imageUrl }).returning();
+      // Bump conversation updatedAt so listConversations orders correctly
+      await db.update(conversations).set({ updatedAt: new Date() }).where(eq(conversations.id, conversationId));
       return row;
     },
 

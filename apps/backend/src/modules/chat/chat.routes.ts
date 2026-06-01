@@ -31,7 +31,7 @@ chatRoutes.get('/conversations/:id/messages', requireAuth, async (c) => {
   return c.json(msgs);
 });
 
-chatRoutes.get('/conversations/:id/ws', requireAuth, async (c) => {
+chatRoutes.get('/conversations/:id/ws', async (c) => {
   const id = c.req.param('id')!;
   const doId = c.env.CHAT_ROOM.idFromName(id);
   const stub = c.env.CHAT_ROOM.get(doId);
