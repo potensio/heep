@@ -3,11 +3,14 @@ import { describe, it, expect } from 'vitest';
 import { useTestDb } from '../../core/test/db';
 import { createApp } from '../../app';
 import { signAccessToken } from '../../core/jwt';
-import { usersRepository } from './users.repository';
+import { createUsersRepository } from './users.repository';
 import { testDb as db } from '../../core/test/db';
 import { products as productsTable } from '../../core/db/schema';
 import { eq } from 'drizzle-orm';
-import { productsRepository } from '../products/products.repository';
+import { createProductsRepository } from '../products/products.repository';
+
+const usersRepository = createUsersRepository(db);
+const productsRepository = createProductsRepository(db);
 
 useTestDb();
 

@@ -19,10 +19,7 @@ export function createApp() {
 
   app.get('/health', (c) => c.json({ status: 'ok' }));
 
-  app.use('/auth/*', servicesMiddleware);
-  app.use('/users/*', servicesMiddleware);
-  app.use('/products/*', servicesMiddleware);
-  app.use('/saved-products/*', servicesMiddleware);
+  app.use('*', servicesMiddleware);
 
   app.route('/auth', authRoutes);
   app.route('/users', usersRoutes);

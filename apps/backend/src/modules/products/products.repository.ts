@@ -286,21 +286,3 @@ export function createProductsRepository(db: Database): ProductsRepository {
     },
   };
 }
-
-// Test/dev singleton — lazily instantiated on first use; requires DATABASE_URL to be set.
-let _singleton: ProductsRepository | undefined;
-function getSingleton(): ProductsRepository {
-  if (!_singleton) {
-    const url = process.env.DATABASE_URL;
-    if (!url) throw new Error('DATABASE_URL must be set');
-    const { createDb } = require('../../core/db/client') as typeof import('../../core/db/client');
-    _singleton = createProductsRepository(createDb(url));
-  }
-  return _singleton;
-}
-export const productsRepository: ProductsRepository = {
-  create: (...args) => getSingleton().create(...args),
-  list: (...args) => getSingleton().list(...args),
-  findById: (...args) => getSingleton().findById(...args),
-  countForSeller: (...args) => getSingleton().countForSeller(...args),
-};

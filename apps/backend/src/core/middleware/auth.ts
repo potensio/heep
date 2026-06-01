@@ -12,7 +12,7 @@ export async function requireAuth(
   const header = c.req.header('Authorization');
   if (!header?.startsWith('Bearer ')) throw new UnauthorizedError('Missing bearer token');
   const token = header.slice('Bearer '.length);
-  const secret = c.env?.JWT_ACCESS_SECRET ?? 'test-access-secret-16chars';
+  const secret = c.env.JWT_ACCESS_SECRET;
   const payload = await verifyAccessToken(token, secret);
   c.set('user', { id: payload.sub });
   await next();
