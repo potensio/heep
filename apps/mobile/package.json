@@ -22,6 +22,7 @@
     "@react-navigation/bottom-tabs": "^7.0.0",
     "@react-navigation/native": "^7.0.0",
     "@solar-icons/react-native": "^1.1.0",
+    "@tanstack/react-query": "^5.100.14",
     "expo": "~54.0.31",
     "expo-constants": "~18.0.10",
     "expo-font": "~14.0.11",

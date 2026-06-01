@@ -1,4 +1,5 @@
-import { TouchableOpacity, Text, ActivityIndicator, type ViewStyle, type ReactNode } from 'react-native';
+import { type ReactNode } from 'react';
+import { TouchableOpacity, Text, ActivityIndicator, type ViewStyle } from 'react-native';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
