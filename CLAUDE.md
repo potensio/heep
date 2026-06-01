@@ -66,8 +66,8 @@ apps/mobile/
 │
 ├── features/
 │   ├── auth/
-│   │   ├── components/               # GenderSelector, OtpInput, PhoneInput
-│   │   └── screens/                  # PhoneScreen, OtpScreen, CompleteProfileScreen, SuccessScreen
+│   │   ├── components/               # GenderSelector, OtpInput, EmailInput
+│   │   └── screens/                  # EmailScreen, OtpScreen, CompleteProfileScreen, SuccessScreen
 │   ├── chat/
 │   │   ├── components/               # ChatInput, ConversationCard, MessageBubble, etc.
 │   │   ├── ConversationListScreen.tsx
@@ -108,8 +108,7 @@ apps/mobile/
 │
 ├── lib/
 │   ├── mockData.ts                   # shared mock products (temporary)
-│   ├── firebase.ts                   # ⚠ firebase package not installed
-│   └── storage.ts                    # ⚠ @react-native-async-storage not installed
+│   └── storage.ts                    # onboarding/notification prompt flags
 │
 └── constants.ts                      # design tokens (mirrored in tailwind.config.js)
 ```
@@ -131,13 +130,15 @@ apps/mobile/
 
 ## Auth Flow
 
-State is in-memory only (not persisted). In `__DEV__`, all protected routes are accessible without login.
+Email + OTP. Session (`user` + `token`) is persisted via AsyncStorage and hydrated on app start. In `__DEV__`, all protected routes are accessible without login.
 
 ```
 /auth → /auth/otp → /auth/complete-profile → /auth/success → /(tabs)
 ```
 
-`returnTo` param is threaded through the entire flow for post-login redirect.
+- `/auth` (EmailScreen) collects an email, then passes it as the `email` param to `/auth/otp`.
+- OTP is mock — any 6 digits pass; no real email is sent and `AuthContext.login()` is not yet wired.
+- `returnTo` param is threaded through the entire flow for post-login redirect.
 
 ## Sell Flow
 
@@ -153,6 +154,5 @@ State managed in `SellFormContext`.
 
 - `features/orders/OrdersScreen.tsx` — no route pointing here yet
 - `components/ui/icon-symbol.tsx` — `expo-symbols` not installed
-- `lib/firebase.ts` / `lib/storage.ts` — packages not installed
 - `features/sell/components/SuccessScreen.tsx` — uses `fullWidth` prop that doesn't exist on `Button`
 - All product data is hardcoded in `lib/mockData.ts`, not connected to API

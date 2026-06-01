@@ -8,8 +8,8 @@ import {
   ChatLine,
   User,
   Bell,
-  AddSquare,
 } from "@solar-icons/react-native/Linear";
+import { Plus } from "lucide-react-native";
 // Bold style (filled)
 import {
   Home as HomeBold,
@@ -101,7 +101,7 @@ export default function TabLayout() {
                   elevation: 8,
                 }}
               >
-                <AddSquare color="#FFFFFF" size={28} strokeWidth={2.5} />
+                <Plus color="#FFFFFF" size={28} strokeWidth={2.5} />
               </View>
               <Text className="text-[12px] font-medium text-black mt-1">
                 Jual
