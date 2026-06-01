@@ -1,12 +1,12 @@
 import { View, ScrollView, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SettingsItem } from "./components/SettingsItem";
-import { User, Phone, Shield, Bell, Logout } from "@solar-icons/react-native/Linear";
+import { User, Phone, Bookmark, Bell, Logout } from "@solar-icons/react-native/Linear";
 
 interface SettingsScreenProps {
   onNavigateToProfile: () => void;
   onNavigateToPhone: () => void;
-  onNavigateToSecurity: () => void;
+  onNavigateToSaved: () => void;
   onNavigateToNotifications: () => void;
   onLogout: () => void;
 }
@@ -14,7 +14,7 @@ interface SettingsScreenProps {
 export function SettingsScreen({
   onNavigateToProfile,
   onNavigateToPhone,
-  onNavigateToSecurity,
+  onNavigateToSaved,
   onNavigateToNotifications,
   onLogout,
 }: SettingsScreenProps) {
@@ -46,9 +46,9 @@ export function SettingsScreen({
               />
               <View className="h-px bg-gray-200 ml-16" />
               <SettingsItem
-                icon={<Shield size={20} className="text-gray-700" />}
-                label="Keamanan"
-                onPress={onNavigateToSecurity}
+                icon={<Bookmark size={20} className="text-gray-700" />}
+                label="Produk Disimpan"
+                onPress={onNavigateToSaved}
               />
             </View>
           </View>

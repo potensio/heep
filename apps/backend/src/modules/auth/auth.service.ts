@@ -1,7 +1,7 @@
 // src/modules/auth/auth.service.ts
+// TODO(Task 6): env singleton removed; env values will be injected via deps (see Task 6).
 import { randomInt, createHash, randomBytes } from 'node:crypto';
 import bcrypt from 'bcryptjs';
-import { env } from '../../core/env';
 import { UnauthorizedError, TooManyAttemptsError } from '../../core/errors';
 import { signAccessToken } from '../../core/jwt';
 import { emailService, type EmailService } from '../../core/email';
