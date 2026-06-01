@@ -66,7 +66,7 @@ export interface ProductDetailRow {
   photos: { url: string; position: number }[];
 }
 
-type DateCursor = { t: 'd'; v: string };
+type DateCursor = { t: 'd'; v: string; id: string };
 type PriceCursor = { t: 'p'; price: number; id: string };
 type Cursor = DateCursor | PriceCursor;
 
@@ -76,7 +76,9 @@ function encodeCursor(c: Cursor): string {
 
 function decodeCursor(s: string): Cursor | null {
   try {
-    return JSON.parse(Buffer.from(s, 'base64url').toString()) as Cursor;
+    const c = JSON.parse(Buffer.from(s, 'base64url').toString());
+    if (typeof c?.t !== 'string') return null;
+    return c as Cursor;
   } catch {
     return null;
   }
@@ -120,16 +122,21 @@ export const productsRepository: ProductsRepository = {
     if (filters.cursor) {
       const cursor = decodeCursor(filters.cursor);
       if (cursor) {
-        if (cursor.t === 'd') {
-          where.push(lt(products.createdAt, new Date(cursor.v)));
-        } else if (sortBy === 'termurah') {
+        if (cursor.t === 'd' && sortBy === 'terbaru') {
+          where.push(
+            or(
+              lt(products.createdAt, new Date(cursor.v)),
+              and(eq(products.createdAt, new Date(cursor.v)), lt(products.id, cursor.id)),
+            )!,
+          );
+        } else if (cursor.t === 'p' && sortBy === 'termurah') {
           where.push(
             or(
               gt(products.price, cursor.price),
               and(eq(products.price, cursor.price), gt(products.id, cursor.id)),
             )!,
           );
-        } else if (sortBy === 'termahal') {
+        } else if (cursor.t === 'p' && sortBy === 'termahal') {
           where.push(
             or(
               lt(products.price, cursor.price),
@@ -137,6 +144,7 @@ export const productsRepository: ProductsRepository = {
             )!,
           );
         }
+        // Mismatched cursor type is silently ignored (no condition added, query restarts from page 1)
       }
     }
 
@@ -145,7 +153,7 @@ export const productsRepository: ProductsRepository = {
         ? [asc(products.price), asc(products.id)]
         : sortBy === 'termahal'
           ? [desc(products.price), desc(products.id)]
-          : [desc(products.createdAt)];
+          : [desc(products.createdAt), desc(products.id)];
 
     const rows = await db
       .select({
@@ -184,7 +192,7 @@ export const productsRepository: ProductsRepository = {
     const last = slice[slice.length - 1];
     const nextCursor = hasMore
       ? sortBy === 'terbaru'
-        ? encodeCursor({ t: 'd', v: last.createdAt.toISOString() })
+        ? encodeCursor({ t: 'd', v: last.createdAt.toISOString(), id: last.id })
         : encodeCursor({ t: 'p', price: last.price, id: last.id })
       : null;
 

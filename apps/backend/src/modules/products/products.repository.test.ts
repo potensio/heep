@@ -142,6 +142,27 @@ describe('productsRepository.list', () => {
     const result = await productsRepository.list({ sortBy: 'termurah' });
     expect(result.rows[0].name).toBe('Cheap');
   });
+
+  it('paginates price-sorted results without duplicates (termurah)', async () => {
+    const user = await usersRepository.create({ email: 'price-page@example.com' });
+    await createApproved(user.id, { name: 'Mid', price: 200_000_000 });
+    await createApproved(user.id, { name: 'Cheap', price: 50_000_000 });
+    await createApproved(user.id, { name: 'Expensive', price: 500_000_000 });
+
+    const page1 = await productsRepository.list({ sortBy: 'termurah', limit: 2 });
+    expect(page1.rows).toHaveLength(2);
+    expect(page1.rows[0].name).toBe('Cheap');
+    expect(page1.rows[1].name).toBe('Mid');
+    expect(page1.nextCursor).not.toBeNull();
+
+    const page2 = await productsRepository.list({ sortBy: 'termurah', limit: 2, cursor: page1.nextCursor! });
+    expect(page2.rows).toHaveLength(1);
+    expect(page2.rows[0].name).toBe('Expensive');
+    expect(page2.nextCursor).toBeNull();
+
+    const allIds = [...page1.rows, ...page2.rows].map(r => r.id);
+    expect(new Set(allIds).size).toBe(3);
+  });
 });
 
 describe('productsRepository.findById', () => {
