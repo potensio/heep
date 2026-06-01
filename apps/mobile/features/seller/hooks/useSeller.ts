@@ -1,26 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { fetchSeller, type PublicSellerProfile } from '@/lib/api';
+import { queryKeys } from '@/lib/queryKeys';
 
 export function useSeller(id: string) {
-  const [data, setData] = useState<PublicSellerProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const { data, isLoading, error } = useQuery<PublicSellerProfile, Error>({
+    queryKey: queryKeys.seller(id),
+    queryFn: () => fetchSeller(id),
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-    setIsLoading(true);
-    fetchSeller(id)
-      .then(seller => {
-        if (!cancelled) { setData(seller); setError(null); }
-      })
-      .catch(e => {
-        if (!cancelled) setError(e instanceof Error ? e : new Error('Failed to load'));
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-    return () => { cancelled = true; };
-  }, [id]);
-
-  return { data, isLoading, error };
+  return { data: data ?? null, isLoading, error };
 }
