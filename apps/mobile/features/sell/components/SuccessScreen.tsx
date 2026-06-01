@@ -1,18 +1,17 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CheckRead } from "@solar-icons/react-native/Linear";
 import { Button } from "@/components/ui/Button";
-import type { SuccessScreenProps } from "../types";
 
-interface ExtendedSuccessScreenProps extends SuccessScreenProps {
-  onBackToHome?: () => void;
+interface SuccessScreenProps {
+  productId: string;
+  onBackToHome: () => void;
 }
 
 export function SuccessScreen({
   productId,
-  onViewProduct,
   onBackToHome,
-}: ExtendedSuccessScreenProps) {
+}: SuccessScreenProps) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -38,24 +37,14 @@ export function SuccessScreen({
         </Text>
       </View>
 
-      {/* Action Buttons - Bottom */}
+      {/* Action Button - Bottom */}
       <View
-        className="px-5 pt-4 pb-6 gap-3"
+        className="px-5 pt-4 pb-6"
         style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
-        <Button
-          onPress={onViewProduct}
-          fullWidth
-        >
-          Lihat produk
+        <Button onPress={onBackToHome} style={{ width: '100%' }}>
+          Kembali ke beranda
         </Button>
-
-        <TouchableOpacity
-          onPress={onBackToHome}
-          className="flex-row items-center justify-center py-4 rounded-2xl"
-        >
-          <Text className="font-medium text-lg">Kembali ke beranda</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Product ID hint */}

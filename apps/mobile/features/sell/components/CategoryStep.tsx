@@ -122,19 +122,19 @@ export function CategoryStep({
           <Text style={styles.sheetTitle}>
             Pilih Jenis {selectedCategoryDef?.label}
           </Text>
-          <View style={styles.chipsRow}>
+          <View style={styles.subcategoryList}>
             {selectedCategoryDef?.subcategories.map((sub) => {
               const isSelected = selectedSubcategory === sub.id;
               return (
                 <TouchableOpacity
                   key={sub.id}
                   onPress={() => handleSubcategorySelect(sub.id as SubcategoryId)}
-                  className={`px-4 py-3 rounded-xl border ${
+                  className={`px-4 py-4 rounded-xl border ${
                     isSelected ? "bg-primary border-primary" : "bg-white border-gray-200"
                   }`}
                   activeOpacity={0.8}
                 >
-                  <Text className={`text-sm font-medium ${isSelected ? "text-white" : "text-gray-700"}`}>
+                  <Text className={`text-base font-medium ${isSelected ? "text-white" : "text-gray-700"}`}>
                     {sub.label}
                   </Text>
                 </TouchableOpacity>
@@ -150,5 +150,5 @@ export function CategoryStep({
 const styles = StyleSheet.create({
   sheetContent: { paddingHorizontal: 20 },
   sheetTitle: { fontSize: 20, fontFamily: "Fjalla-One", marginBottom: 16 },
-  chipsRow: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+  subcategoryList: { gap: 12 },
 });

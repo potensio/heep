@@ -117,7 +117,9 @@ export function BannerCarousel() {
       const scrollIndex = Math.round(offsetX / SNAP_INTERVAL);
       currentScrollIndex.current = scrollIndex;
       const realIndex = getRealIndexFromScrollIndex(scrollIndex);
-      setActiveIndex(realIndex);
+      // Only update state when the active dot actually changes — otherwise this
+      // fires ~60×/sec and re-renders the whole carousel on every scroll frame.
+      setActiveIndex((prev) => (prev === realIndex ? prev : realIndex));
     },
     [scrollX, getRealIndexFromScrollIndex]
   );

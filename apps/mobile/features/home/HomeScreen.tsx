@@ -7,11 +7,12 @@ import { ActionGrid } from "./components/ActionGrid";
 import { BannerCarousel } from "./components/BannerCarousel";
 import { ProductCard } from "@/features/search/components/ProductCard";
 import { Magnifer } from "@solar-icons/react-native/Linear";
-import { mockProducts } from "@/lib/mockData";
+import { useProductFeed } from "./hooks/useProductFeed";
 
 export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { data: products, isLoading: productsLoading } = useProductFeed();
 
   const handleProductPress = useCallback(
     (productId: string) => {
@@ -75,16 +76,20 @@ export function HomeScreen() {
             </View>
 
             <View className="flex-row flex-wrap -mx-1">
-              {mockProducts.map((product, index) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  onPress={() => handleProductPress(product.id)}
-                  onSellerPress={() => handleSellerPress(product.sellerId ?? "")}
-                  width="48%"
-                  marginRight={index % 2 === 0 ? "4%" : 0}
-                />
-              ))}
+              {productsLoading ? (
+                <Text className="text-gray-400 text-sm text-center py-4">Memuat produk...</Text>
+              ) : (
+                products.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onPress={() => handleProductPress(product.id)}
+                    onSellerPress={() => handleSellerPress(product.sellerId ?? "")}
+                    width="48%"
+                    marginRight={index % 2 === 0 ? "4%" : 0}
+                  />
+                ))
+              )}
             </View>
           </View>
         </View>

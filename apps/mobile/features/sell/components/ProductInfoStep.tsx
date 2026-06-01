@@ -225,7 +225,7 @@ export function ProductInfoStep({
             style={{ height: INPUT_HEIGHT, fontSize: INPUT_FONT_SIZE }}
             value={formData.name}
             onChangeText={(text) => onFormChange({ name: text })}
-            placeholder="Contoh: Honda Beat 2020 Mulus"
+            placeholder="Contoh: Nama produk yang dijual"
             placeholderTextColor="#9CA3AF"
             maxLength={100}
           />
@@ -330,7 +330,7 @@ export function ProductInfoStep({
       )}
 
       <View
-        className="absolute bottom-0 left-0 right-0 px-5 pt-4 pb-6"
+        className="absolute bottom-0 left-0 right-0 bg-background px-5 pt-4 pb-6 border-t border-gray-100"
         style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
         <View className="flex-row gap-3 items-center">

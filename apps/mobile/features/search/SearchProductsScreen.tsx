@@ -1,5 +1,5 @@
 import { Text, View, ScrollView, TouchableOpacity } from "react-native";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SearchBar } from "./components/SearchBar";
@@ -13,7 +13,7 @@ import { CityPicker } from "@/features/shared/components/CityPicker";
 import { useAuth } from "@/context/AuthContext";
 import { updateProfile } from "@/lib/api";
 import type { Location } from "@/lib/types";
-import { mockProducts } from "@/lib/mockData";
+import { useProductSearch } from "./hooks/useProductSearch";
 import { Button } from "@/components/ui";
 
 const searchSuggestions = [
@@ -55,12 +55,7 @@ export function SearchProductsScreen({
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [hasSubmitted, setHasSubmitted] = useState(!!initialQuery.trim());
   const [history, setHistory] = useState<string[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState(() => {
-    if (!initialQuery.trim()) return mockProducts;
-    return mockProducts.filter((p) =>
-      p.name.toLowerCase().includes(initialQuery.toLowerCase()),
-    );
-  });
+  const { data: filteredProducts, isLoading: searchLoading, hasMore, search, fetchMore } = useProductSearch();
   const [sortBy, setSortBy] = useState<SortOption>("relevan");
 
   const addToHistory = useCallback((query: string) => {
@@ -71,20 +66,25 @@ export function SearchProductsScreen({
     );
   }, []);
 
+  useEffect(() => {
+    if (initialQuery.trim()) {
+      setHasSubmitted(true);
+      search({ q: initialQuery.trim() });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const runSearch = useCallback(
     (query: string) => {
       const trimmed = query.trim();
       addToHistory(trimmed);
-      setFilteredProducts(
-        trimmed
-          ? mockProducts.filter((p) =>
-              p.name.toLowerCase().includes(trimmed.toLowerCase()),
-            )
-          : mockProducts,
-      );
       setHasSubmitted(true);
+      search({
+        q: trimmed || undefined,
+        sortBy: sortBy === 'relevan' ? undefined : (sortBy as 'terbaru' | 'termurah' | 'termahal'),
+      });
     },
-    [addToHistory],
+    [addToHistory, search, sortBy],
   );
 
   const handleChangeText = useCallback((text: string) => {
@@ -105,35 +105,17 @@ export function SearchProductsScreen({
   );
 
   const handleFilter = useCallback((filters: FilterState) => {
-    let filtered = [...mockProducts];
-    if (filters.categories.length > 0) {
-      filtered = filtered.filter((p) =>
-        filters.categories.some((cat) =>
-          (p.category ?? "").toLowerCase().includes(cat.toLowerCase()),
-        ),
-      );
-    }
-    if (filters.minPrice !== null) {
-      filtered = filtered.filter((p) => p.price >= filters.minPrice!);
-    }
-    if (filters.maxPrice !== null) {
-      filtered = filtered.filter((p) => p.price <= filters.maxPrice!);
-    }
     setSortBy(filters.sortBy);
-    filtered.sort((a, b) => {
-      switch (filters.sortBy) {
-        case "terbaru":
-          return parseInt(b.id) - parseInt(a.id);
-        case "termurah":
-          return a.price - b.price;
-        case "termahal":
-          return b.price - a.price;
-        default:
-          return 0;
-      }
+    search({
+      q: searchQuery.trim() || undefined,
+      category: filters.categories[0] ?? undefined,
+      minPrice: filters.minPrice ?? undefined,
+      maxPrice: filters.maxPrice ?? undefined,
+      sortBy: filters.sortBy === 'relevan'
+        ? undefined
+        : (filters.sortBy as 'terbaru' | 'termurah' | 'termahal'),
     });
-    setFilteredProducts(filtered);
-  }, []);
+  }, [search, searchQuery]);
 
   const handleSuggestionPress = useCallback(
     (suggestion: string) => {
@@ -233,6 +215,13 @@ export function SearchProductsScreen({
           className="flex-1"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 24 }}
+          onScroll={({ nativeEvent }) => {
+            const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+            if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 300 && hasMore && !searchLoading) {
+              fetchMore();
+            }
+          }}
+          scrollEventThrottle={400}
         >
           <View className="px-5 mt-6">
             {searchQuery.length > 0 && (
