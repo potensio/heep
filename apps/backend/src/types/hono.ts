@@ -4,6 +4,7 @@ import type { AuthService } from '../modules/auth/auth.service';
 import type { UsersService } from '../modules/users/users.service';
 import type { ProductsService } from '../modules/products/products.service';
 import type { SavedProductsService } from '../modules/saved-products/saved-products.service';
+import type { ChatService } from '../modules/chat/chat.service';
 
 export interface AuthUser {
   id: string;
@@ -16,4 +17,5 @@ export interface AppVariables {
   usersService: UsersService;
   productsService: ProductsService;
   savedProductsService: SavedProductsService;
+  chatService: ChatService;
 }

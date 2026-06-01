@@ -11,6 +11,8 @@ import { createAuthService } from '../../modules/auth/auth.service';
 import { createUsersService } from '../../modules/users/users.service';
 import { createProductsService } from '../../modules/products/products.service';
 import { createSavedProductsService } from '../../modules/saved-products/saved-products.service';
+import { createChatRepository } from '../../modules/chat/chat.repository';
+import { createChatService } from '../../modules/chat/chat.service';
 import { FakeStorageService } from '../storage';
 
 export async function servicesMiddleware(
@@ -44,11 +46,14 @@ export async function servicesMiddleware(
 
   const productsService = createProductsService({ repo: productsRepo, storage });
   const savedProductsService = createSavedProductsService({ repo: savedProductsRepo });
+  const chatRepo = createChatRepository(db);
+  const chatService = createChatService({ chatRepo });
 
   c.set('db', db);
   c.set('authService', authService);
   c.set('usersService', usersService);
   c.set('productsService', productsService);
   c.set('savedProductsService', savedProductsService);
+  c.set('chatService', chatService);
   await next();
 }
