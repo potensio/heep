@@ -1,5 +1,5 @@
-import { View, Text, Image, ScrollView, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
-import { CloseCircle } from "@solar-icons/react-native/Linear";
+import { View, Text, Image, ScrollView, TouchableOpacity, FlatList, Dimensions, Modal, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import { X } from "lucide-react-native";
 import { Avatar } from "@/components/ui/Avatar";
 import { useCallback, useRef, useState } from "react";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from "react-native-reanimated";
@@ -27,6 +27,8 @@ interface ProductDetailProps {
   isSaved?: boolean;
   onSaveToggle?: () => void;
   isSaving?: boolean;
+  onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+  footerPaddingBottom?: number;
 }
 
 function formatRupiah(value: number): string {
@@ -34,14 +36,11 @@ function formatRupiah(value: number): string {
   return "Rp " + value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
-// Fullscreen image preview modal with pinch-to-zoom
-function ImagePreviewModal({
-  visible,
-  imageUri,
+function PreviewItem({
+  uri,
   onClose,
 }: {
-  visible: boolean;
-  imageUri: string | null;
+  uri: string;
   onClose: () => void;
 }) {
   const scale = useSharedValue(1);
@@ -52,9 +51,7 @@ function ImagePreviewModal({
   const savedTranslateY = useSharedValue(0);
 
   const pinchGesture = Gesture.Pinch()
-    .onStart(() => {
-      savedScale.value = scale.value;
-    })
+    .onStart(() => { savedScale.value = scale.value; })
     .onUpdate((e) => {
       scale.value = Math.min(Math.max(savedScale.value * e.scale, 1), 4);
     });
@@ -86,9 +83,7 @@ function ImagePreviewModal({
   const tapGesture = Gesture.Tap()
     .numberOfTaps(1)
     .onEnd(() => {
-      if (scale.value === 1) {
-        runOnJS(onClose)();
-      }
+      if (scale.value === 1) runOnJS(onClose)();
     });
 
   const composed = Gesture.Simultaneous(
@@ -104,41 +99,49 @@ function ImagePreviewModal({
     ],
   }));
 
-  const resetTransform = useCallback(() => {
-    scale.value = 1;
-    translateX.value = 0;
-    translateY.value = 0;
-    savedScale.value = 1;
-    savedTranslateX.value = 0;
-    savedTranslateY.value = 0;
-  }, [scale, translateX, translateY, savedScale, savedTranslateX, savedTranslateY]);
-
-  const handleClose = useCallback(() => {
-    resetTransform();
-    onClose();
-  }, [resetTransform, onClose]);
-
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={handleClose}>
-      <View className="flex-1 bg-black/95">
-        <GestureDetector gesture={composed}>
-          <Animated.View className="flex-1 items-center justify-center">
-            {imageUri && (
-              <Animated.Image
-                source={{ uri: imageUri }}
-                className="w-full h-full"
-                resizeMode="contain"
-                style={animatedStyle}
-              />
-            )}
-          </Animated.View>
-        </GestureDetector>
+    <GestureDetector gesture={composed}>
+      <Animated.View style={{ width: SCREEN_WIDTH, height: "100%" }} className="items-center justify-center">
+        <Animated.Image
+          source={{ uri }}
+          style={[{ width: SCREEN_WIDTH, height: "100%" }, animatedStyle]}
+          resizeMode="contain"
+        />
+      </Animated.View>
+    </GestureDetector>
+  );
+}
 
+// Fullscreen image preview modal with swipe + pinch-to-zoom
+function ImagePreviewModal({
+  visible,
+  photos,
+  initialIndex,
+  onClose,
+}: {
+  visible: boolean;
+  photos: string[];
+  initialIndex: number;
+  onClose: () => void;
+}) {
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View className="flex-1 bg-black/95">
+        <FlatList
+          data={photos}
+          keyExtractor={(_, i) => `preview-${i}`}
+          horizontal
+          pagingEnabled
+          initialScrollIndex={initialIndex}
+          getItemLayout={(_, index) => ({ length: SCREEN_WIDTH, offset: SCREEN_WIDTH * index, index })}
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => <PreviewItem uri={item} onClose={onClose} />}
+        />
         <TouchableOpacity
-          onPress={handleClose}
+          onPress={onClose}
           className="absolute top-12 right-4 w-10 h-10 rounded-full bg-white/20 items-center justify-center"
         >
-          <CloseCircle size={24} color="white" />
+          <X size={20} color="white" strokeWidth={2.5} />
         </TouchableOpacity>
       </View>
     </Modal>
@@ -153,10 +156,12 @@ export function ProductDetail({
   isSaved = false,
   onSaveToggle,
   isSaving = false,
+  onScroll,
+  footerPaddingBottom = 16,
 }: ProductDetailProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [previewVisible, setPreviewVisible] = useState(false);
-  const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
+  const [previewIndex, setPreviewIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
 
   const handleScroll = useCallback((event: any) => {
@@ -169,26 +174,24 @@ export function ProductDetail({
     flatListRef.current?.scrollToIndex({ index, animated: true });
   }, []);
 
-  const openPreview = useCallback((uri: string) => {
-    setPreviewImageUri(uri);
+  const openPreview = useCallback((index: number) => {
+    setPreviewIndex(index);
     setPreviewVisible(true);
   }, []);
 
   const closePreview = useCallback(() => {
     setPreviewVisible(false);
-    setPreviewImageUri(null);
   }, []);
 
-  const renderImageItem = useCallback(({ item }: { item: string }) => (
+  const renderImageItem = useCallback(({ item, index }: { item: string; index: number }) => (
     <TouchableOpacity
-      onPress={() => openPreview(item)}
+      onPress={() => openPreview(index)}
       activeOpacity={0.9}
-      style={{ width: SCREEN_WIDTH }}
-      className="aspect-square bg-gray-200"
+      style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH }}
     >
       <Image
         source={{ uri: item }}
-        className="w-full h-full"
+        style={{ width: SCREEN_WIDTH, height: SCREEN_WIDTH }}
         resizeMode="cover"
       />
     </TouchableOpacity>
@@ -218,7 +221,13 @@ export function ProductDetail({
   return (
     <View className="flex-1 bg-background">
       {/* Main scrollable content */}
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={true} bounces={true}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={true}
+        bounces={true}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+      >
         {/* Image Carousel */}
         {product.photos.length > 0 ? (
           <>
@@ -234,6 +243,7 @@ export function ProductDetail({
               scrollEventThrottle={16}
               getItemLayout={getItemLayout}
               renderItem={renderImageItem}
+              style={{ height: SCREEN_WIDTH }}
             />
 
             {/* Pagination dots */}
@@ -339,7 +349,10 @@ export function ProductDetail({
 
       {/* Footer */}
       {footerContent && (
-        <View className="px-5 py-4 bg-cream border-t border-gray-200">
+        <View
+          className="px-5 py-4 bg-cream border-t border-gray-200"
+          style={{ paddingBottom: footerPaddingBottom }}
+        >
           {footerContent}
         </View>
       )}
@@ -347,7 +360,8 @@ export function ProductDetail({
       {/* Image preview modal */}
       <ImagePreviewModal
         visible={previewVisible}
-        imageUri={previewImageUri}
+        photos={product.photos}
+        initialIndex={previewIndex}
         onClose={closePreview}
       />
     </View>
