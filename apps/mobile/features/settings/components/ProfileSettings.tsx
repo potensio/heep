@@ -1,7 +1,8 @@
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Alert, Image } from "react-native";
 import { useState } from "react";
-import { User, MapPoint } from "@solar-icons/react-native/Linear";
+import { MapPoint } from "@solar-icons/react-native/Linear";
 import { CityPicker } from "@/features/shared/components/CityPicker";
+import { AvatarSelector, AVATARS } from "@/features/auth/components/AvatarSelector";
 import { useAuth } from "@/context/AuthContext";
 import { updateProfile } from "@/lib/api";
 import type { Location } from "@/lib/types";
@@ -13,6 +14,8 @@ export function ProfileSettings() {
   const { user, token, updateUser } = useAuth();
   const [name, setName] = useState(user?.name ?? "");
   const [email] = useState(user?.email ?? "");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatarUrl ?? null);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,7 +27,10 @@ export function ProfileSettings() {
     if (!token) return;
     setIsLoading(true);
     try {
-      const updatedUser = await updateProfile(token, { name: name.trim() });
+      const updatedUser = await updateProfile(token, {
+        name: name.trim(),
+        avatarUrl: avatarUrl ?? undefined,
+      });
       updateUser({ ...updatedUser, location: user?.location ?? null });
       Alert.alert("Sukses", "Profil berhasil diperbarui");
     } catch {
@@ -32,6 +38,11 @@ export function ProfileSettings() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleAvatarSelect = (url: string) => {
+    setAvatarUrl(url);
+    setShowAvatarPicker(false);
   };
 
   const handleLocationSelect = async (location: Location) => {
@@ -49,11 +60,29 @@ export function ProfileSettings() {
     <View className="flex-1 bg-background p-5">
       {/* Avatar Section */}
       <View className="items-center mb-8">
-        <View className="w-24 h-24 rounded-full bg-gray-200 items-center justify-center">
-          <User size={40} color="#9CA3AF" />
-        </View>
-        <TouchableOpacity className="mt-3">
-          <Text className="text-sm font-medium text-blue-600">Ubah Foto</Text>
+        <TouchableOpacity
+          onPress={() => setShowAvatarPicker(true)}
+          activeOpacity={0.8}
+          style={{
+            width: 96,
+            height: 96,
+            borderRadius: 48,
+            borderWidth: 2,
+            borderColor: '#D1D5DB',
+            overflow: 'hidden',
+            backgroundColor: '#E5E7EB',
+          }}
+        >
+          {avatarUrl ? (
+            <Image source={{ uri: avatarUrl }} style={{ width: 96, height: 96 }} resizeMode="cover" />
+          ) : (
+            <View className="flex-1 items-center justify-center">
+              <Text className="text-gray-400 text-sm">Pilih</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setShowAvatarPicker(true)} className="mt-3">
+          <Text className="text-sm font-medium text-blue-600">Ubah Avatar</Text>
         </TouchableOpacity>
       </View>
 
@@ -121,6 +150,36 @@ export function ProfileSettings() {
           onSelect={handleLocationSelect}
           onClose={() => setShowCityPicker(false)}
         />
+      )}
+
+      {showAvatarPicker && (
+        <TouchableOpacity
+          onPress={() => setShowAvatarPicker(false)}
+          activeOpacity={1}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <TouchableOpacity activeOpacity={1} onPress={(e) => e.stopPropagation()}>
+            <View className="bg-white rounded-2xl p-6 mx-5">
+              <Text className="text-lg font-semibold text-gray-900 text-center mb-4">Pilih Avatar</Text>
+              <AvatarSelector value={avatarUrl} onChange={handleAvatarSelect} />
+              <TouchableOpacity
+                onPress={() => setShowAvatarPicker(false)}
+                className="mt-4 py-3 rounded-xl bg-gray-100"
+              >
+                <Text className="text-center text-gray-600 font-medium">Batal</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       )}
     </View>
   );
