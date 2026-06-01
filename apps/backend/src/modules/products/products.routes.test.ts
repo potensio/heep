@@ -3,12 +3,25 @@ import { useTestDb } from '../../core/test/db';
 import { createApp } from '../../app';
 import { signAccessToken } from '../../core/jwt';
 import { usersRepository } from '../users/users.repository';
-import { db } from '../../core/db/client';
+import { testDb as db } from '../../core/test/db';
 import { products as productsTable } from '../../core/db/schema';
 import { eq } from 'drizzle-orm';
 import { productsRepository } from './products.repository';
 
 useTestDb();
+
+const testEnv = {
+  DATABASE_URL: process.env.DATABASE_URL!,
+  JWT_ACCESS_SECRET: 'test-access-secret-16chars',
+  JWT_REFRESH_SECRET: 'test-refresh-secret-16ch',
+  ACCESS_TOKEN_TTL: '900',
+  REFRESH_TOKEN_TTL: '2592000',
+  OTP_TTL: '300',
+  OTP_MAX_ATTEMPTS: '5',
+  EMAIL_FROM: 'test@example.com',
+  WEB_ORIGIN: 'http://localhost:5173',
+  CHAT_ROOM: {} as any,
+};
 
 const validPayload = {
   name: 'Toyota Avanza 2020',
@@ -28,7 +41,7 @@ describe('POST /products/images/presign', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ count: 2 }),
-    });
+    }, testEnv);
     expect(res.status).toBe(401);
   });
 
@@ -39,7 +52,7 @@ describe('POST /products/images/presign', () => {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ count: 3 }),
-    });
+    }, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(body.uploads).toHaveLength(3);
@@ -55,7 +68,7 @@ describe('POST /products/images/presign', () => {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ count: 7 }),
-    });
+    }, testEnv);
     expect(res.status).toBe(400);
   });
 });
@@ -66,7 +79,7 @@ describe('POST /products', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(validPayload),
-    });
+    }, testEnv);
     expect(res.status).toBe(401);
   });
 
@@ -77,7 +90,7 @@ describe('POST /products', () => {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify(validPayload),
-    });
+    }, testEnv);
     expect(res.status).toBe(201);
     const body = await res.json() as any;
     expect(body.product.id).toBeDefined();
@@ -97,7 +110,7 @@ describe('POST /products', () => {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...validPayload, listingStatus: 'draft' }),
-    });
+    }, testEnv);
     expect(res.status).toBe(201);
     const body = await res.json() as any;
     expect(body.product.listingStatus).toBe('draft');
@@ -111,7 +124,7 @@ describe('POST /products', () => {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...validPayload, attributes: {} }),
-    });
+    }, testEnv);
     expect(res.status).toBe(400);
   });
 
@@ -122,7 +135,7 @@ describe('POST /products', () => {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...validPayload, subcategory: 'rumah' }),
-    });
+    }, testEnv);
     expect(res.status).toBe(400);
   });
 
@@ -133,7 +146,7 @@ describe('POST /products', () => {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...validPayload, photos: ['../../etc/passwd'] }),
-    });
+    }, testEnv);
     expect(res.status).toBe(400);
   });
 });
@@ -168,7 +181,7 @@ async function seedApproved(email: string, nameOverride?: string) {
 
 describe('GET /products/feed', () => {
   it('returns empty items when no approved listings', async () => {
-    const res = await createApp().request('/products/feed');
+    const res = await createApp().request('/products/feed', {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(body.items).toHaveLength(0);
@@ -177,7 +190,7 @@ describe('GET /products/feed', () => {
 
   it('returns active+approved products with seller and photos', async () => {
     await seedApproved('feed-ok@example.com');
-    const res = await createApp().request('/products/feed');
+    const res = await createApp().request('/products/feed', {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(body.items.length).toBeGreaterThan(0);
@@ -190,20 +203,20 @@ describe('GET /products/feed', () => {
     for (let i = 0; i < 3; i++) {
       await seedApproved(`feed-page-${i}@example.com`);
     }
-    const page1 = await createApp().request('/products/feed?limit=2');
+    const page1 = await createApp().request('/products/feed?limit=2', {}, testEnv);
     expect(page1.status).toBe(200);
     const b1 = await page1.json() as any;
     expect(b1.items).toHaveLength(2);
     expect(b1.nextCursor).not.toBeNull();
 
-    const page2 = await createApp().request(`/products/feed?limit=2&cursor=${encodeURIComponent(b1.nextCursor)}`);
+    const page2 = await createApp().request(`/products/feed?limit=2&cursor=${encodeURIComponent(b1.nextCursor)}`, {}, testEnv);
     const b2 = await page2.json() as any;
     expect(b2.items).toHaveLength(1);
     expect(b2.nextCursor).toBeNull();
   });
 
   it('returns 400 for limit > 50', async () => {
-    const res = await createApp().request('/products/feed?limit=99');
+    const res = await createApp().request('/products/feed?limit=99', {}, testEnv);
     expect(res.status).toBe(400);
   });
 });
@@ -212,7 +225,7 @@ describe('GET /products/search', () => {
   it('filters by q (case-insensitive)', async () => {
     await seedApproved('search-toyota@example.com', 'Toyota Avanza 2020');
     await seedApproved('search-honda@example.com', 'Honda Jazz');
-    const res = await createApp().request('/products/search?q=toyota');
+    const res = await createApp().request('/products/search?q=toyota', {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(body.items.length).toBeGreaterThan(0);
@@ -221,27 +234,27 @@ describe('GET /products/search', () => {
 
   it('returns empty for non-matching q', async () => {
     await seedApproved('search-none@example.com');
-    const res = await createApp().request('/products/search?q=zzznomatch');
+    const res = await createApp().request('/products/search?q=zzznomatch', {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(body.items).toHaveLength(0);
   });
 
   it('rejects invalid sortBy', async () => {
-    const res = await createApp().request('/products/search?sortBy=invalid');
+    const res = await createApp().request('/products/search?sortBy=invalid', {}, testEnv);
     expect(res.status).toBe(400);
   });
 });
 
 describe('GET /products/:id', () => {
   it('returns 404 for unknown id', async () => {
-    const res = await createApp().request('/products/00000000-0000-0000-0000-000000000000');
+    const res = await createApp().request('/products/00000000-0000-0000-0000-000000000000', {}, testEnv);
     expect(res.status).toBe(404);
   });
 
   it('returns product detail with photos and seller', async () => {
     const { product, user } = await seedApproved('detail-route@example.com');
-    const res = await createApp().request(`/products/${product.id}`);
+    const res = await createApp().request(`/products/${product.id}`, {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(body.product.id).toBe(product.id);

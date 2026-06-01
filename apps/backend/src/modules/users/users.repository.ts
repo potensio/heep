@@ -51,3 +51,21 @@ export function createUsersRepository(db: Database): UsersRepository {
     },
   };
 }
+
+// Test/dev singleton — lazily instantiated on first use; requires DATABASE_URL to be set.
+let _singleton: UsersRepository | undefined;
+function getSingleton(): UsersRepository {
+  if (!_singleton) {
+    const url = process.env.DATABASE_URL;
+    if (!url) throw new Error('DATABASE_URL must be set');
+    const { createDb } = require('../../core/db/client') as typeof import('../../core/db/client');
+    _singleton = createUsersRepository(createDb(url));
+  }
+  return _singleton;
+}
+export const usersRepository: UsersRepository = {
+  findById: (...args) => getSingleton().findById(...args),
+  findByEmail: (...args) => getSingleton().findByEmail(...args),
+  create: (...args) => getSingleton().create(...args),
+  update: (...args) => getSingleton().update(...args),
+};

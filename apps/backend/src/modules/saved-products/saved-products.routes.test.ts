@@ -1,11 +1,24 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useTestDb } from '../../core/test/db';
 import { createApp } from '../../app';
-import { db } from '../../core/db/client';
+import { testDb as db } from '../../core/test/db';
 import { users, products, productImages, savedProducts } from '../../core/db/schema';
 import { sentOtps } from '../../core/email';
 
 useTestDb();
+
+const testEnv = {
+  DATABASE_URL: process.env.DATABASE_URL!,
+  JWT_ACCESS_SECRET: 'test-access-secret-16chars',
+  JWT_REFRESH_SECRET: 'test-refresh-secret-16ch',
+  ACCESS_TOKEN_TTL: '900',
+  REFRESH_TOKEN_TTL: '2592000',
+  OTP_TTL: '300',
+  OTP_MAX_ATTEMPTS: '5',
+  EMAIL_FROM: 'test@example.com',
+  WEB_ORIGIN: 'http://localhost:5173',
+  CHAT_ROOM: {} as any,
+};
 
 describe('saved-products routes', () => {
   let token: string;
@@ -25,7 +38,7 @@ describe('saved-products routes', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: 'test@example.com' }),
-    });
+    }, testEnv);
     const otpData = (await otpRes.json()) as { ok: boolean };
     expect(otpData.ok).toBe(true);
 
@@ -36,7 +49,7 @@ describe('saved-products routes', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: 'test@example.com', code: otp }),
-    });
+    }, testEnv);
     const verifyData = (await verifyRes.json()) as { accessToken: string };
     token = verifyData.accessToken;
 
@@ -61,14 +74,14 @@ describe('saved-products routes', () => {
       const res = await app.request(`/saved-products/${productId}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
-      });
+      }, testEnv);
       expect(res.status).toBe(201);
       const body = await res.json() as { productId: string };
       expect(body.productId).toBe(productId);
     });
 
     it('returns 401 when not authenticated', async () => {
-      const res = await app.request(`/saved-products/${productId}`, { method: 'POST' });
+      const res = await app.request(`/saved-products/${productId}`, { method: 'POST' }, testEnv);
       expect(res.status).toBe(401);
     });
   });
@@ -78,11 +91,11 @@ describe('saved-products routes', () => {
       await app.request(`/saved-products/${productId}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
-      });
+      }, testEnv);
       const res = await app.request(`/saved-products/${productId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
-      });
+      }, testEnv);
       expect(res.status).toBe(204);
     });
   });
@@ -92,10 +105,10 @@ describe('saved-products routes', () => {
       await app.request(`/saved-products/${productId}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
-      });
+      }, testEnv);
       const res = await app.request('/saved-products', {
         headers: { Authorization: `Bearer ${token}` },
-      });
+      }, testEnv);
       expect(res.status).toBe(200);
       const body = await res.json() as { items: { id: string }[] };
       expect(body.items).toHaveLength(1);

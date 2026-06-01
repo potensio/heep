@@ -4,12 +4,25 @@ import { useTestDb } from '../../core/test/db';
 import { createApp } from '../../app';
 import { signAccessToken } from '../../core/jwt';
 import { usersRepository } from './users.repository';
-import { db } from '../../core/db/client';
+import { testDb as db } from '../../core/test/db';
 import { products as productsTable } from '../../core/db/schema';
 import { eq } from 'drizzle-orm';
 import { productsRepository } from '../products/products.repository';
 
 useTestDb();
+
+const testEnv = {
+  DATABASE_URL: process.env.DATABASE_URL!,
+  JWT_ACCESS_SECRET: 'test-access-secret-16chars',
+  JWT_REFRESH_SECRET: 'test-refresh-secret-16ch',
+  ACCESS_TOKEN_TTL: '900',
+  REFRESH_TOKEN_TTL: '2592000',
+  OTP_TTL: '300',
+  OTP_MAX_ATTEMPTS: '5',
+  EMAIL_FROM: 'test@example.com',
+  WEB_ORIGIN: 'http://localhost:5173',
+  CHAT_ROOM: {} as any,
+};
 
 const baseProductForUsers = {
   name: 'Toyota Avanza',
@@ -38,25 +51,25 @@ describe('users routes (integration)', () => {
   it('GET /users/:id returns a public profile', async () => {
     const u = await usersRepository.create({ email: 'pub@example.com' });
     await usersRepository.update(u.id, { name: 'Public Person' });
-    const res = await createApp().request(`/users/${u.id}`);
+    const res = await createApp().request(`/users/${u.id}`, {}, testEnv);
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ id: u.id, name: 'Public Person' });
   });
 
   it('GET /users/:id returns 404 for unknown id', async () => {
-    const res = await createApp().request('/users/00000000-0000-0000-0000-000000000000');
+    const res = await createApp().request('/users/00000000-0000-0000-0000-000000000000', {}, testEnv);
     expect(res.status).toBe(404);
   });
 
   it('GET /users/me requires auth', async () => {
-    const res = await createApp().request('/users/me');
+    const res = await createApp().request('/users/me', {}, testEnv);
     expect(res.status).toBe(401);
   });
 
   it('GET /users/me returns the authenticated user', async () => {
     const u = await usersRepository.create({ email: 'me@example.com' });
     const token = await signAccessToken(u.id);
-    const res = await createApp().request('/users/me', { headers: { Authorization: `Bearer ${token}` } });
+    const res = await createApp().request('/users/me', { headers: { Authorization: `Bearer ${token}` } }, testEnv);
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ id: u.id, email: 'me@example.com' });
   });
@@ -68,7 +81,7 @@ describe('users routes (integration)', () => {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: 'Edited', gender: 'male' }),
-    });
+    }, testEnv);
     expect(res.status).toBe(200);
     expect(await res.json()).toMatchObject({ name: 'Edited', profileCompleted: true });
   });
@@ -79,7 +92,7 @@ describe('GET /users/:id — extended response', () => {
     const u = await usersRepository.create({ email: 'extended@example.com' });
     await createApprovedProductForUser(u.id);
     await createApprovedProductForUser(u.id);
-    const res = await createApp().request(`/users/${u.id}`);
+    const res = await createApp().request(`/users/${u.id}`, {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(typeof body.createdAt).toBe('string');
@@ -88,7 +101,7 @@ describe('GET /users/:id — extended response', () => {
 
   it('returns 0 activeListingCount for new user', async () => {
     const u = await usersRepository.create({ email: 'zero-count@example.com' });
-    const res = await createApp().request(`/users/${u.id}`);
+    const res = await createApp().request(`/users/${u.id}`, {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(body.activeListingCount).toBe(0);
@@ -99,7 +112,7 @@ describe('GET /users/:id/products', () => {
   it('returns seller active+approved products', async () => {
     const u = await usersRepository.create({ email: 'seller-products@example.com' });
     await createApprovedProductForUser(u.id);
-    const res = await createApp().request(`/users/${u.id}/products`);
+    const res = await createApp().request(`/users/${u.id}/products`, {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(body.items).toHaveLength(1);
@@ -109,7 +122,7 @@ describe('GET /users/:id/products', () => {
 
   it('returns empty items for seller with no approved listings', async () => {
     const u = await usersRepository.create({ email: 'no-products@example.com' });
-    const res = await createApp().request(`/users/${u.id}/products`);
+    const res = await createApp().request(`/users/${u.id}/products`, {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(body.items).toHaveLength(0);

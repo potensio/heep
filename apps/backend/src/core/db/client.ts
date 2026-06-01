@@ -8,3 +8,4 @@ export function createDb(databaseUrl: string) {
 }
 
 export type Database = ReturnType<typeof createDb>;
+
