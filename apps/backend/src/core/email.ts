@@ -1,5 +1,5 @@
+// TODO(Task 6): env singleton removed; env values will be injected via deps.
 import { Resend } from 'resend';
-import { env } from './env';
 
 export interface EmailService {
   sendOtp(email: string, code: string): Promise<void>;
@@ -22,22 +22,27 @@ export class ConsoleEmailService implements EmailService {
 }
 
 // --- Production: sends via Resend ---
+// TODO(Task 6): inject apiKey, emailFrom, otpTtl via constructor/deps
 export class ResendEmailService implements EmailService {
-  private resend = new Resend(env.RESEND_API_KEY);
+  private resend: Resend;
+  private emailFrom: string;
+  private otpTtlMinutes: number;
+
+  constructor(apiKey: string, emailFrom: string, otpTtlSeconds: number) {
+    this.resend = new Resend(apiKey);
+    this.emailFrom = emailFrom;
+    this.otpTtlMinutes = Math.floor(otpTtlSeconds / 60);
+  }
+
   async sendOtp(email: string, code: string): Promise<void> {
     await this.resend.emails.send({
-      from: env.EMAIL_FROM,
+      from: this.emailFrom,
       to: email,
       subject: 'Kode masuk BantuJual',
-      text: `Kode verifikasi kamu: ${code}. Berlaku ${Math.floor(env.OTP_TTL / 60)} menit.`,
+      text: `Kode verifikasi kamu: ${code}. Berlaku ${this.otpTtlMinutes} menit.`,
     });
   }
 }
 
-function pickEmailService(): EmailService {
-  if (env.NODE_ENV === 'test') return new TestEmailService();
-  if (env.RESEND_API_KEY) return new ResendEmailService();
-  return new ConsoleEmailService();
-}
-
-export const emailService: EmailService = pickEmailService();
+// TODO(Task 6): replace with factory that accepts ParsedEnv; remove module-level singleton
+export const emailService: EmailService = new ConsoleEmailService();

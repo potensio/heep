@@ -38,7 +38,7 @@ export function createAuthService(deps: AuthDeps) {
     await authRepo.createRefreshToken({
       userId: user.id,
       tokenHash: hashRefreshToken(refreshToken),
-      expiresAt: new Date(Date.now() + env.REFRESH_TOKEN_TTL * 1000),
+      expiresAt: new Date(Date.now() + 2592000 * 1000), // TODO(Task 6): use env.REFRESH_TOKEN_TTL
     });
     return { accessToken, refreshToken, user };
   }
@@ -50,7 +50,7 @@ export function createAuthService(deps: AuthDeps) {
       await authRepo.createOtp({
         email: emailAddr,
         codeHash,
-        expiresAt: new Date(Date.now() + env.OTP_TTL * 1000),
+        expiresAt: new Date(Date.now() + 300 * 1000), // TODO(Task 6): use env.OTP_TTL
       });
       await email.sendOtp(emailAddr, code);
       // Always resolves — no account enumeration at the route layer.
@@ -59,7 +59,7 @@ export function createAuthService(deps: AuthDeps) {
     async verifyOtp(emailAddr: string, code: string): Promise<AuthResult> {
       const otp = await authRepo.findActiveOtp(emailAddr);
       if (!otp) throw new UnauthorizedError('Invalid or expired code');
-      if (otp.attempts >= env.OTP_MAX_ATTEMPTS) throw new TooManyAttemptsError();
+      if (otp.attempts >= 5) throw new TooManyAttemptsError(); // TODO(Task 6): use env.OTP_MAX_ATTEMPTS
 
       const ok = await bcrypt.compare(code, otp.codeHash);
       if (!ok) {
