@@ -6,6 +6,7 @@ import { corsMiddleware } from './core/middleware/cors';
 import type { AppVariables } from './types/hono';
 import { usersRoutes } from './modules/users/users.routes';
 import { authRoutes } from './modules/auth/auth.routes';
+import { productsRoutes } from './modules/products/products.routes';
 
 export function createApp() {
   const app = new Hono<{ Variables: AppVariables }>();
@@ -16,6 +17,7 @@ export function createApp() {
   app.get('/health', (c) => c.json({ status: 'ok' }));
   app.route('/auth', authRoutes);
   app.route('/users', usersRoutes);
+  app.route('/products', productsRoutes);
 
   app.onError(errorHandler);
   return app;
