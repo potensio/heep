@@ -16,6 +16,7 @@ export interface VerifiedUser {
   phone: string | null;
   profileCompleted: boolean;
   location: Location | null;
+  avatarUrl: string | null;
 }
 
 async function post<T>(path: string, body: unknown): Promise<T> {
@@ -47,6 +48,7 @@ export async function updateProfile(
   data: {
     name?: string;
     gender?: 'male' | 'female';
+    avatarUrl?: string;
     phone?: string;
     location?: Location;
   },
