@@ -23,19 +23,23 @@ export function useSellerProducts(sellerId: string) {
   const [hasMore, setHasMore] = useState(true);
   const cursorRef = useRef<string | undefined>(undefined);
   const isFetchingRef = useRef(false);
+  const generationRef = useRef(0);
 
   const load = useCallback(async (reset: boolean) => {
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
+    const generation = generationRef.current;   // capture current generation
     if (reset) setIsLoading(true);
     try {
       const result = await fetchSellerProducts(sellerId, reset ? undefined : cursorRef.current);
+      if (generation !== generationRef.current) return;  // stale, discard
       const items = result.items.map(normalize);
       setData(prev => (reset ? items : [...prev, ...items]));
       cursorRef.current = result.nextCursor ?? undefined;
       setHasMore(result.nextCursor !== null);
       setError(null);
     } catch (e) {
+      if (generation !== generationRef.current) return;
       setError(e instanceof Error ? e : new Error('Failed to load'));
     } finally {
       isFetchingRef.current = false;
@@ -44,6 +48,7 @@ export function useSellerProducts(sellerId: string) {
   }, [sellerId]);
 
   useEffect(() => {
+    generationRef.current += 1;   // invalidate in-flight fetches from previous sellerId
     cursorRef.current = undefined;
     setHasMore(true);
     load(true);
