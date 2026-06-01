@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Location } from '@/lib/types';
 import { refreshTokens } from '@/lib/api';
@@ -18,9 +18,9 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  login: (user: User, accessToken: string, refreshToken: string) => void;
+  login: (user: User, accessToken: string, refreshToken: string) => Promise<void>;
   logout: () => void;
-  updateUser: (user: User) => void;
+  updateUser: (user: User) => Promise<void>;
   getValidToken: () => Promise<string>;
 }
 
@@ -33,7 +33,7 @@ const STORAGE_KEYS = {
 function getTokenExp(token: string): number | null {
   try {
     const payload = token.split('.')[1];
-    const padded = payload + '=='.slice(0, (4 - (payload.length % 4)) % 4);
+    const padded = payload + '='.repeat((4 - (payload.length % 4)) % 4);
     const decoded = JSON.parse(atob(padded.replace(/-/g, '+').replace(/_/g, '/')));
     return typeof decoded.exp === 'number' ? decoded.exp : null;
   } catch {
@@ -100,21 +100,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
   }, []);
 
+  const refreshPromiseRef = useRef<Promise<string> | null>(null);
+
   const getValidToken = useCallback(async (): Promise<string> => {
     if (!token || !storedRefreshToken) throw new Error('Not authenticated');
-
     const exp = getTokenExp(token);
     const nowSeconds = Math.floor(Date.now() / 1000);
     if (exp !== null && exp - nowSeconds > 60) return token;
 
-    const result = await refreshTokens(storedRefreshToken);
-    setToken(result.accessToken);
-    setStoredRefreshToken(result.refreshToken);
-    await Promise.all([
-      AsyncStorage.setItem(STORAGE_KEYS.TOKEN, result.accessToken),
-      AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, result.refreshToken),
-    ]);
-    return result.accessToken;
+    if (!refreshPromiseRef.current) {
+      refreshPromiseRef.current = refreshTokens(storedRefreshToken)
+        .then((result: { accessToken: string; refreshToken: string }) => {
+          setToken(result.accessToken);
+          setStoredRefreshToken(result.refreshToken);
+          return Promise.all([
+            AsyncStorage.setItem(STORAGE_KEYS.TOKEN, result.accessToken),
+            AsyncStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, result.refreshToken),
+          ]).then(() => result.accessToken);
+        })
+        .finally(() => { refreshPromiseRef.current = null; });
+    }
+    return refreshPromiseRef.current!;
   }, [token, storedRefreshToken]);
 
   return (
