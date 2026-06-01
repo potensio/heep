@@ -1,5 +1,5 @@
 import {
-  pgTable, pgEnum, uuid, text, integer, boolean, timestamp, jsonb, index, doublePrecision,
+  pgTable, pgEnum, uuid, text, integer, boolean, timestamp, jsonb, index, doublePrecision, primaryKey,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { CATEGORIES } from '@bantujual/categories';
@@ -96,6 +96,21 @@ export const messages = pgTable('messages', {
   readAt: timestamp('read_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 }, (t) => [index('messages_conversation_id_idx').on(t.conversationId)]);
+
+export const savedProducts = pgTable('saved_products', {
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  productId: uuid('product_id').notNull().references(() => products.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  primaryKey({ columns: [t.userId, t.productId] }),
+  index('saved_products_user_id_idx').on(t.userId),
+  index('saved_products_product_id_idx').on(t.productId),
+]);
+
+export const savedProductsRelations = relations(savedProducts, ({ one }) => ({
+  user: one(users, { fields: [savedProducts.userId], references: [users.id] }),
+  product: one(products, { fields: [savedProducts.productId], references: [products.id] }),
+}));
 
 export const usersRelations = relations(users, ({ many }) => ({
   products: many(products),

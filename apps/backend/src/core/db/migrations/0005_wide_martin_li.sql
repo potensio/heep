@@ -1,0 +1,1 @@
+ALTER TABLE "saved_products" ADD CONSTRAINT "saved_products_user_id_product_id_pk" PRIMARY KEY("user_id","product_id");
