@@ -1,0 +1,20 @@
+name = "bantujual-api"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ACCESS_TOKEN_TTL = "900"
+REFRESH_TOKEN_TTL = "2592000"
+OTP_TTL = "300"
+OTP_MAX_ATTEMPTS = "5"
+EMAIL_FROM = "BantuJual <noreply@bantujual.app>"
+WEB_ORIGIN = "http://localhost:5173"
+
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoomDO"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["ChatRoomDO"]
