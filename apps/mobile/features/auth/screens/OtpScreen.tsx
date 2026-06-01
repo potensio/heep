@@ -7,7 +7,7 @@ import { requestOtp, verifyOtp, ApiError, type VerifiedUser } from '@/lib/api';
 
 interface OtpScreenProps {
   email: string;
-  onSuccess: (user: VerifiedUser, token: string) => void;
+  onSuccess: (user: VerifiedUser, accessToken: string, refreshToken: string) => void;
   onBack: () => void;
 }
 
@@ -33,8 +33,8 @@ export function OtpScreen({ email, onSuccess, onBack }: OtpScreenProps) {
     setIsLoading(true);
     setError(null);
     try {
-      const { accessToken, user } = await verifyOtp(email, otp);
-      onSuccess(user, accessToken);
+      const { accessToken, refreshToken, user } = await verifyOtp(email, otp);
+      onSuccess(user, accessToken, refreshToken);
     } catch (e) {
       setError(
         e instanceof ApiError && e.status === 401
