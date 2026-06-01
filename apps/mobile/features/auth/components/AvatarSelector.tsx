@@ -46,6 +46,8 @@ export function AvatarSelector({ value, onChange }: AvatarSelectorProps) {
               borderWidth: value === url ? 3 : 2,
               borderColor: value === url ? '#155DFC' : '#D1D5DB',
               overflow: 'hidden',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <Image
@@ -56,7 +58,7 @@ export function AvatarSelector({ value, onChange }: AvatarSelectorProps) {
           </TouchableOpacity>
         ))}
       </View>
-      <View className="flex-row gap-3">
+      <View className="flex-row gap-3" style={{ paddingLeft: 40 }}>
         {AVATARS.slice(5).map((url) => (
           <TouchableOpacity
             key={url}
@@ -69,6 +71,8 @@ export function AvatarSelector({ value, onChange }: AvatarSelectorProps) {
               borderWidth: value === url ? 3 : 2,
               borderColor: value === url ? '#155DFC' : '#D1D5DB',
               overflow: 'hidden',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
             <Image
