@@ -5,12 +5,15 @@ import {
 import { useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MapPoint } from '@solar-icons/react-native/Linear';
-import { GenderSelector } from '../components/GenderSelector';
+import { AvatarSelector } from '../components/AvatarSelector';
 import { CityPicker } from '@/features/shared/components/CityPicker';
 import { updateProfile, ApiError, type VerifiedUser } from '@/lib/api';
 import type { Location } from '@/lib/types';
 
-type LocalGender = 'pria' | 'wanita' | null;
+function getGenderFromAvatarUrl(url: string): 'male' | 'female' {
+  if (url.includes('avatar-male-')) return 'male';
+  return 'female';
+}
 
 interface CompleteProfileScreenProps {
   email: string;
@@ -22,20 +25,21 @@ export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfil
   const insets = useSafeAreaInsets();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [gender, setGender] = useState<LocalGender>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [location, setLocation] = useState<Location | null>(null);
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async () => {
-    if (!name.trim() || !phone.trim() || !gender || !location) return;
+    if (!name.trim() || !phone.trim() || !avatarUrl || !location) return;
     setIsLoading(true);
     setError(null);
     try {
       const updatedUser = await updateProfile(token, {
         name: name.trim(),
-        gender: gender === 'pria' ? 'male' : 'female',
+        gender: getGenderFromAvatarUrl(avatarUrl!),
+        avatarUrl,
         phone: phone.trim(),
         location,
       });
@@ -51,7 +55,7 @@ export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfil
     }
   };
 
-  const isValid = name.trim().length > 0 && phone.trim().length > 0 && gender !== null && location !== null;
+  const isValid = name.trim().length > 0 && phone.trim().length > 0 && avatarUrl !== null && location !== null;
 
   return (
     <View className="flex-1 bg-background">
@@ -74,6 +78,11 @@ export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfil
           <Text className="text-base text-gray-600 mb-8">
             Berikan informasi untuk melanjutkan
           </Text>
+
+          <View className="mb-6">
+            <Text className="text-sm text-gray-600 mb-3 font-medium text-center">Pilih Avatar</Text>
+            <AvatarSelector value={avatarUrl} onChange={setAvatarUrl} />
+          </View>
 
           <View className="mb-5">
             <Text className="text-sm text-gray-600 mb-2 font-medium">Nama Lengkap</Text>
@@ -134,11 +143,6 @@ export function CompleteProfileScreen({ email, token, onSubmit }: CompleteProfil
                 {location ? location.name : 'Pilih kota...'}
               </Text>
             </TouchableOpacity>
-          </View>
-
-          <View className="mb-8">
-            <Text className="text-sm text-gray-600 mb-2 font-medium">Jenis Kelamin</Text>
-            <GenderSelector value={gender} onChange={setGender} />
           </View>
 
           {error !== null && (
