@@ -254,3 +254,69 @@ export async function fetchSellerProducts(
   const q = qs.toString();
   return get<PaginatedItems<ProductListItem>>(`/users/${sellerId}/products${q ? `?${q}` : ''}`);
 }
+
+// Saved Products API
+
+export async function saveProduct(token: string, productId: string): Promise<void> {
+  const res = await fetch(`${BASE}/saved-products/${productId}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new ApiError(res.status, text || `HTTP ${res.status}`);
+  }
+}
+
+export async function unsaveProduct(token: string, productId: string): Promise<void> {
+  const res = await fetch(`${BASE}/saved-products/${productId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok && res.status !== 204) {
+    const text = await res.text().catch(() => '');
+    throw new ApiError(res.status, text || `HTTP ${res.status}`);
+  }
+}
+
+export interface SavedProductItem {
+  id: string;
+  name: string;
+  price: number;
+  photos: { url: string; position: number }[];
+  category: string;
+  subcategory: string;
+  location: { name: string; lat: number; lng: number } | null;
+  seller: { id: string; name: string | null; avatarUrl: string | null };
+  createdAt: string;
+  savedAt: string;
+}
+
+export async function fetchSavedProducts(
+  token: string,
+  cursor?: string,
+  limit?: number,
+): Promise<PaginatedItems<SavedProductItem>> {
+  const qs = new URLSearchParams();
+  if (cursor) qs.set('cursor', cursor);
+  if (limit) qs.set('limit', String(limit));
+  const q = qs.toString();
+
+  const res = await fetch(`${BASE}/saved-products${q ? `?${q}` : ''}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new ApiError(res.status, text || `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<PaginatedItems<SavedProductItem>>;
+}
+
+export async function checkIsSaved(token: string, productId: string): Promise<boolean> {
+  const res = await fetch(`${BASE}/saved-products`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return false;
+  const data = await res.json() as PaginatedItems<SavedProductItem>;
+  return data.items.some(item => item.id === productId);
+}
