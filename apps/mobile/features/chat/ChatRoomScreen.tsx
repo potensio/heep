@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -8,19 +8,20 @@ import { ProductContextCard } from "./components/ProductContextCard";
 import { MessageBubble } from "./components/MessageBubble";
 import { DateSeparator } from "./components/DateSeparator";
 import { ChatInput } from "./components/ChatInput";
-import { CURRENT_USER_ID } from "./mockData";
-import type { Conversation, Message } from "@/lib/types";
+import { useChatRoom } from "./hooks/useChatRoom";
+import { useAuth } from "@/context/AuthContext";
+import type { Conversation } from "@/lib/types";
 
 interface ChatRoomScreenProps {
   conversation: Conversation;
-  initialMessages: Message[];
 }
 
-export function ChatRoomScreen({ conversation, initialMessages }: ChatRoomScreenProps) {
+export function ChatRoomScreen({ conversation }: ChatRoomScreenProps) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const scrollViewRef = useRef<ScrollView>(null);
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const { user } = useAuth();
+  const { messages, status, send } = useChatRoom(conversation.id);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -29,19 +30,6 @@ export function ChatRoomScreen({ conversation, initialMessages }: ChatRoomScreen
       }, 100);
     }
   }, [messages.length]);
-
-  const handleSend = (text: string, image?: string) => {
-    const newMessage: Message = {
-      id: `new-${Date.now()}`,
-      conversationId: conversation.id,
-      senderId: CURRENT_USER_ID,
-      text,
-      image,
-      timestamp: new Date(),
-      isRead: true,
-    };
-    setMessages((prev) => [...prev, newMessage]);
-  };
 
   const renderMessages = () => {
     const elements: React.ReactNode[] = [];
@@ -66,7 +54,7 @@ export function ChatRoomScreen({ conversation, initialMessages }: ChatRoomScreen
         <View key={message.id} className="mb-3">
           <MessageBubble
             message={message}
-            isCurrentUser={message.senderId === CURRENT_USER_ID}
+            isCurrentUser={message.senderId === user?.id}
           />
         </View>,
       );
@@ -102,6 +90,12 @@ export function ChatRoomScreen({ conversation, initialMessages }: ChatRoomScreen
         </View>
       </View>
 
+      {status === 'disconnected' && (
+        <View className="bg-red-100 px-4 py-1 items-center">
+          <Text className="text-xs text-red-600">Reconnecting...</Text>
+        </View>
+      )}
+
       <ProductContextCard
         product={conversation.product}
         onPress={() => router.push(`/product/${conversation.product.id}`)}
@@ -125,7 +119,7 @@ export function ChatRoomScreen({ conversation, initialMessages }: ChatRoomScreen
         )}
       </ScrollView>
 
-      <ChatInput onSend={handleSend} />
+      <ChatInput onSend={send} />
     </KeyboardAvoidingView>
   );
 }

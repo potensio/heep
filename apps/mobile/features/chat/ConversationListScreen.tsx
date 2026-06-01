@@ -1,20 +1,38 @@
 import { View, Text, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { ConversationCard } from './components/ConversationCard';
 import { EmptyChatState } from './components/EmptyChatState';
-import { mockConversations } from './mockData';
+import { useAuth } from '@/context/AuthContext';
 import type { Conversation } from '@/lib/types';
+
+const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8787';
+
+async function fetchConversations(token: string): Promise<Conversation[]> {
+  const res = await fetch(`${BASE}/chat/conversations`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json() as Promise<Conversation[]>;
+}
 
 export function ConversationListScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { token } = useAuth();
+
+  const { data: conversations = [] } = useQuery({
+    queryKey: ['conversations'],
+    queryFn: () => fetchConversations(token!),
+    enabled: !!token,
+  });
 
   const handleConversationPress = (conversation: Conversation) => {
     router.push(`/chat/${conversation.id}`);
   };
 
-  const hasConversations = mockConversations.length > 0;
+  const hasConversations = conversations.length > 0;
 
   return (
     <View className="flex-1 bg-background">
@@ -33,7 +51,7 @@ export function ConversationListScreen() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 100 }}
         >
-          {mockConversations.map(conversation => (
+          {conversations.map(conversation => (
             <ConversationCard
               key={conversation.id}
               conversation={conversation}

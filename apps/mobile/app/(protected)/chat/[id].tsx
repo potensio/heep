@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { ChatRoomScreen } from "@/features/chat/ChatRoomScreen";
-import { mockConversations, mockMessagesByConversation } from "@/features/chat/mockData";
+import { mockConversations } from "@/features/chat/mockData";
 
 export default function ChatRoomRoute() {
   const { id, sellerId, sellerName, productId, productName, productPrice, productImage } =
@@ -34,7 +34,6 @@ export default function ChatRoomRoute() {
   return (
     <ChatRoomScreen
       conversation={conversation}
-      initialMessages={mockMessagesByConversation[id] ?? []}
     />
   );
 }
