@@ -1,0 +1,71 @@
+import { View, Image, TouchableOpacity } from 'react-native';
+
+const AVATARS = [
+  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-a.png',
+  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-b.png',
+  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-c.png',
+  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-d.png',
+  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-male-e.png',
+  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-female-a.png',
+  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-female-b.png',
+  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-female-c.png',
+  'https://pub-98b8abc847b44937af301636076ac9ba.r2.dev/default-avatar/avatar-female-d.png',
+];
+
+interface AvatarSelectorProps {
+  value: string | null;
+  onChange: (url: string) => void;
+}
+
+export function AvatarSelector({ value, onChange }: AvatarSelectorProps) {
+  return (
+    <View className="items-center">
+      <View className="flex-row gap-3 mb-3">
+        {AVATARS.slice(0, 5).map((url) => (
+          <TouchableOpacity
+            key={url}
+            onPress={() => onChange(url)}
+            activeOpacity={0.8}
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: 32,
+              borderWidth: value === url ? 3 : 2,
+              borderColor: value === url ? '#155DFC' : '#D1D5DB',
+              overflow: 'hidden',
+            }}
+          >
+            <Image
+              source={{ uri: url }}
+              style={{ width: 64, height: 64 }}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+      <View className="flex-row gap-3">
+        {AVATARS.slice(5).map((url) => (
+          <TouchableOpacity
+            key={url}
+            onPress={() => onChange(url)}
+            activeOpacity={0.8}
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: 32,
+              borderWidth: value === url ? 3 : 2,
+              borderColor: value === url ? '#155DFC' : '#D1D5DB',
+              overflow: 'hidden',
+            }}
+          >
+            <Image
+              source={{ uri: url }}
+              style={{ width: 64, height: 64 }}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+}
