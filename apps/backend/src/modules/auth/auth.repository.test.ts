@@ -1,10 +1,13 @@
 // src/modules/auth/auth.repository.test.ts
 import { describe, it, expect } from 'vitest';
-import { useTestDb } from '../../core/test/db';
-import { authRepository } from './auth.repository';
-import { usersRepository } from '../users/users.repository';
+import { testDb, useTestDb } from '../../core/test/db';
+import { createAuthRepository } from './auth.repository';
+import { createUsersRepository } from '../users/users.repository';
 
 useTestDb();
+
+const authRepository = createAuthRepository(testDb);
+const usersRepository = createUsersRepository(testDb);
 
 const future = () => new Date(Date.now() + 60_000);
 

@@ -1,8 +1,6 @@
 // src/modules/users/users.service.ts
 import { NotFoundError } from '../../core/errors';
-import { productsRepository } from '../products/products.repository';
 import {
-  usersRepository,
   type User,
   type UsersRepository,
   type UpdateUserInput,
@@ -56,8 +54,3 @@ export function createUsersService({ repo, countActiveListings }: UsersDeps) {
 }
 
 export type UsersService = ReturnType<typeof createUsersService>;
-
-export const usersService = createUsersService({
-  repo: usersRepository,
-  countActiveListings: id => productsRepository.countForSeller(id),
-});

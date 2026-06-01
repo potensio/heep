@@ -2,7 +2,6 @@ import { CATEGORIES } from '@bantujual/categories';
 import { NotFoundError, ValidationError } from '../../core/errors';
 import { storageService, type StorageService } from '../../core/storage';
 import {
-  productsRepository,
   type ListFilters,
   type ProductDetailRow,
   type ProductListRow,
@@ -183,8 +182,3 @@ export function createProductsService(deps: ProductsDeps) {
 }
 
 export type ProductsService = ReturnType<typeof createProductsService>;
-
-export const productsService = createProductsService({
-  repo: productsRepository,
-  storage: storageService,
-});

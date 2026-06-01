@@ -1,6 +1,6 @@
 // src/modules/users/users.repository.ts
 import { eq } from 'drizzle-orm';
-import { db } from '../../core/db/client';
+import type { Database } from '../../core/db/client';
 import { users } from '../../core/db/schema';
 
 export type User = typeof users.$inferSelect;
@@ -24,28 +24,30 @@ export interface UsersRepository {
   update(id: string, patch: UpdateUserInput): Promise<User>;
 }
 
-export const usersRepository: UsersRepository = {
-  async findById(id) {
-    const [row] = await db.select().from(users).where(eq(users.id, id)).limit(1);
-    return row ?? null;
-  },
+export function createUsersRepository(db: Database): UsersRepository {
+  return {
+    async findById(id) {
+      const [row] = await db.select().from(users).where(eq(users.id, id)).limit(1);
+      return row ?? null;
+    },
 
-  async findByEmail(email) {
-    const [row] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    return row ?? null;
-  },
+    async findByEmail(email) {
+      const [row] = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      return row ?? null;
+    },
 
-  async create(input) {
-    const [row] = await db.insert(users).values({ email: input.email }).returning();
-    return row;
-  },
+    async create(input) {
+      const [row] = await db.insert(users).values({ email: input.email }).returning();
+      return row;
+    },
 
-  async update(id, patch) {
-    const [row] = await db
-      .update(users)
-      .set({ ...patch, updatedAt: new Date() })
-      .where(eq(users.id, id))
-      .returning();
-    return row;
-  },
-};
+    async update(id, patch) {
+      const [row] = await db
+        .update(users)
+        .set({ ...patch, updatedAt: new Date() })
+        .where(eq(users.id, id))
+        .returning();
+      return row;
+    },
+  };
+}

@@ -1,4 +1,4 @@
-import { savedProductsRepository, type SavedProductRow } from './saved-products.repository';
+import { type SavedProductRow, type SavedProductsRepository } from './saved-products.repository';
 
 export interface SavedProductItem {
   id: string;
@@ -33,21 +33,29 @@ function mapToApi(row: SavedProductRow): SavedProductItem {
   };
 }
 
-export const savedProductsService = {
-  async saveProduct(userId: string, productId: string) {
-    return savedProductsRepository.save(userId, productId);
-  },
+export interface SavedProductsDeps {
+  repo: SavedProductsRepository;
+}
 
-  async unsaveProduct(userId: string, productId: string) {
-    await savedProductsRepository.unsave(userId, productId);
-  },
+export function createSavedProductsService({ repo }: SavedProductsDeps) {
+  return {
+    async saveProduct(userId: string, productId: string) {
+      return repo.save(userId, productId);
+    },
 
-  async isSaved(userId: string, productId: string) {
-    return savedProductsRepository.isSaved(userId, productId);
-  },
+    async unsaveProduct(userId: string, productId: string) {
+      await repo.unsave(userId, productId);
+    },
 
-  async listSavedProducts(userId: string, cursor?: string, limit?: number): Promise<SavedProductsListResult> {
-    const { items, nextCursor } = await savedProductsRepository.listByUser(userId, cursor, limit);
-    return { items: items.map(mapToApi), nextCursor };
-  },
-};
+    async isSaved(userId: string, productId: string) {
+      return repo.isSaved(userId, productId);
+    },
+
+    async listSavedProducts(userId: string, cursor?: string, limit?: number): Promise<SavedProductsListResult> {
+      const { items, nextCursor } = await repo.listByUser(userId, cursor, limit);
+      return { items: items.map(mapToApi), nextCursor };
+    },
+  };
+}
+
+export type SavedProductsService = ReturnType<typeof createSavedProductsService>;

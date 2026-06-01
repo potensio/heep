@@ -1,9 +1,11 @@
 // src/modules/users/users.repository.test.ts
 import { describe, it, expect } from 'vitest';
-import { useTestDb } from '../../core/test/db';
-import { usersRepository } from './users.repository';
+import { testDb, useTestDb } from '../../core/test/db';
+import { createUsersRepository } from './users.repository';
 
 useTestDb();
+
+const usersRepository = createUsersRepository(testDb);
 
 describe('usersRepository (integration)', () => {
   it('create then findByEmail returns the row', async () => {

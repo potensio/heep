@@ -1,22 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { db } from '../../core/db/client';
+import { testDb, useTestDb } from '../../core/test/db';
 import { users, products, productImages, savedProducts } from '../../core/db/schema';
-import { savedProductsRepository } from './saved-products.repository';
+import { createSavedProductsRepository } from './saved-products.repository';
+
+useTestDb();
+
+const savedProductsRepository = createSavedProductsRepository(testDb);
 
 describe('savedProductsRepository', () => {
   let userId: string;
   let productId: string;
 
   beforeEach(async () => {
-    await db.delete(savedProducts);
-    await db.delete(productImages);
-    await db.delete(products);
-    await db.delete(users);
-
-    const [user] = await db.insert(users).values({ email: 'test@example.com' }).returning();
+    const [user] = await testDb.insert(users).values({ email: 'test@example.com' }).returning();
     userId = user.id;
 
-    const [product] = await db.insert(products).values({
+    const [product] = await testDb.insert(products).values({
       sellerId: userId,
       name: 'Test Product',
       price: 100000,
@@ -28,7 +27,7 @@ describe('savedProductsRepository', () => {
     }).returning();
     productId = product.id;
 
-    await db.insert(productImages).values({
+    await testDb.insert(productImages).values({
       productId,
       url: 'https://example.com/image.jpg',
       position: 0,
@@ -72,7 +71,7 @@ describe('savedProductsRepository', () => {
     it('returns saved products ordered by savedAt desc', async () => {
       await savedProductsRepository.save(userId, productId);
 
-      const [product2] = await db.insert(products).values({
+      const [product2] = await testDb.insert(products).values({
         sellerId: userId,
         name: 'Second Product',
         price: 200000,
@@ -83,7 +82,7 @@ describe('savedProductsRepository', () => {
         approvalStatus: 'approved',
       }).returning();
 
-      await db.insert(productImages).values({
+      await testDb.insert(productImages).values({
         productId: product2.id,
         url: 'https://example.com/image2.jpg',
         position: 0,

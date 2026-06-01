@@ -1,41 +1,48 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { savedProductsService } from './saved-products.service';
-import { savedProductsRepository } from './saved-products.repository';
+import { createSavedProductsService } from './saved-products.service';
+import type { SavedProductsRepository } from './saved-products.repository';
 
-vi.mock('./saved-products.repository');
+const mockRepo: SavedProductsRepository = {
+  save: vi.fn(),
+  unsave: vi.fn(),
+  isSaved: vi.fn(),
+  listByUser: vi.fn(),
+};
+
+const savedProductsService = createSavedProductsService({ repo: mockRepo });
 
 describe('savedProductsService', () => {
   beforeEach(() => vi.clearAllMocks());
 
   describe('saveProduct', () => {
     it('calls repository save', async () => {
-      vi.mocked(savedProductsRepository.save).mockResolvedValueOnce({
+      vi.mocked(mockRepo.save).mockResolvedValueOnce({
         userId: 'user-1', productId: 'product-1', createdAt: new Date(),
       });
       const result = await savedProductsService.saveProduct('user-1', 'product-1');
-      expect(savedProductsRepository.save).toHaveBeenCalledWith('user-1', 'product-1');
+      expect(mockRepo.save).toHaveBeenCalledWith('user-1', 'product-1');
       expect(result.userId).toBe('user-1');
     });
   });
 
   describe('unsaveProduct', () => {
     it('calls repository unsave', async () => {
-      vi.mocked(savedProductsRepository.unsave).mockResolvedValueOnce();
+      vi.mocked(mockRepo.unsave).mockResolvedValueOnce(undefined);
       await savedProductsService.unsaveProduct('user-1', 'product-1');
-      expect(savedProductsRepository.unsave).toHaveBeenCalledWith('user-1', 'product-1');
+      expect(mockRepo.unsave).toHaveBeenCalledWith('user-1', 'product-1');
     });
   });
 
   describe('isSaved', () => {
     it('delegates to repository', async () => {
-      vi.mocked(savedProductsRepository.isSaved).mockResolvedValueOnce(true);
+      vi.mocked(mockRepo.isSaved).mockResolvedValueOnce(true);
       expect(await savedProductsService.isSaved('user-1', 'product-1')).toBe(true);
     });
   });
 
   describe('listSavedProducts', () => {
     it('maps repository result to API response', async () => {
-      vi.mocked(savedProductsRepository.listByUser).mockResolvedValueOnce({
+      vi.mocked(mockRepo.listByUser).mockResolvedValueOnce({
         items: [{
           id: 'product-1', name: 'Test', price: 100000, category: 'fashion', subcategory: 'kaos',
           locationName: 'Jakarta', locationLat: -6.2, locationLng: 106.8,

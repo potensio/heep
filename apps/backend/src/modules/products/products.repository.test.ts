@@ -1,12 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { useTestDb } from '../../core/test/db';
-import { usersRepository } from '../users/users.repository';
-import { productsRepository } from './products.repository';
-import { db } from '../../core/db/client';
+import { testDb, useTestDb } from '../../core/test/db';
+import { createUsersRepository } from '../users/users.repository';
+import { createProductsRepository } from './products.repository';
 import { products as productsTable } from '../../core/db/schema';
 import { eq } from 'drizzle-orm';
 
 useTestDb();
+
+const usersRepository = createUsersRepository(testDb);
+const productsRepository = createProductsRepository(testDb);
 
 const baseInput = {
   name: 'Toyota Avanza 2020',
@@ -70,7 +72,7 @@ describe('productsRepository.create', () => {
 // Helper: create a product then flip it to active + approved directly in the DB.
 async function createApproved(sellerId: string, overrides: Partial<typeof baseInput> = {}) {
   const { product } = await productsRepository.create({ sellerId, ...baseInput, ...overrides });
-  await db
+  await testDb
     .update(productsTable)
     .set({ listingStatus: 'active', approvalStatus: 'approved' })
     .where(eq(productsTable.id, product.id));
