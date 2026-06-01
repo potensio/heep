@@ -128,6 +128,7 @@ export function ProductDetailScreen({ id }: ProductDetailScreenProps) {
         product={productData}
         onSellerPress={() => router.push(`/user/${productData.sellerId}`)}
         footerContent={footerContent}
+        footerPaddingBottom={insets.bottom > 0 ? insets.bottom + 16 : 24}
       />
     </View>
   );

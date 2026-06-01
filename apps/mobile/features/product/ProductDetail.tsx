@@ -27,6 +27,7 @@ interface ProductDetailProps {
   isSaved?: boolean;
   onSaveToggle?: () => void;
   isSaving?: boolean;
+  footerPaddingBottom?: number;
 }
 
 function formatRupiah(value: number): string {
@@ -238,6 +239,7 @@ export function ProductDetail({
   isSaved = false,
   onSaveToggle,
   isSaving = false,
+  footerPaddingBottom = 16,
 }: ProductDetailProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -422,7 +424,10 @@ export function ProductDetail({
 
       {/* Footer */}
       {footerContent && (
-        <View className="px-5 py-4 bg-cream border-t border-gray-200">
+        <View
+          className="px-5 pt-4 pb-0 bg-cream border-t border-gray-200"
+          style={{ paddingBottom: footerPaddingBottom }}
+        >
           {footerContent}
         </View>
       )}
