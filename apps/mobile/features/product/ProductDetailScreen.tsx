@@ -3,6 +3,9 @@ import { useRouter } from "expo-router";
 import { Button } from "@/components/ui/Button";
 import { ProductDetail } from "./ProductDetail";
 import { useProduct } from "./hooks/useProduct";
+import { useIsSaved } from "./hooks/useIsSaved";
+import { useSaveProduct } from "@/features/saved/hooks/useSaveProduct";
+import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/lib/api";
 
 interface ProductDetailScreenProps {
@@ -11,7 +14,10 @@ interface ProductDetailScreenProps {
 
 export function ProductDetailScreen({ id }: ProductDetailScreenProps) {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const { data: product, isLoading, error } = useProduct(id);
+  const { data: isSaved = false } = useIsSaved(id);
+  const { save, unsave, isSaving, isUnsaving } = useSaveProduct(id);
 
   if (isLoading) {
     return (
@@ -42,6 +48,18 @@ export function ProductDetailScreen({ id }: ProductDetailScreenProps) {
     sellerName: product.seller.name ?? 'Penjual',
   };
 
+  const handleSaveToggle = async () => {
+    if (!isAuthenticated) {
+      router.push({ pathname: '/auth' as any, params: { returnTo: `/product/${id}` } });
+      return;
+    }
+    if (isSaved) {
+      await unsave();
+    } else {
+      await save();
+    }
+  };
+
   const footerContent = (
     <Button
       onPress={() => {
@@ -69,6 +87,9 @@ export function ProductDetailScreen({ id }: ProductDetailScreenProps) {
       product={productData}
       onSellerPress={() => router.push(`/user/${productData.sellerId}`)}
       footerContent={footerContent}
+      isSaved={isSaved}
+      onSaveToggle={handleSaveToggle}
+      isSaving={isSaving || isUnsaving}
     />
   );
 }

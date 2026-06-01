@@ -1,5 +1,6 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
-import { Heart, Share, CloseCircle } from "@solar-icons/react-native/Linear";
+import { Heart, CloseCircle } from "@solar-icons/react-native/Linear";
+import { HeartBold } from "@solar-icons/react-native/Bold";
 import { Avatar } from "@/components/ui/Avatar";
 import { useCallback, useRef, useState } from "react";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from "react-native-reanimated";
@@ -24,6 +25,9 @@ interface ProductDetailProps {
   showSeller?: boolean;
   onSellerPress?: () => void;
   footerContent?: React.ReactNode;
+  isSaved?: boolean;
+  onSaveToggle?: () => void;
+  isSaving?: boolean;
 }
 
 function formatRupiah(value: number): string {
@@ -147,6 +151,9 @@ export function ProductDetail({
   showSeller = true,
   onSellerPress,
   footerContent,
+  isSaved = false,
+  onSaveToggle,
+  isSaving = false,
 }: ProductDetailProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [previewVisible, setPreviewVisible] = useState(false);
@@ -211,6 +218,23 @@ export function ProductDetail({
 
   return (
     <View className="flex-1 bg-background">
+      {/* Header with save button */}
+      {onSaveToggle && (
+        <View className="absolute top-0 left-0 right-0 z-10 flex-row justify-end items-center px-4 py-3 pt-12">
+          <TouchableOpacity
+            onPress={onSaveToggle}
+            disabled={isSaving}
+            className="w-10 h-10 rounded-full bg-white/90 items-center justify-center shadow-sm"
+          >
+            {isSaved ? (
+              <HeartBold size={22} color="#FB2C36" />
+            ) : (
+              <Heart size={22} color="#374151" />
+            )}
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Main scrollable content */}
       <ScrollView className="flex-1" showsVerticalScrollIndicator={true} bounces={true}>
         {/* Image Carousel */}
