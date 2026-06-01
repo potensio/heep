@@ -159,3 +159,97 @@ export async function publishProduct(
   const product = await createProduct(token, { ...productPayload, photos: photoKeys });
   return product.id;
 }
+
+// --- Product read API ---
+
+async function get<T>(path: string): Promise<T> {
+  const res = await fetch(`${BASE}${path}`);
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new ApiError(res.status, text || `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+export interface ProductListItem {
+  id: string;
+  name: string;
+  price: number;
+  photos: { url: string; position: number }[];
+  category: string;
+  subcategory: string;
+  location: { name: string; lat: number; lng: number } | null;
+  seller: { id: string; name: string | null; avatarUrl: string | null };
+  createdAt: string;
+}
+
+export interface ProductDetailItem extends ProductListItem {
+  description: string;
+  attributes: Record<string, string | number>;
+  listingStatus: string;
+  approvalStatus: string;
+}
+
+export interface PublicSellerProfile {
+  id: string;
+  name: string | null;
+  avatarUrl: string | null;
+  createdAt: string;
+  activeListingCount: number;
+}
+
+export interface PaginatedItems<T> {
+  items: T[];
+  nextCursor: string | null;
+}
+
+export interface SearchParams {
+  q?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sortBy?: 'terbaru' | 'termurah' | 'termahal';
+}
+
+export async function fetchFeed(cursor?: string, limit?: number): Promise<PaginatedItems<ProductListItem>> {
+  const qs = new URLSearchParams();
+  if (cursor) qs.set('cursor', cursor);
+  if (limit) qs.set('limit', String(limit));
+  const q = qs.toString();
+  return get<PaginatedItems<ProductListItem>>(`/products/feed${q ? `?${q}` : ''}`);
+}
+
+export async function fetchSearch(
+  params: SearchParams,
+  cursor?: string,
+  limit?: number,
+): Promise<PaginatedItems<ProductListItem>> {
+  const qs = new URLSearchParams();
+  if (params.q) qs.set('q', params.q);
+  if (params.category) qs.set('category', params.category);
+  if (params.minPrice !== undefined) qs.set('minPrice', String(params.minPrice));
+  if (params.maxPrice !== undefined) qs.set('maxPrice', String(params.maxPrice));
+  if (params.sortBy) qs.set('sortBy', params.sortBy);
+  if (cursor) qs.set('cursor', cursor);
+  if (limit) qs.set('limit', String(limit));
+  return get<PaginatedItems<ProductListItem>>(`/products/search?${qs.toString()}`);
+}
+
+export async function fetchProduct(id: string): Promise<ProductDetailItem> {
+  const data = await get<{ product: ProductDetailItem }>(`/products/${id}`);
+  return data.product;
+}
+
+export async function fetchSeller(id: string): Promise<PublicSellerProfile> {
+  return get<PublicSellerProfile>(`/users/${id}`);
+}
+
+export async function fetchSellerProducts(
+  sellerId: string,
+  cursor?: string,
+): Promise<PaginatedItems<ProductListItem>> {
+  const qs = new URLSearchParams();
+  if (cursor) qs.set('cursor', cursor);
+  const q = qs.toString();
+  return get<PaginatedItems<ProductListItem>>(`/users/${sellerId}/products${q ? `?${q}` : ''}`);
+}
