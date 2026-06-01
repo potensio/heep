@@ -1,7 +1,7 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
 import { X } from "lucide-react-native";
 import { Avatar } from "@/components/ui/Avatar";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 
@@ -127,7 +127,26 @@ function ImagePreviewModal({
   initialIndex: number;
   onClose: () => void;
 }) {
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
   const flatListRef = useRef<FlatList>(null);
+
+  const handleScroll = useCallback((event: any) => {
+    const offsetX = event.nativeEvent.contentOffset.x;
+    const index = Math.round(offsetX / SCREEN_WIDTH);
+    setActiveIndex(index);
+  }, []);
+
+  const goToPrevious = useCallback(() => {
+    if (activeIndex > 0) {
+      flatListRef.current?.scrollToIndex({ index: activeIndex - 1, animated: true });
+    }
+  }, [activeIndex]);
+
+  const goToNext = useCallback(() => {
+    if (activeIndex < photos.length - 1) {
+      flatListRef.current?.scrollToIndex({ index: activeIndex + 1, animated: true });
+    }
+  }, [activeIndex, photos.length]);
 
   const getItemLayout = useCallback((_: any, index: number) => ({
     length: SCREEN_WIDTH,
@@ -138,6 +157,11 @@ function ImagePreviewModal({
   const renderPreviewItem = useCallback(({ item }: { item: string }) => (
     <PreviewItem uri={item} onClose={onClose} />
   ), [onClose]);
+
+  // Reset active index when modal opens with new initialIndex
+  useEffect(() => {
+    setActiveIndex(initialIndex);
+  }, [initialIndex]);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -151,14 +175,52 @@ function ImagePreviewModal({
           initialScrollIndex={initialIndex}
           getItemLayout={getItemLayout}
           showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
           renderItem={renderPreviewItem}
         />
+
+        {/* Tap zones for navigation */}
+        {photos.length > 1 && (
+          <>
+            {/* Left tap zone */}
+            <TouchableOpacity
+              onPress={goToPrevious}
+              className="absolute left-0 top-0 bottom-0 w-1/4"
+              activeOpacity={1}
+              style={{ backgroundColor: 'transparent' }}
+            />
+            {/* Right tap zone */}
+            <TouchableOpacity
+              onPress={goToNext}
+              className="absolute right-0 top-0 bottom-0 w-1/4"
+              activeOpacity={1}
+              style={{ backgroundColor: 'transparent' }}
+            />
+          </>
+        )}
+
+        {/* Close button */}
         <TouchableOpacity
           onPress={onClose}
           className="absolute top-12 right-4 w-10 h-10 rounded-full bg-white/20 items-center justify-center"
         >
           <X size={20} color="white" strokeWidth={2.5} />
         </TouchableOpacity>
+
+        {/* Dot indicators */}
+        {photos.length > 1 && (
+          <View className="absolute bottom-8 left-0 right-0 flex-row justify-center gap-2">
+            {photos.map((_, index) => (
+              <View
+                key={index}
+                className={`h-2 rounded-full ${
+                  activeIndex === index ? "w-4 bg-white" : "w-2 bg-white/50"
+                }`}
+              />
+            ))}
+          </View>
+        )}
       </View>
     </Modal>
   );
