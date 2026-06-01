@@ -80,8 +80,8 @@ function toListItem(row: ProductListRow): ProductListItem {
     category: row.category,
     subcategory: row.subcategory,
     location:
-      row.locationName != null
-        ? { name: row.locationName, lat: row.locationLat!, lng: row.locationLng! }
+      row.locationName != null && row.locationLat != null && row.locationLng != null
+        ? { name: row.locationName, lat: row.locationLat, lng: row.locationLng }
         : null,
     seller: row.seller,
     createdAt: row.createdAt.toISOString(),
@@ -101,8 +101,8 @@ function toDetailItem(row: ProductDetailRow): ProductDetailItem {
     listingStatus: row.listingStatus,
     approvalStatus: row.approvalStatus,
     location:
-      row.locationName != null
-        ? { name: row.locationName, lat: row.locationLat!, lng: row.locationLng! }
+      row.locationName != null && row.locationLat != null && row.locationLng != null
+        ? { name: row.locationName, lat: row.locationLat, lng: row.locationLng }
         : null,
     seller: row.seller,
     createdAt: row.createdAt.toISOString(),
