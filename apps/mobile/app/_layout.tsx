@@ -15,6 +15,8 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { FilterSheetProvider } from "@/features/search/context/FilterSheetContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { preloadAvatars } from "@/features/auth/components/AvatarSelector";
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import "../global.css";
 
 configureReanimatedLogger({
@@ -39,22 +41,24 @@ export default function RootLayout() {
   }
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <SafeAreaProvider>
-        <AuthProvider>
-          <FilterSheetProvider>
-            <BottomSheetModalProvider>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="(public)" />
-                <Stack.Screen name="(protected)" />
-                <Stack.Screen name="auth" />
-              </Stack>
-            </BottomSheetModalProvider>
-          </FilterSheetProvider>
-        </AuthProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={styles.container}>
+        <SafeAreaProvider>
+          <AuthProvider>
+            <FilterSheetProvider>
+              <BottomSheetModalProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen name="(public)" />
+                  <Stack.Screen name="(protected)" />
+                  <Stack.Screen name="auth" />
+                </Stack>
+              </BottomSheetModalProvider>
+            </FilterSheetProvider>
+          </AuthProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }
 
