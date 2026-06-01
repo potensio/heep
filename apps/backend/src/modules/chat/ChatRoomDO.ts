@@ -8,12 +8,15 @@ interface DOEnv {
 }
 
 export class ChatRoomDO {
-  private conversationId: string | null = null;
-
   constructor(
     private readonly state: DurableObjectState,
     private readonly env: DOEnv,
   ) {}
+
+  // Always read from state.id.name — instance vars are lost on hibernation wake-up
+  private get conversationId(): string | null {
+    return this.state.id.name ?? null;
+  }
 
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
@@ -21,9 +24,6 @@ export class ChatRoomDO {
     if (request.headers.get('Upgrade') !== 'websocket') {
       return new Response('Expected WebSocket', { status: 426 });
     }
-
-    // Conversation ID comes from the DO name (set via idFromName(conversationId) in routes)
-    this.conversationId = this.state.id.name ?? null;
 
     // Auth: JWT token passed as query param (WebSocket headers can't be set from React Native)
     const token = url.searchParams.get('token');

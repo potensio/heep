@@ -9,12 +9,35 @@ import type { Conversation } from '@/lib/types';
 
 const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8787';
 
+interface ApiConversationItem {
+  conversation: { id: string; updatedAt: string };
+  product: { id: string; name: string; price: number; imageUrl: string | null };
+  otherUser: { id: string; name: string | null; avatarUrl: string | null };
+  lastMessage: { id: string; conversationId: string; senderId: string; text: string | null; imageUrl: string | null; createdAt: string; readAt: string | null } | null;
+}
+
 async function fetchConversations(token: string): Promise<Conversation[]> {
   const res = await fetch(`${BASE}/chat/conversations`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json() as Promise<Conversation[]>;
+  const items = await res.json() as ApiConversationItem[];
+  return items.map(item => ({
+    id: item.conversation.id,
+    otherUser: { id: item.otherUser.id, name: item.otherUser.name ?? 'Pengguna', avatar: item.otherUser.avatarUrl ?? undefined },
+    product: { id: item.product.id, name: item.product.name, price: item.product.price, image: item.product.imageUrl ?? '' },
+    lastMessage: item.lastMessage ? {
+      id: item.lastMessage.id,
+      conversationId: item.lastMessage.conversationId,
+      senderId: item.lastMessage.senderId,
+      text: item.lastMessage.text ?? undefined,
+      image: item.lastMessage.imageUrl ?? undefined,
+      timestamp: new Date(item.lastMessage.createdAt),
+      isRead: !!item.lastMessage.readAt,
+    } : null as any,
+    unreadCount: 0,
+    updatedAt: new Date(item.conversation.updatedAt),
+  }));
 }
 
 export function ConversationListScreen() {
@@ -29,7 +52,17 @@ export function ConversationListScreen() {
   });
 
   const handleConversationPress = (conversation: Conversation) => {
-    router.push(`/chat/${conversation.id}`);
+    router.push({
+      pathname: `/chat/${conversation.id}` as any,
+      params: {
+        sellerId: conversation.otherUser.id,
+        sellerName: conversation.otherUser.name,
+        productId: conversation.product.id,
+        productName: conversation.product.name,
+        productPrice: String(conversation.product.price),
+        productImage: conversation.product.image,
+      },
+    });
   };
 
   const hasConversations = conversations.length > 0;

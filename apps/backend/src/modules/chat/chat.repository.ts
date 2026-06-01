@@ -1,6 +1,6 @@
-import { and, desc, eq, or } from 'drizzle-orm';
+import { and, asc, desc, eq, or } from 'drizzle-orm';
 import type { Database } from '../../core/db/client';
-import { conversations, messages, products, users } from '../../core/db/schema';
+import { conversations, messages, productImages, products, users } from '../../core/db/schema';
 
 export type Conversation = typeof conversations.$inferSelect;
 export type Message = typeof messages.$inferSelect;
@@ -20,7 +20,7 @@ export interface CreateMessageInput {
 
 export interface ConversationWithContext {
   conversation: Conversation;
-  product: { id: string; name: string; price: number };
+  product: { id: string; name: string; price: number; imageUrl: string | null };
   otherUser: { id: string; name: string | null; avatarUrl: string | null };
   lastMessage: Message | null;
 }
@@ -101,7 +101,17 @@ export function createChatRepository(db: Database): ChatRepository {
           .where(eq(messages.conversationId, row.conversation.id))
           .orderBy(desc(messages.createdAt))
           .limit(1);
-        result.push({ ...row, lastMessage: lastMessage ?? null });
+        const [firstImage] = await db
+          .select({ url: productImages.url })
+          .from(productImages)
+          .where(eq(productImages.productId, row.product.id))
+          .orderBy(asc(productImages.position))
+          .limit(1);
+        result.push({
+          ...row,
+          product: { ...row.product, imageUrl: firstImage?.url ?? null },
+          lastMessage: lastMessage ?? null,
+        });
       }
       return result;
     },

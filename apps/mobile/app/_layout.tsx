@@ -13,8 +13,8 @@ import {
 import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { FilterSheetProvider } from "@/features/search/context/FilterSheetContext";
+import { AvatarSheetProvider, preloadAvatars } from "@/features/auth/components/AvatarSheetContext";
 import { AuthProvider } from "@/context/AuthContext";
-import { preloadAvatars } from "@/features/auth/components/AvatarSelector";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import "../global.css";
@@ -46,14 +46,16 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <AuthProvider>
             <FilterSheetProvider>
-              <BottomSheetModalProvider>
+              <AvatarSheetProvider>
+                <BottomSheetModalProvider>
                 <Stack screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="(tabs)" />
                   <Stack.Screen name="(public)" />
                   <Stack.Screen name="(protected)" />
                   <Stack.Screen name="auth" />
                 </Stack>
-              </BottomSheetModalProvider>
+                </BottomSheetModalProvider>
+              </AvatarSheetProvider>
             </FilterSheetProvider>
           </AuthProvider>
         </SafeAreaProvider>

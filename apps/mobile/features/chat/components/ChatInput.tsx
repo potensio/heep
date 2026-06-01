@@ -5,12 +5,13 @@ import { Camera } from "@solar-icons/react-native/Linear";
 
 interface ChatInputProps {
   onSend: (text: string, image?: string) => void;
+  disabled?: boolean;
 }
 
 const INPUT_HEIGHT = 44;
 const ICON_SIZE = 20;
 
-export function ChatInput({ onSend }: ChatInputProps) {
+export function ChatInput({ onSend, disabled = false }: ChatInputProps) {
   const insets = useSafeAreaInsets();
   const [text, setText] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -49,7 +50,7 @@ export function ChatInput({ onSend }: ChatInputProps) {
     setSelectedImage(randomImage);
   };
 
-  const canSend = text.trim().length > 0 || selectedImage;
+  const canSend = !disabled && (text.trim().length > 0 || !!selectedImage);
 
   const bottomPadding = isKeyboardVisible ? 8 : (insets.bottom > 0 ? insets.bottom : 12);
 
@@ -58,6 +59,11 @@ export function ChatInput({ onSend }: ChatInputProps) {
       className="bg-background border-t border-neutral-200"
       style={{ paddingBottom: bottomPadding }}
     >
+      {disabled && (
+        <View className="px-4 pt-2">
+          <Text className="text-xs text-neutral-400 text-center">Menghubungkan ulang...</Text>
+        </View>
+      )}
       {selectedImage && (
         <View className="px-4 pt-3 relative">
           <Image
@@ -88,13 +94,14 @@ export function ChatInput({ onSend }: ChatInputProps) {
           <TextInput
             value={text}
             onChangeText={setText}
-            placeholder="Tulis pesan..."
+            placeholder={disabled ? 'Tidak terhubung' : 'Tulis pesan...'}
             placeholderTextColor="#9CA3AF"
             className="text-base text-neutral-900"
             maxLength={1000}
             returnKeyType="send"
             onSubmitEditing={handleSend}
-            style={{ paddingVertical: 0, lineHeight: 18, fontSize: 16 }}
+            editable={!disabled}
+            style={{ paddingVertical: 0, lineHeight: 18, fontSize: 16, opacity: disabled ? 0.4 : 1 }}
           />
         </View>
       </View>

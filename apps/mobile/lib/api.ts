@@ -318,6 +318,13 @@ export async function fetchSavedProducts(
   return res.json() as Promise<PaginatedItems<SavedProductItem>>;
 }
 
+export async function startConversation(
+  token: string,
+  input: { productId: string; sellerId: string },
+): Promise<{ id: string }> {
+  return authPost<{ id: string }>('/chat/conversations', token, input);
+}
+
 export async function checkIsSaved(token: string, productId: string): Promise<boolean> {
   const res = await fetch(`${BASE}/saved-products/${productId}`, {
     headers: { Authorization: `Bearer ${token}` },

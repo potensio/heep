@@ -1,4 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Button } from '@/components/ui/Button';
 import { useState, useEffect } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeft } from '@solar-icons/react-native/Linear';
@@ -96,16 +97,15 @@ export function OtpScreen({ email, onSuccess, onBack }: OtpScreenProps) {
             )}
           </View>
 
-          <TouchableOpacity
+          <Button
             onPress={handleVerify}
-            disabled={!isComplete || isLoading}
-            className={`rounded-xl py-4 items-center mb-4 ${isComplete && !isLoading ? 'bg-black' : 'bg-gray-300'}`}
-            activeOpacity={0.8}
+            disabled={!isComplete}
+            loading={isLoading}
+            size="lg"
+            style={{ marginBottom: 16 }}
           >
-            <Text className={`text-base font-semibold ${isComplete && !isLoading ? 'text-white' : 'text-gray-500'}`}>
-              {isLoading ? 'Memverifikasi...' : 'Verifikasi'}
-            </Text>
-          </TouchableOpacity>
+            {isLoading ? 'Memverifikasi...' : 'Verifikasi'}
+          </Button>
 
           <View className="flex-row justify-center items-center">
             <Text className="text-sm text-gray-600">Tidak menerima kode? </Text>

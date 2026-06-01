@@ -1,11 +1,9 @@
 import { View, Text, FlatList, ActivityIndicator, RefreshControl } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { useSavedProducts } from "./hooks/useSavedProducts";
 import { ProductCard } from "@/features/search/components/ProductCard";
 
 export function SavedProductsScreen() {
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { data, isLoading, error, fetchMore, hasMore, refetch } = useSavedProducts();
 
@@ -40,7 +38,7 @@ export function SavedProductsScreen() {
         keyExtractor={(item) => item.id}
         numColumns={2}
         columnWrapperClassName="px-4 justify-between"
-        contentContainerStyle={{ paddingTop: insets.top > 0 ? insets.top : 24, paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 100 }}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
         renderItem={({ item }) => (
           <ProductCard

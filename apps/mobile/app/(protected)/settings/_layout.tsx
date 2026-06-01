@@ -72,6 +72,18 @@ export default function SettingsLayout() {
           ),
         }}
       />
+      <Stack.Screen
+        name="saved"
+        options={{
+          title: "Produk disimpan",
+          headerBackVisible: false,
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} className="px-2">
+              <ArrowLeft size={24} color="#0A0A0A" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack>
   );
 }

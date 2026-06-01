@@ -119,7 +119,7 @@ export function ChatRoomScreen({ conversation }: ChatRoomScreenProps) {
         )}
       </ScrollView>
 
-      <ChatInput onSend={send} />
+      <ChatInput onSend={send} disabled={status !== 'connected'} />
     </KeyboardAvoidingView>
   );
 }

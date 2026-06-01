@@ -1,6 +1,7 @@
 // features/auth/components/EmailInput.tsx
-import { View, TextInput, Platform } from 'react-native';
-import { useState } from 'react';
+import { View, TextInput, Platform } from "react-native";
+import { useState } from "react";
+import { Letter } from "@solar-icons/react-native/Bold";
 
 interface EmailInputProps {
   value: string;
@@ -11,7 +12,12 @@ interface EmailInputProps {
 
 const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
 
-export function EmailInput({ value, onChangeText, onSubmit, disabled }: EmailInputProps) {
+export function EmailInput({
+  value,
+  onChangeText,
+  onSubmit,
+  disabled,
+}: EmailInputProps) {
   const [isFocused, setIsFocused] = useState(false);
 
   const handleSubmit = () => {
@@ -23,11 +29,16 @@ export function EmailInput({ value, onChangeText, onSubmit, disabled }: EmailInp
   return (
     <View
       className={`
-        bg-white rounded-xl border
-        ${isFocused ? 'border-primary' : 'border-gray-200'}
+        rounded-xl border-2
+        ${disabled ? "bg-gray-100 border-gray-200" : "bg-white"}
+        ${isFocused && !disabled ? "border-primary" : ""}
+        ${!isFocused && !disabled ? "border-neutral-900" : ""}
       `}
-      style={{ height: 52, justifyContent: 'center' }}
+      style={{ height: 52, flexDirection: "row", alignItems: "center" }}
     >
+      <View style={{ paddingLeft: 16 }}>
+        <Letter size={20} color={disabled ? "#9CA3AF" : isFocused ? "#ED4304" : "#171717"} />
+      </View>
       <TextInput
         value={value}
         onChangeText={onChangeText}
@@ -41,10 +52,15 @@ export function EmailInput({ value, onChangeText, onSubmit, disabled }: EmailInp
         autoCorrect={false}
         editable={!disabled}
         style={{
-          fontSize: 16,
-          paddingHorizontal: 16,
-          height: '100%',
-          ...(Platform.OS === 'android' ? { includeFontPadding: false, textAlignVertical: 'center' } : {}),
+          fontSize: 18,
+          paddingHorizontal: 12,
+          paddingRight: 16,
+          flex: 1,
+          height: "100%",
+          color: disabled ? "#9CA3AF" : "#111827",
+          ...(Platform.OS === "android"
+            ? { includeFontPadding: false, textAlignVertical: "center" }
+            : {}),
         }}
         returnKeyType="done"
       />

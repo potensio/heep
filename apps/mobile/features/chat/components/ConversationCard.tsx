@@ -75,15 +75,17 @@ export function ConversationCard({ conversation, onPress }: ConversationCardProp
           <Text className="text-base font-semibold text-neutral-900" numberOfLines={1}>
             {otherUser.name}
           </Text>
-          <Text className="text-xs text-neutral-400">
-            {formatRelativeTime(lastMessage.timestamp)}
-          </Text>
+          {lastMessage && (
+            <Text className="text-xs text-neutral-400">
+              {formatRelativeTime(lastMessage.timestamp)}
+            </Text>
+          )}
         </View>
         <Text
           className={`text-sm ${unreadCount > 0 ? 'text-neutral-800 font-medium' : 'text-neutral-500'}`}
           numberOfLines={1}
         >
-          {lastMessage.image ? '📷 Foto' : lastMessage.text}
+          {lastMessage ? (lastMessage.image ? '📷 Foto' : lastMessage.text) : 'Belum ada pesan'}
         </Text>
       </View>
     </TouchableOpacity>

@@ -1,14 +1,22 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from "react";
 import {
-  View, Text, TextInput, TouchableOpacity,
-  FlatList, StyleSheet, ActivityIndicator,
-  Modal, Pressable, Animated, Keyboard,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { MapPoint, CloseSquare } from '@solar-icons/react-native/Linear';
-import { searchCities, getCityLocation } from '@/lib/googlePlaces';
-import type { Location } from '@/lib/types';
-import type { PlaceSuggestion } from '@/lib/googlePlaces';
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  Animated,
+  Keyboard,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { MapPointWave, CloseSquare } from "@solar-icons/react-native/Linear";
+import { searchCities, getCityLocation } from "@/lib/googlePlaces";
+import type { Location } from "@/lib/types";
+import type { PlaceSuggestion } from "@/lib/googlePlaces";
 
 interface CityPickerProps {
   value: Location | null;
@@ -18,7 +26,7 @@ interface CityPickerProps {
 
 export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
   const insets = useSafeAreaInsets();
-  const [query, setQuery] = useState(value?.name ?? '');
+  const [query, setQuery] = useState(value?.name ?? "");
   const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
@@ -43,10 +51,10 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
   }, []);
 
   useEffect(() => {
-    const showListener = Keyboard.addListener('keyboardWillShow', (e) => {
+    const showListener = Keyboard.addListener("keyboardWillShow", (e) => {
       setKeyboardHeight(e.endCoordinates.height);
     });
-    const hideListener = Keyboard.addListener('keyboardWillHide', () => {
+    const hideListener = Keyboard.addListener("keyboardWillHide", () => {
       setKeyboardHeight(0);
     });
     return () => {
@@ -71,7 +79,7 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
     ]).start(() => onClose());
   }, [onClose, backdropOpacity, sheetTranslateY]);
 
-  const lastQueryRef = useRef('');
+  const lastQueryRef = useRef("");
 
   const handleChangeText = useCallback(async (text: string) => {
     setQuery(text);
@@ -93,14 +101,20 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
     }
   }, []);
 
-  const handleSelect = useCallback(async (suggestion: PlaceSuggestion) => {
-    try {
-      const location = await getCityLocation(suggestion.placeId, suggestion.name);
-      onSelect(location);
-    } catch {
-      // stays open so user can retry
-    }
-  }, [onSelect]);
+  const handleSelect = useCallback(
+    async (suggestion: PlaceSuggestion) => {
+      try {
+        const location = await getCityLocation(
+          suggestion.placeId,
+          suggestion.name,
+        );
+        onSelect(location);
+      } catch {
+        // stays open so user can retry
+      }
+    },
+    [onSelect],
+  );
 
   return (
     <Modal
@@ -113,7 +127,7 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
       <Animated.View
         style={{
           flex: 1,
-          backgroundColor: 'black',
+          backgroundColor: "black",
           opacity: backdropOpacity.interpolate({
             inputRange: [0, 1],
             outputRange: [0, 0.5],
@@ -125,7 +139,7 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
 
       <Animated.View
         style={{
-          position: 'absolute',
+          position: "absolute",
           bottom: 0,
           left: 0,
           right: 0,
@@ -149,7 +163,7 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
 
           {/* Search input */}
           <View style={styles.inputRow}>
-            <MapPoint size={18} color="#9CA3AF" />
+            <MapPointWave size={18} color="#9CA3AF" />
             <TextInput
               style={styles.input}
               placeholder="Cari kota..."
@@ -162,23 +176,41 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
           </View>
 
           {/* Results */}
-          <FlatList
-            data={suggestions}
-            keyExtractor={(item) => item.placeId}
-            keyboardShouldPersistTaps="handled"
-            style={{ maxHeight: 240 }}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.resultItem} onPress={() => handleSelect(item)}>
-                <MapPoint size={16} color="#6B7280" />
-                <Text style={styles.resultText}>{item.name}</Text>
-              </TouchableOpacity>
-            )}
-            ListEmptyComponent={
-              query.length >= 2 && !isLoading ? (
-                <Text style={styles.emptyText}>Kota tidak ditemukan</Text>
-              ) : null
-            }
-          />
+          <View style={styles.resultsContainer}>
+            <FlatList
+              data={suggestions}
+              keyExtractor={(item) => item.placeId}
+              keyboardShouldPersistTaps="handled"
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.resultItem}
+                  onPress={() => handleSelect(item)}
+                >
+                  <MapPointWave size={16} color="#6B7280" />
+                  <Text style={styles.resultText}>{item.name}</Text>
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={
+                query.length >= 2 && !isLoading ? (
+                  <View style={styles.emptyState}>
+                    <View style={styles.emptyStateIcon}>
+                      <MapPointWave size={32} color="#9CA3AF" />
+                    </View>
+                    <Text style={styles.emptyStateTitle}>Kota tidak ditemukan</Text>
+                    <Text style={styles.emptyStateSubtitle}>Coba kata kunci lain</Text>
+                  </View>
+                ) : query.length < 2 ? (
+                  <View style={styles.emptyState}>
+                    <View style={styles.emptyStateIcon}>
+                      <MapPointWave size={32} color="#9CA3AF" />
+                    </View>
+                    <Text style={styles.emptyStateTitle}>Cari kotamu</Text>
+                    <Text style={styles.emptyStateSubtitle}>Ketik nama kota untuk mulai mencari</Text>
+                  </View>
+                ) : null
+              }
+            />
+          </View>
         </View>
       </Animated.View>
     </Modal>
@@ -187,41 +219,68 @@ export function CityPicker({ value, onSelect, onClose }: CityPickerProps) {
 
 const styles = StyleSheet.create({
   sheet: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
     paddingBottom: 8,
   },
-  handleRow: { alignItems: 'center', paddingVertical: 12 },
-  handle: { width: 40, height: 4, backgroundColor: '#D1D5DB', borderRadius: 2 },
+  handleRow: { alignItems: "center", paddingVertical: 12 },
+  handle: { width: 40, height: 4, backgroundColor: "#D1D5DB", borderRadius: 2 },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 16,
   },
-  title: { fontSize: 20, fontFamily: 'Fjalla-One' },
+  title: { fontSize: 20, fontFamily: "Fjalla-One" },
   inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#D1D5DB',
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#111827",
     borderRadius: 12,
     height: 48,
     paddingHorizontal: 12,
     marginBottom: 12,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   input: { flex: 1, marginLeft: 8, fontSize: 16 },
+  resultsContainer: {
+    minHeight: 120,
+    maxHeight: 240,
+  },
   resultItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: "#F3F4F6",
   },
-  resultText: { fontSize: 16, color: '#111827' },
-  emptyText: { color: '#9CA3AF', textAlign: 'center', marginTop: 24, marginBottom: 16 },
+  resultText: { fontSize: 16, color: "#111827" },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 24,
+  },
+  emptyStateIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: "#F5F5F5",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  emptyStateTitle: {
+    fontSize: 16,
+    fontFamily: "Plus-Jakarta-Sans-SemiBold",
+    color: "#262626",
+    marginBottom: 4,
+  },
+  emptyStateSubtitle: {
+    fontSize: 14,
+    color: "#9CA3AF",
+  },
 });

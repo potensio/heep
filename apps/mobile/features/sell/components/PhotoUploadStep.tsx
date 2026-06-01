@@ -1,8 +1,7 @@
 // features/sell/components/PhotoUploadStep.tsx
-import { View, Text, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { View, Text, Alert, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
-import { ArrowRight } from "@solar-icons/react-native/Linear";
 import { Button } from "@/components/ui/Button";
 import { PhotoGrid } from "./PhotoGrid";
 import type { PhotoUploadStepProps } from "../types";
@@ -35,28 +34,19 @@ export function PhotoUploadStep({
     });
 
     if (!result.canceled && result.assets) {
-      const newPhotos = result.assets.map((asset) => asset.uri);
-      onPhotosChange([...photos, ...newPhotos]);
+      onPhotosChange([...photos, ...result.assets.map((a) => a.uri)]);
     }
   };
 
   const handleRemovePhoto = (index: number) => {
-    const newPhotos = photos.filter((_, i) => i !== index);
-    onPhotosChange(newPhotos);
+    onPhotosChange(photos.filter((_, i) => i !== index));
   };
 
-  const handleNext = () => {
-    if (photos.length < 1) {
-      Alert.alert(
-        "Foto Diperlukan",
-        "Tambahkan minimal 1 foto untuk melanjutkan",
-      );
-      return;
-    }
-    onNext();
+  const handleSetCover = (index: number) => {
+    const next = [...photos];
+    const [picked] = next.splice(index, 1);
+    onPhotosChange([picked, ...next]);
   };
-
-  const canProceed = photos.length >= 1;
 
   return (
     <View className="flex-1 bg-background">
@@ -77,6 +67,8 @@ export function PhotoUploadStep({
           photos={photos}
           onAddPhoto={handleAddPhoto}
           onRemovePhoto={handleRemovePhoto}
+          onSetCover={handleSetCover}
+          onReorder={onPhotosChange}
           maxPhotos={6}
         />
 
@@ -87,12 +79,11 @@ export function PhotoUploadStep({
         )}
       </ScrollView>
 
-      {/* Footer with CTA */}
       <View
-        className="absolute bottom-0 left-0 right-0 bg-background px-5 pt-4 pb-6 border-t border-gray-100"
+        className="absolute bottom-0 left-0 right-0 bg-background px-5 pt-4 border-t border-gray-100"
         style={{ paddingBottom: Math.max(insets.bottom + 16, 24) }}
       >
-        <Button onPress={handleNext} disabled={!canProceed} style={{ flex: 1 }}>
+        <Button onPress={onNext} disabled={photos.length < 1}>
           Lanjut
         </Button>
       </View>
