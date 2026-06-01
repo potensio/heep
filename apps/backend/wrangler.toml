@@ -3,6 +3,9 @@ main = "src/index.ts"
 compatibility_date = "2024-11-01"
 compatibility_flags = ["nodejs_compat"]
 
+[dev]
+ip = "0.0.0.0"
+
 [vars]
 ACCESS_TOKEN_TTL = "900"
 REFRESH_TOKEN_TTL = "2592000"

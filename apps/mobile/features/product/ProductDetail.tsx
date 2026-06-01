@@ -1,6 +1,5 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
-import { Heart, CloseCircle } from "@solar-icons/react-native/Linear";
-import { Hearts } from "@solar-icons/react-native/Bold";
+import { CloseCircle } from "@solar-icons/react-native/Linear";
 import { Avatar } from "@/components/ui/Avatar";
 import { useCallback, useRef, useState } from "react";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from "react-native-reanimated";
@@ -218,23 +217,6 @@ export function ProductDetail({
 
   return (
     <View className="flex-1 bg-background">
-      {/* Header with save button */}
-      {onSaveToggle && (
-        <View className="absolute top-0 left-0 right-0 z-10 flex-row justify-end items-center px-4 py-3 pt-12">
-          <TouchableOpacity
-            onPress={onSaveToggle}
-            disabled={isSaving}
-            className="w-10 h-10 rounded-full bg-white/90 items-center justify-center shadow-sm"
-          >
-            {isSaved ? (
-              <Hearts size={22} color="#FB2C36" />
-            ) : (
-              <Heart size={22} color="#374151" />
-            )}
-          </TouchableOpacity>
-        </View>
-      )}
-
       {/* Main scrollable content */}
       <ScrollView className="flex-1" showsVerticalScrollIndicator={true} bounces={true}>
         {/* Image Carousel */}

@@ -1,6 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
 import { Platform, TouchableOpacity, View } from 'react-native';
-import { Heart, Share, ArrowLeft } from '@solar-icons/react-native/Linear';
+import { Share, ArrowLeft } from '@solar-icons/react-native/Linear';
 
 export default function PublicLayout() {
   const router = useRouter();
@@ -25,23 +25,7 @@ export default function PublicLayout() {
       <Stack.Screen
         name="product/[id]"
         options={{
-          title: '',
-          headerBackVisible: false,
-          headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} className="px-2">
-              <ArrowLeft size={24} color="#0A0A0A" />
-            </TouchableOpacity>
-          ),
-          headerRight: () => (
-            <View className="flex-row gap-2">
-              <TouchableOpacity onPress={() => {}} className="p-1">
-                <Share size={22} color="#0A0A0A" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => {}} className="p-1">
-                <Heart size={22} color="#0A0A0A" />
-              </TouchableOpacity>
-            </View>
-          ),
+          headerShown: false,
         }}
       />
       <Stack.Screen

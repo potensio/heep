@@ -5,6 +5,7 @@ import {
   Image,
   DimensionValue,
 } from "react-native";
+import { useRef } from "react";
 import { ArrowRight, User, MapPoint } from "@solar-icons/react-native/Linear";
 import type { Product } from "@/lib/types";
 
@@ -23,6 +24,15 @@ export function ProductCard({
   width = "48%",
   marginRight = 0,
 }: ProductCardProps) {
+  const lastPress = useRef(0);
+
+  const handlePress = () => {
+    const now = Date.now();
+    if (now - lastPress.current < 500) return;
+    lastPress.current = now;
+    onPress();
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -33,7 +43,7 @@ export function ProductCard({
 
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={handlePress}
       className="mb-4"
       style={{ width, marginRight }}
       activeOpacity={0.9}

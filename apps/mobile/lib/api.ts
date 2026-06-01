@@ -313,10 +313,10 @@ export async function fetchSavedProducts(
 }
 
 export async function checkIsSaved(token: string, productId: string): Promise<boolean> {
-  const res = await fetch(`${BASE}/saved-products`, {
+  const res = await fetch(`${BASE}/saved-products/${productId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) return false;
-  const data = await res.json() as PaginatedItems<SavedProductItem>;
-  return data.items.some(item => item.id === productId);
+  const data = await res.json();
+  return data.saved === true;
 }

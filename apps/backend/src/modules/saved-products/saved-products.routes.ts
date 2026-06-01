@@ -21,6 +21,13 @@ savedProductsRoutes.delete('/:productId', async (c) => {
   return c.body(null, 204);
 });
 
+savedProductsRoutes.get('/:productId', async (c) => {
+  const userId = c.get('user').id;
+  const productId = c.req.param('productId');
+  const saved = await c.get('savedProductsService').isSaved(userId, productId);
+  return c.json({ saved });
+});
+
 savedProductsRoutes.get('/', async (c) => {
   const userId = c.get('user').id;
   const cursor = c.req.query('cursor');
