@@ -99,8 +99,8 @@ export function ProductDetailScreen({ id }: ProductDetailScreenProps) {
   return (
     <View className="flex-1 bg-background">
       {/* Custom Header */}
-      <View 
-        className="absolute top-0 left-0 right-0 z-50 flex-row items-center justify-between px-4 pb-3 bg-background"
+      <View
+        className="flex-row items-center justify-between px-4 pb-3 bg-background"
         style={{ paddingTop: insets.top > 0 ? insets.top : 12 }}
       >
         <TouchableOpacity onPress={() => router.back()} className="p-1">
@@ -110,9 +110,9 @@ export function ProductDetailScreen({ id }: ProductDetailScreenProps) {
           <TouchableOpacity onPress={() => {}} className="p-1">
             <Share size={22} color="#0A0A0A" />
           </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={handleSaveToggle} 
-            disabled={isSaving || isUnsaving} 
+          <TouchableOpacity
+            onPress={handleSaveToggle}
+            disabled={isSaving || isUnsaving}
             className="p-1"
           >
             {isSaved ? (
