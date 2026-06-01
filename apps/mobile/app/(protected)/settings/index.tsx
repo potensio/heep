@@ -10,7 +10,7 @@ export default function SettingsIndex() {
     <SettingsScreen
       onNavigateToProfile={() => router.push('/(protected)/settings/profil')}
       onNavigateToPhone={() => router.push('/(protected)/settings/handphone')}
-      onNavigateToSecurity={() => router.push('/(protected)/settings/keamanan')}
+      onNavigateToSaved={() => router.push('/(protected)/settings/saved')}
       onNavigateToNotifications={() => router.push('/(protected)/settings/notifikasi')}
       onLogout={() => {
         logout();

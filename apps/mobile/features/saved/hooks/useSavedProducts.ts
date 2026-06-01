@@ -13,7 +13,7 @@ function normalize(item: SavedProductItem): Product {
     seller: item.seller.name ?? '',
     sellerId: item.seller.id,
     category: item.category,
-    location: item.location ?? undefined,
+    location: item.location ? { name: item.location.name, placeId: '', lat: item.location.lat, lng: item.location.lng } : undefined,
   };
 }
 

@@ -1,6 +1,6 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
 import { Heart, CloseCircle } from "@solar-icons/react-native/Linear";
-import { HeartBold } from "@solar-icons/react-native/Bold";
+import { Hearts } from "@solar-icons/react-native/Bold";
 import { Avatar } from "@/components/ui/Avatar";
 import { useCallback, useRef, useState } from "react";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from "react-native-reanimated";
@@ -227,7 +227,7 @@ export function ProductDetail({
             className="w-10 h-10 rounded-full bg-white/90 items-center justify-center shadow-sm"
           >
             {isSaved ? (
-              <HeartBold size={22} color="#FB2C36" />
+              <Hearts size={22} color="#FB2C36" />
             ) : (
               <Heart size={22} color="#374151" />
             )}
