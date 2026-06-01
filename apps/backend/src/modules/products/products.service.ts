@@ -42,7 +42,7 @@ function validateCategoryAndAttributes(
 }
 
 function validatePhotoKeys(keys: string[]): void {
-  const invalid = keys.filter(k => !k.startsWith('products/uploads/'));
+  const invalid = keys.filter(k => !k.startsWith('products/uploads/') || k.includes('..'));
   if (invalid.length > 0) throw new ValidationError('Invalid photo keys');
 }
 
@@ -76,7 +76,7 @@ export function createProductsService(deps: ProductsDeps) {
         sellerId,
         name: input.name,
         price: input.price,
-        description: input.description ?? '',
+        description: input.description,
         category: input.category,
         subcategory: input.subcategory,
         attributes: input.attributes,

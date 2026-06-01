@@ -147,6 +147,9 @@ export async function publishProduct(
   productPayload: Omit<Parameters<typeof createProduct>[1], 'photos'>,
 ): Promise<string> {
   const uploads = await presignImages(token, localPhotoUris.length);
+  if (uploads.length !== localPhotoUris.length) {
+    throw new ApiError(500, 'Presign returned wrong number of URLs');
+  }
   await Promise.all(
     localPhotoUris.map((uri, i) => uploadPhotoToR2(uri, uploads[i].uploadUrl)),
   );

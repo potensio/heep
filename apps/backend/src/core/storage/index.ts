@@ -37,6 +37,7 @@ export class R2StorageService implements StorageService {
   }
 
   keyToPublicUrl(key: string): string {
+    if (!env.R2_PUBLIC_URL) throw new Error('R2_PUBLIC_URL is not configured');
     return `${env.R2_PUBLIC_URL}/${key}`;
   }
 }
