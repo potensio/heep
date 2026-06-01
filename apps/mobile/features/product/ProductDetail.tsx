@@ -1,5 +1,5 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, FlatList, Dimensions, Modal } from "react-native";
-import { X } from "lucide-react-native";
+import { X, ChevronLeft, ChevronRight } from "lucide-react-native";
 import { Avatar } from "@/components/ui/Avatar";
 import { useCallback, useRef, useState, useEffect } from "react";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from "react-native-reanimated";
@@ -180,23 +180,27 @@ function ImagePreviewModal({
           renderItem={renderPreviewItem}
         />
 
-        {/* Tap zones for navigation */}
+        {/* Navigation arrows */}
         {photos.length > 1 && (
           <>
-            {/* Left tap zone */}
-            <TouchableOpacity
-              onPress={goToPrevious}
-              className="absolute left-0 top-0 bottom-0 w-1/4"
-              activeOpacity={1}
-              style={{ backgroundColor: 'transparent' }}
-            />
-            {/* Right tap zone */}
-            <TouchableOpacity
-              onPress={goToNext}
-              className="absolute right-0 top-0 bottom-0 w-1/4"
-              activeOpacity={1}
-              style={{ backgroundColor: 'transparent' }}
-            />
+            {/* Left arrow */}
+            {activeIndex > 0 && (
+              <TouchableOpacity
+                onPress={goToPrevious}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 items-center justify-center"
+              >
+                <ChevronLeft size={24} color="white" strokeWidth={2.5} />
+              </TouchableOpacity>
+            )}
+            {/* Right arrow */}
+            {activeIndex < photos.length - 1 && (
+              <TouchableOpacity
+                onPress={goToNext}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 items-center justify-center"
+              >
+                <ChevronRight size={24} color="white" strokeWidth={2.5} />
+              </TouchableOpacity>
+            )}
           </>
         )}
 
