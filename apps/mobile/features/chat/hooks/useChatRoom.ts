@@ -5,18 +5,30 @@ import type { Message } from '@/lib/types';
 const BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8787';
 const WS_BASE = BASE.replace(/^http/, 'ws');
 
-export type ChatStatus = 'connecting' | 'connected' | 'disconnected';
+export type ChatStatus = 'connecting' | 'connected' | 'disconnected' | 'auth_error';
 
 export function useChatRoom(conversationId: string) {
-  const { token } = useAuth();
+  const { getValidToken, logout } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [status, setStatus] = useState<ChatStatus>('connecting');
   const wsRef = useRef<WebSocket | null>(null);
   const retryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const authFailedRef = useRef(false);
 
-  const connect = useCallback(() => {
-    if (!token) return;
-    const url = `${WS_BASE}/chat/conversations/${conversationId}/ws?token=${token}`;
+  const connect = useCallback(async () => {
+    if (authFailedRef.current) return;
+
+    let freshToken: string;
+    try {
+      freshToken = await getValidToken();
+    } catch {
+      authFailedRef.current = true;
+      setStatus('auth_error');
+      logout();
+      return;
+    }
+
+    const url = `${WS_BASE}/chat/conversations/${conversationId}/ws?token=${freshToken}`;
     const ws = new WebSocket(url);
 
     ws.onopen = () => setStatus('connected');
@@ -24,9 +36,7 @@ export function useChatRoom(conversationId: string) {
     ws.onmessage = (e) => {
       const event = JSON.parse(e.data as string);
       if (event.type === 'history') {
-        setMessages(
-          (event.messages as any[]).map(normalizeMessage),
-        );
+        setMessages((event.messages as any[]).map(normalizeMessage));
       } else if (event.type === 'message') {
         setMessages((prev) => [...prev, normalizeMessage(event)]);
       }
@@ -34,16 +44,17 @@ export function useChatRoom(conversationId: string) {
 
     ws.onclose = (e) => {
       setStatus('disconnected');
-      if (e.code !== 1000) {
+      if (e.code !== 1000 && !authFailedRef.current) {
         retryRef.current = setTimeout(connect, 3000);
       }
     };
 
     ws.onerror = () => ws.close();
     wsRef.current = ws;
-  }, [conversationId, token]);
+  }, [conversationId, getValidToken, logout]);
 
   useEffect(() => {
+    authFailedRef.current = false;
     connect();
     return () => {
       if (retryRef.current) clearTimeout(retryRef.current);
