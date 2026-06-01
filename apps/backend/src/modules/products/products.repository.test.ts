@@ -2,6 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { useTestDb } from '../../core/test/db';
 import { usersRepository } from '../users/users.repository';
 import { productsRepository } from './products.repository';
+import { db } from '../../core/db/client';
+import { products as productsTable } from '../../core/db/schema';
+import { eq } from 'drizzle-orm';
 
 useTestDb();
 
@@ -61,5 +64,118 @@ describe('productsRepository.create', () => {
     await expect(
       productsRepository.create({ ...baseInput, sellerId: '00000000-0000-0000-0000-000000000000' }),
     ).rejects.toThrow();
+  });
+});
+
+// Helper: create a product then flip it to active + approved directly in the DB.
+async function createApproved(sellerId: string, overrides: Partial<typeof baseInput> = {}) {
+  const { product } = await productsRepository.create({ sellerId, ...baseInput, ...overrides });
+  await db
+    .update(productsTable)
+    .set({ listingStatus: 'active', approvalStatus: 'approved' })
+    .where(eq(productsTable.id, product.id));
+  return product;
+}
+
+describe('productsRepository.list', () => {
+  it('returns empty when no approved active products exist', async () => {
+    const user = await usersRepository.create({ email: 'list-empty@example.com' });
+    await productsRepository.create({ sellerId: user.id, ...baseInput }); // pending, not returned
+    const result = await productsRepository.list({});
+    expect(result.rows).toHaveLength(0);
+    expect(result.nextCursor).toBeNull();
+  });
+
+  it('returns active+approved products with seller and image', async () => {
+    const user = await usersRepository.create({ email: 'list-ok@example.com' });
+    const product = await createApproved(user.id);
+    const result = await productsRepository.list({});
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0].id).toBe(product.id);
+    expect(result.rows[0].seller.id).toBe(user.id);
+    expect(result.rows[0].firstImageUrl).toBe(
+      'https://cdn.test.example.com/products/uploads/test-0.jpg',
+    );
+  });
+
+  it('paginates: returns nextCursor when there are more results', async () => {
+    const user = await usersRepository.create({ email: 'list-page@example.com' });
+    await createApproved(user.id, { name: 'A' });
+    await createApproved(user.id, { name: 'B' });
+    await createApproved(user.id, { name: 'C' });
+
+    const page1 = await productsRepository.list({ limit: 2 });
+    expect(page1.rows).toHaveLength(2);
+    expect(page1.nextCursor).not.toBeNull();
+
+    const page2 = await productsRepository.list({ limit: 2, cursor: page1.nextCursor! });
+    expect(page2.rows).toHaveLength(1);
+    expect(page2.nextCursor).toBeNull();
+
+    const allIds = [...page1.rows, ...page2.rows].map(r => r.id);
+    expect(new Set(allIds).size).toBe(3);
+  });
+
+  it('filters by sellerId', async () => {
+    const u1 = await usersRepository.create({ email: 'seller-a@example.com' });
+    const u2 = await usersRepository.create({ email: 'seller-b@example.com' });
+    await createApproved(u1.id, { name: 'A1' });
+    await createApproved(u2.id, { name: 'B1' });
+    const result = await productsRepository.list({ sellerId: u1.id });
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0].seller.id).toBe(u1.id);
+  });
+
+  it('filters by q (case-insensitive name match)', async () => {
+    const user = await usersRepository.create({ email: 'list-q@example.com' });
+    await createApproved(user.id, { name: 'Toyota Avanza 2020' });
+    await createApproved(user.id, { name: 'Honda Jazz 2019' });
+    const result = await productsRepository.list({ q: 'toyota' });
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0].name).toBe('Toyota Avanza 2020');
+  });
+
+  it('sorts by price ascending (termurah)', async () => {
+    const user = await usersRepository.create({ email: 'list-price@example.com' });
+    await createApproved(user.id, { name: 'Expensive', price: 500_000_000 });
+    await createApproved(user.id, { name: 'Cheap', price: 50_000_000 });
+    const result = await productsRepository.list({ sortBy: 'termurah' });
+    expect(result.rows[0].name).toBe('Cheap');
+  });
+});
+
+describe('productsRepository.findById', () => {
+  it('returns null for unknown id', async () => {
+    expect(await productsRepository.findById('00000000-0000-0000-0000-000000000000')).toBeNull();
+  });
+
+  it('returns product with all photos and seller', async () => {
+    const user = await usersRepository.create({ email: 'detail@example.com' });
+    const { product } = await productsRepository.create({ sellerId: user.id, ...baseInput });
+    const row = await productsRepository.findById(product.id);
+    expect(row).not.toBeNull();
+    expect(row!.id).toBe(product.id);
+    expect(row!.seller.id).toBe(user.id);
+    expect(row!.photos).toHaveLength(2);
+    expect(row!.photos[0].position).toBe(0);
+    expect(row!.photos[1].position).toBe(1);
+    expect(row!.description).toBe('Kondisi baik');
+    expect(row!.attributes).toMatchObject({ brand: 'Toyota' });
+  });
+});
+
+describe('productsRepository.countForSeller', () => {
+  it('returns 0 when seller has no active+approved listings', async () => {
+    const user = await usersRepository.create({ email: 'count-zero@example.com' });
+    await productsRepository.create({ sellerId: user.id, ...baseInput }); // pending
+    expect(await productsRepository.countForSeller(user.id)).toBe(0);
+  });
+
+  it('counts only active+approved listings', async () => {
+    const user = await usersRepository.create({ email: 'count-ok@example.com' });
+    await createApproved(user.id);
+    await createApproved(user.id);
+    await productsRepository.create({ sellerId: user.id, ...baseInput }); // pending, not counted
+    expect(await productsRepository.countForSeller(user.id)).toBe(2);
   });
 });

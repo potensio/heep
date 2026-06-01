@@ -38,6 +38,9 @@ function makeFakeRepo(): { repo: ProductsRepository; getLastInput: () => CreateP
         captured = input;
         return { product: { ...stubProduct } as Product, images: [stubImage] };
       },
+      async list() { return { rows: [], nextCursor: null }; },
+      async findById() { return null; },
+      async countForSeller() { return 0; },
     },
     getLastInput: () => captured,
   };
