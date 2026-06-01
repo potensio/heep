@@ -1,20 +1,27 @@
 // src/modules/users/users.service.ts
 import { NotFoundError } from '../../core/errors';
+import { productsRepository } from '../products/products.repository';
 import {
-  usersRepository, type User, type UsersRepository, type UpdateUserInput,
+  usersRepository,
+  type User,
+  type UsersRepository,
+  type UpdateUserInput,
 } from './users.repository';
 
 export interface PublicUser {
   id: string;
   name: string | null;
   avatarUrl: string | null;
+  createdAt: string;
+  activeListingCount: number;
 }
 
-function toPublic(u: User): PublicUser {
-  return { id: u.id, name: u.name, avatarUrl: u.avatarUrl };
+export interface UsersDeps {
+  repo: UsersRepository;
+  countActiveListings: (userId: string) => Promise<number>;
 }
 
-export function createUsersService(repo: UsersRepository) {
+export function createUsersService({ repo, countActiveListings }: UsersDeps) {
   return {
     async findOrCreateByEmail(email: string): Promise<User> {
       return (await repo.findByEmail(email)) ?? (await repo.create({ email }));
@@ -29,7 +36,14 @@ export function createUsersService(repo: UsersRepository) {
     async getById(id: string): Promise<PublicUser> {
       const user = await repo.findById(id);
       if (!user) throw new NotFoundError('User not found');
-      return toPublic(user);
+      const activeListingCount = await countActiveListings(id);
+      return {
+        id: user.id,
+        name: user.name,
+        avatarUrl: user.avatarUrl,
+        createdAt: user.createdAt.toISOString(),
+        activeListingCount,
+      };
     },
 
     async updateProfile(id: string, patch: UpdateUserInput): Promise<User> {
@@ -42,4 +56,8 @@ export function createUsersService(repo: UsersRepository) {
 }
 
 export type UsersService = ReturnType<typeof createUsersService>;
-export const usersService = createUsersService(usersRepository);
+
+export const usersService = createUsersService({
+  repo: usersRepository,
+  countActiveListings: id => productsRepository.countForSeller(id),
+});
