@@ -1,44 +1,40 @@
-// src/modules/auth/auth.service.ts
-// TODO(Task 6): env singleton removed; env values will be injected via deps (see Task 6).
-import { randomInt, createHash, randomBytes } from 'node:crypto';
-import bcrypt from 'bcryptjs';
-import { UnauthorizedError, TooManyAttemptsError } from '../../core/errors';
-import { signAccessToken } from '../../core/jwt';
+import { generateOtpCode, hashOtpCode, verifyOtpCode, generateRefreshToken, hashRefreshToken } from '../../core/crypto';
+import { sign } from 'hono/jwt';
 import { emailService, type EmailService } from '../../core/email';
-import { usersService as defaultUsersService, type UsersService } from '../users/users.service';
-import { authRepository, type AuthRepository } from './auth.repository';
-import type { User } from '../users/users.repository';
+import { type UsersService } from '../users/users.service';
+import { type AuthRepository } from './auth.repository';
+import { UnauthorizedError, TooManyAttemptsError } from '../../core/errors';
 
 export interface AuthDeps {
   authRepo: AuthRepository;
   usersService: UsersService;
   email: EmailService;
-}
-
-export interface AuthResult {
-  accessToken: string;
-  refreshToken: string;
-  user: User;
-}
-
-function generateOtpCode(): string {
-  return String(randomInt(0, 1_000_000)).padStart(6, '0');
-}
-
-function hashRefreshToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
+  jwtAccessSecret: string;
+  jwtRefreshSecret: string;
+  accessTokenTtl: number;
+  refreshTokenTtl: number;
+  otpTtl: number;
+  otpMaxAttempts: number;
 }
 
 export function createAuthService(deps: AuthDeps) {
-  const { authRepo, usersService, email } = deps;
+  const { authRepo, usersService, email, jwtAccessSecret, accessTokenTtl, refreshTokenTtl, otpTtl, otpMaxAttempts } = deps;
 
-  async function issueTokens(user: User): Promise<AuthResult> {
+  function nowSeconds(): number {
+    return Math.floor(Date.now() / 1000);
+  }
+
+  async function signAccessToken(userId: string): Promise<string> {
+    return sign({ sub: userId, type: 'access', exp: nowSeconds() + accessTokenTtl }, jwtAccessSecret, 'HS256');
+  }
+
+  async function issueTokens(user: import('../users/users.repository').User) {
     const accessToken = await signAccessToken(user.id);
-    const refreshToken = randomBytes(32).toString('hex');
+    const refreshToken = generateRefreshToken();
     await authRepo.createRefreshToken({
       userId: user.id,
-      tokenHash: hashRefreshToken(refreshToken),
-      expiresAt: new Date(Date.now() + 2592000 * 1000), // TODO(Task 6): use env.REFRESH_TOKEN_TTL
+      tokenHash: await hashRefreshToken(refreshToken),
+      expiresAt: new Date(Date.now() + refreshTokenTtl * 1000),
     });
     return { accessToken, refreshToken, user };
   }
@@ -46,50 +42,42 @@ export function createAuthService(deps: AuthDeps) {
   return {
     async requestOtp(emailAddr: string): Promise<void> {
       const code = generateOtpCode();
-      const codeHash = await bcrypt.hash(code, 10);
+      const codeHash = await hashOtpCode(code);
       await authRepo.createOtp({
         email: emailAddr,
         codeHash,
-        expiresAt: new Date(Date.now() + 300 * 1000), // TODO(Task 6): use env.OTP_TTL
+        expiresAt: new Date(Date.now() + otpTtl * 1000),
       });
       await email.sendOtp(emailAddr, code);
-      // Always resolves — no account enumeration at the route layer.
     },
 
-    async verifyOtp(emailAddr: string, code: string): Promise<AuthResult> {
+    async verifyOtp(emailAddr: string, code: string) {
       const otp = await authRepo.findActiveOtp(emailAddr);
       if (!otp) throw new UnauthorizedError('Invalid or expired code');
-      if (otp.attempts >= 5) throw new TooManyAttemptsError(); // TODO(Task 6): use env.OTP_MAX_ATTEMPTS
-
-      const ok = await bcrypt.compare(code, otp.codeHash);
+      if (otp.attempts >= otpMaxAttempts) throw new TooManyAttemptsError();
+      const ok = await verifyOtpCode(code, otp.codeHash);
       if (!ok) {
         await authRepo.incrementAttempts(otp.id);
         throw new UnauthorizedError('Invalid or expired code');
       }
-
       await authRepo.consumeOtp(otp.id);
       const user = await usersService.findOrCreateByEmail(emailAddr);
       return issueTokens(user);
     },
 
-    async refresh(refreshToken: string): Promise<AuthResult> {
-      const existing = await authRepo.findValidRefreshToken(hashRefreshToken(refreshToken));
+    async refresh(refreshToken: string) {
+      const existing = await authRepo.findValidRefreshToken(await hashRefreshToken(refreshToken));
       if (!existing) throw new UnauthorizedError('Invalid refresh token');
-      await authRepo.revokeRefreshToken(existing.id); // rotation
+      await authRepo.revokeRefreshToken(existing.id);
       const user = await usersService.getMe(existing.userId);
       return issueTokens(user);
     },
 
     async logout(refreshToken: string): Promise<void> {
-      const existing = await authRepo.findValidRefreshToken(hashRefreshToken(refreshToken));
+      const existing = await authRepo.findValidRefreshToken(await hashRefreshToken(refreshToken));
       if (existing) await authRepo.revokeRefreshToken(existing.id);
     },
   };
 }
 
 export type AuthService = ReturnType<typeof createAuthService>;
-export const authService = createAuthService({
-  authRepo: authRepository,
-  usersService: defaultUsersService,
-  email: emailService,
-});

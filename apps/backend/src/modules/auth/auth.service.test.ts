@@ -41,9 +41,18 @@ const fakeEmail = { sendOtp: async (email: string, code: string) => { captured.p
 describe('authService', () => {
   beforeEach(() => { captured = []; });
 
+  const testDeps = {
+    jwtAccessSecret: 'test-access-secret',
+    jwtRefreshSecret: 'test-refresh-secret',
+    accessTokenTtl: 900,
+    refreshTokenTtl: 2592000,
+    otpTtl: 300,
+    otpMaxAttempts: 5,
+  };
+
   it('requestOtp stores a hashed code and emails the plaintext', async () => {
     const { repo, otps } = makeFakeAuthRepo();
-    const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, email: fakeEmail });
+    const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, email: fakeEmail, ...testDeps });
     await svc.requestOtp('u@example.com');
     expect(captured).toHaveLength(1);
     expect(captured[0].code).toMatch(/^\d{6}$/);
@@ -52,7 +61,7 @@ describe('authService', () => {
 
   it('verifyOtp returns tokens + user for the correct code', async () => {
     const { repo } = makeFakeAuthRepo();
-    const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, email: fakeEmail });
+    const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, email: fakeEmail, ...testDeps });
     await svc.requestOtp('u@example.com');
     const result = await svc.verifyOtp('u@example.com', captured[0].code);
     expect(result.user.id).toBe('user-1');
@@ -62,7 +71,7 @@ describe('authService', () => {
 
   it('verifyOtp rejects a wrong code and increments attempts', async () => {
     const { repo, otps } = makeFakeAuthRepo();
-    const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, email: fakeEmail });
+    const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, email: fakeEmail, ...testDeps });
     await svc.requestOtp('u@example.com');
     await expect(svc.verifyOtp('u@example.com', '000000')).rejects.toMatchObject({ status: 401 });
     expect(otps[0].attempts).toBe(1);
@@ -70,7 +79,7 @@ describe('authService', () => {
 
   it('verifyOtp throws 401 when there is no active code', async () => {
     const { repo } = makeFakeAuthRepo();
-    const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, email: fakeEmail });
+    const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, email: fakeEmail, ...testDeps });
     await expect(svc.verifyOtp('nobody@example.com', '123456')).rejects.toMatchObject({ status: 401 });
   });
 });
