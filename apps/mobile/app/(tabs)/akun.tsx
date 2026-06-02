@@ -10,6 +10,7 @@ export default function AccountTab() {
     <SettingsScreen
       onNavigateToProfile={() => router.push('/(protected)/settings/profil')}
       onNavigateToPhone={() => router.push('/(protected)/settings/handphone')}
+      onNavigateToListings={() => router.push('/(protected)/settings/produk')}
       onNavigateToSaved={() => router.push('/(protected)/settings/saved')}
       onNavigateToNotifications={() => router.push('/(protected)/settings/notifikasi')}
       onLogout={() => {
