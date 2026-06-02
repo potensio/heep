@@ -208,7 +208,7 @@ describe('createProductsService — read methods', () => {
     expect(result.items).toHaveLength(1);
     expect(result.items[0].id).toBe('prod-1');
     expect(result.items[0].photos).toEqual([{ url: 'https://cdn.example.com/img.jpg', position: 0 }]);
-    expect(result.items[0].location).toEqual({ name: 'Jakarta', lat: -6.2, lng: 106.8 });
+    expect(result.items[0].location).toEqual({ name: 'Jakarta', placeId: '', lat: -6.2, lng: 106.8 });
     expect(result.nextCursor).toBeNull();
   });
 
