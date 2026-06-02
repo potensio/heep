@@ -8,4 +8,5 @@ export const queryKeys = {
   sellerProducts: (id: string) => ['sellerProducts', id] as const,
   savedProducts: () => ['savedProducts'] as const,
   isSaved: (productId: string) => ['isSaved', productId] as const,
+  myListings: () => ['myListings'] as const,
 };
