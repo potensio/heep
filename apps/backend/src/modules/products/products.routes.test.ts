@@ -266,3 +266,94 @@ describe('GET /products/:id', () => {
     expect(body.product.description).toBeDefined();
   });
 });
+
+describe('PATCH /products/:id', () => {
+  const patchPayload = {
+    name: 'Toyota Avanza Updated',
+    price: 160_000_000,
+    description: 'Updated description',
+    category: 'kendaraan',
+    subcategory: 'mobil',
+    attributes: { brand: 'Toyota', condition: 'Bekas', year: 2021, mileage: 20000, fuel: 'Bensin' },
+    location: { name: 'Bandung', placeId: 'ChIJplace456', lat: -6.9, lng: 107.6 },
+    photos: ['products/uploads/test-0.jpg'],
+    listingStatus: 'active',
+  };
+
+  it('returns 401 without auth', async () => {
+    const res = await createApp().request('/products/some-id', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patchPayload),
+    }, testEnv);
+    expect(res.status).toBe(401);
+  });
+
+  it('returns 404 when product not found', async () => {
+    const user = await usersRepository.create({ email: 'patch-404@example.com' });
+    const token = await signAccessToken(user.id);
+    const res = await createApp().request('/products/00000000-0000-0000-0000-000000000000', {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(patchPayload),
+    }, testEnv);
+    expect(res.status).toBe(404);
+  });
+
+  it('returns 403 when user is not the seller', async () => {
+    const owner = await usersRepository.create({ email: 'patch-owner@example.com' });
+    const other = await usersRepository.create({ email: 'patch-other@example.com' });
+    const ownerToken = await signAccessToken(owner.id);
+    const otherToken = await signAccessToken(other.id);
+
+    const createRes = await createApp().request('/products', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${ownerToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(validPayload),
+    }, testEnv);
+    const createBody = await createRes.json() as any;
+
+    const res = await createApp().request(`/products/${createBody.product.id}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${otherToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(patchPayload),
+    }, testEnv);
+    expect(res.status).toBe(403);
+  });
+
+  it('returns 200 and updates the product when owner patches it', async () => {
+    const user = await usersRepository.create({ email: 'patch-success@example.com' });
+    const token = await signAccessToken(user.id);
+
+    const createRes = await createApp().request('/products', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(validPayload),
+    }, testEnv);
+    const createBody = await createRes.json() as any;
+    const productId = createBody.product.id;
+
+    await db.update(productsTable).set({ approvalStatus: 'approved' }).where(eq(productsTable.id, productId));
+
+    const res = await createApp().request(`/products/${productId}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(patchPayload),
+    }, testEnv);
+    expect(res.status).toBe(200);
+    const body = await res.json() as any;
+    expect(body.product.name).toBe('Toyota Avanza Updated');
+    expect(body.product.price).toBe(160_000_000);
+  });
+
+  it('returns 400 for invalid payload', async () => {
+    const user = await usersRepository.create({ email: 'patch-400@example.com' });
+    const token = await signAccessToken(user.id);
+    const res = await createApp().request('/products/some-id', {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'x' }),
+    }, testEnv);
+    expect(res.status).toBe(400);
+  });
+});

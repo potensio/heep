@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { requireAuth } from '../../core/middleware/auth';
 import type { Env } from '../../types/env';
 import type { AppVariables } from '../../types/hono';
-import { presignSchema, createProductSchema, feedQuerySchema, searchQuerySchema } from './products.validation';
+import { presignSchema, createProductSchema, updateProductSchema, feedQuerySchema, searchQuerySchema } from './products.validation';
 
 export const productsRoutes = new Hono<{ Bindings: Env; Variables: AppVariables }>();
 
@@ -38,6 +38,15 @@ productsRoutes.post('/images/presign', requireAuth, zValidator('json', presignSc
   const { count } = c.req.valid('json');
   const uploads = await c.get('productsService').presignUpload(count);
   return c.json({ uploads });
+});
+
+productsRoutes.patch('/:id', requireAuth, zValidator('json', updateProductSchema), async (c) => {
+  const input = c.req.valid('json');
+  const productId = c.req.param('id');
+  const userId = c.get('user').id;
+  await c.get('productsService').updateProduct(productId, userId, input);
+  const product = await c.get('productsService').getProduct(productId);
+  return c.json({ product });
 });
 
 productsRoutes.post('/', requireAuth, zValidator('json', createProductSchema), async (c) => {
