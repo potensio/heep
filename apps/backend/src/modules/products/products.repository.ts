@@ -23,6 +23,21 @@ export interface CreateProductRepoInput {
   photos: { url: string; position: number }[];
 }
 
+export interface UpdateProductRepoInput {
+  name: string;
+  price: number;
+  description: string;
+  category: string;
+  subcategory: string;
+  attributes: Record<string, string | number>;
+  listingStatus: 'draft' | 'active';
+  locationName: string;
+  locationPlaceId: string;
+  locationLat: number;
+  locationLng: number;
+  photos: { url: string; position: number }[];
+}
+
 export interface ListFilters {
   cursor?: string;
   limit?: number;
@@ -89,6 +104,8 @@ export interface ProductsRepository {
   list(filters: ListFilters): Promise<{ rows: ProductListRow[]; nextCursor: string | null }>;
   findById(id: string): Promise<ProductDetailRow | null>;
   countForSeller(sellerId: string): Promise<number>;
+  update(id: string, input: UpdateProductRepoInput): Promise<{ product: Product; images: ProductImage[] }>;
+  findByIdForEdit(id: string): Promise<ProductDetailRow | null>;
 }
 
 export function createProductsRepository(db: Database): ProductsRepository {
@@ -269,6 +286,91 @@ export function createProductsRepository(db: Database): ProductsRepository {
         seller: { id: row.sellerId, name: row.sellerName, avatarUrl: row.sellerAvatarUrl },
         photos,
       };
+    },
+
+    async findByIdForEdit(id) {
+      const [row] = await db
+        .select({
+          id: products.id,
+          name: products.name,
+          price: products.price,
+          description: products.description,
+          category: products.category,
+          subcategory: products.subcategory,
+          attributes: products.attributes,
+          listingStatus: products.listingStatus,
+          approvalStatus: products.approvalStatus,
+          locationName: products.locationName,
+          locationLat: products.locationLat,
+          locationLng: products.locationLng,
+          createdAt: products.createdAt,
+          sellerId: users.id,
+          sellerName: users.name,
+          sellerAvatarUrl: users.avatarUrl,
+        })
+        .from(products)
+        .innerJoin(users, eq(products.sellerId, users.id))
+        .where(eq(products.id, id))
+        .limit(1);
+
+      if (!row) return null;
+
+      const photos = await db
+        .select({ url: productImages.url, position: productImages.position })
+        .from(productImages)
+        .where(eq(productImages.productId, id))
+        .orderBy(asc(productImages.position));
+
+      return {
+        id: row.id,
+        name: row.name,
+        price: row.price,
+        description: row.description,
+        category: row.category,
+        subcategory: row.subcategory,
+        attributes: row.attributes as Record<string, string | number>,
+        listingStatus: row.listingStatus,
+        approvalStatus: row.approvalStatus,
+        locationName: row.locationName,
+        locationLat: row.locationLat,
+        locationLng: row.locationLng,
+        createdAt: row.createdAt,
+        seller: { id: row.sellerId, name: row.sellerName, avatarUrl: row.sellerAvatarUrl },
+        photos,
+      };
+    },
+
+    async update(id, input) {
+      const { photos, ...productData } = input;
+      return db.transaction(async (tx) => {
+        const [product] = await tx
+          .update(products)
+          .set({
+            name: productData.name,
+            price: productData.price,
+            description: productData.description,
+            category: productData.category as never,
+            subcategory: productData.subcategory as never,
+            attributes: productData.attributes,
+            listingStatus: productData.listingStatus as never,
+            locationName: productData.locationName,
+            locationPlaceId: productData.locationPlaceId,
+            locationLat: productData.locationLat,
+            locationLng: productData.locationLng,
+            updatedAt: new Date(),
+          })
+          .where(eq(products.id, id))
+          .returning();
+
+        await tx.delete(productImages).where(eq(productImages.productId, id));
+
+        const images = await tx
+          .insert(productImages)
+          .values(photos.map(p => ({ productId: id, url: p.url, position: p.position })))
+          .returning();
+
+        return { product, images };
+      });
     },
 
     async countForSeller(sellerId) {

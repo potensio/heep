@@ -4,6 +4,33 @@ import { createUsersRepository } from '../users/users.repository';
 import { createProductsRepository } from './products.repository';
 import { products as productsTable } from '../../core/db/schema';
 import { eq } from 'drizzle-orm';
+import { createApp } from '../../app';
+import { signAccessToken } from '../../core/jwt';
+
+const testEnv = {
+  DATABASE_URL: process.env.DATABASE_URL!,
+  JWT_ACCESS_SECRET: 'test-access-secret-16chars',
+  JWT_REFRESH_SECRET: 'test-refresh-secret-16ch',
+  ACCESS_TOKEN_TTL: '900',
+  REFRESH_TOKEN_TTL: '2592000',
+  OTP_TTL: '300',
+  OTP_MAX_ATTEMPTS: '5',
+  EMAIL_FROM: 'test@example.com',
+  WEB_ORIGIN: 'http://localhost:5173',
+  CHAT_ROOM: {} as any,
+};
+
+const validPayload = {
+  name: 'Toyota Avanza 2020',
+  price: 150_000_000,
+  description: 'Kondisi sangat baik',
+  category: 'kendaraan',
+  subcategory: 'mobil',
+  attributes: { brand: 'Toyota', condition: 'Bekas', year: 2020, mileage: 30000, fuel: 'Bensin' },
+  location: { name: 'Jakarta Selatan', placeId: 'ChIJplace123', lat: -6.2146, lng: 106.8451 },
+  photos: ['products/uploads/test-0.jpg'],
+  listingStatus: 'active',
+};
 
 useTestDb();
 
@@ -207,5 +234,66 @@ describe('productsRepository.countForSeller', () => {
     await createApproved(user.id);
     await productsRepository.create({ sellerId: user.id, ...baseInput }); // pending, not counted
     expect(await productsRepository.countForSeller(user.id)).toBe(2);
+  });
+});
+
+describe('findByIdForEdit', () => {
+  it('returns product regardless of approval status', async () => {
+    const user = await usersRepository.create({ email: 'edit-find@example.com' });
+    const token = await signAccessToken(user.id);
+
+    // Create a product (approvalStatus = pending by default)
+    const res = await createApp().request('/products', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(validPayload),
+    }, testEnv);
+    const body = await res.json() as any;
+    const productId = body.product.id;
+
+    const row = await productsRepository.findByIdForEdit(productId);
+    expect(row).not.toBeNull();
+    expect(row!.id).toBe(productId);
+    expect(row!.seller.id).toBe(user.id);
+  });
+
+  it('returns null for non-existent product', async () => {
+    const row = await productsRepository.findByIdForEdit('00000000-0000-0000-0000-000000000000');
+    expect(row).toBeNull();
+  });
+});
+
+describe('update', () => {
+  it('replaces product fields and photos', async () => {
+    const user = await usersRepository.create({ email: 'edit-update@example.com' });
+    const token = await signAccessToken(user.id);
+
+    const createRes = await createApp().request('/products', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(validPayload),
+    }, testEnv);
+    const createBody = await createRes.json() as any;
+    const productId = createBody.product.id;
+
+    const updated = await productsRepository.update(productId, {
+      name: 'Updated Name',
+      price: 200_000_000,
+      description: 'Updated desc',
+      category: 'kendaraan',
+      subcategory: 'mobil',
+      attributes: { brand: 'Toyota', condition: 'Bekas', year: 2021, mileage: 20000, fuel: 'Bensin' },
+      listingStatus: 'active',
+      locationName: 'Bandung',
+      locationPlaceId: 'ChIJplace456',
+      locationLat: -6.9,
+      locationLng: 107.6,
+      photos: [{ url: 'https://cdn.test.example.com/products/uploads/new-0.jpg', position: 0 }],
+    });
+
+    expect(updated.product.name).toBe('Updated Name');
+    expect(updated.product.price).toBe(200_000_000);
+    expect(updated.images).toHaveLength(1);
+    expect(updated.images[0].url).toBe('https://cdn.test.example.com/products/uploads/new-0.jpg');
   });
 });
