@@ -195,6 +195,11 @@ export function createProductsService(deps: ProductsDeps) {
 
       validateCategoryAndAttributes(input.category, input.subcategory, input.attributes);
 
+      const newPhotoKeys = input.photos.filter(p => !p.startsWith('https://'));
+      if (newPhotoKeys.length > 0) {
+        validatePhotoKeys(newPhotoKeys);
+      }
+
       const photos = input.photos.map((photoValue, position) => {
         const url = photoValue.startsWith('https://')
           ? photoValue
