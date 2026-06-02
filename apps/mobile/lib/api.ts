@@ -105,6 +105,19 @@ async function authPost<T>(path: string, token: string, body: unknown): Promise<
   return res.json() as Promise<T>;
 }
 
+async function authPatch<T>(path: string, token: string, body: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new ApiError(res.status, text || `HTTP ${res.status}`);
+  }
+  return res.json() as Promise<T>;
+}
+
 export async function presignImages(token: string, count: number): Promise<PresignUpload[]> {
   const data = await authPost<{ uploads: PresignUpload[] }>(
     '/products/images/presign',
@@ -165,6 +178,45 @@ export async function publishProduct(
   const photoKeys = uploads.map(u => u.key);
   const product = await createProduct(token, { ...productPayload, photos: photoKeys });
   return product.id;
+}
+
+export async function updateProduct(
+  token: string,
+  productId: string,
+  photos: import('@/features/edit/types').EditPhoto[],
+  payload: {
+    name: string;
+    price: number;
+    description: string;
+    category: string;
+    subcategory: string;
+    attributes: Record<string, string | number>;
+    location: { name: string; placeId: string; lat: number; lng: number };
+    listingStatus: 'active' | 'draft';
+  },
+): Promise<void> {
+  const newPhotos = photos.filter(
+    (p): p is { kind: 'new'; uri: string } => p.kind === 'new',
+  );
+
+  let newUploads: PresignUpload[] = [];
+  if (newPhotos.length > 0) {
+    newUploads = await presignImages(token, newPhotos.length);
+    await Promise.all(
+      newPhotos.map((p, i) => uploadPhotoToR2(p.uri, newUploads[i].uploadUrl)),
+    );
+  }
+
+  let newIndex = 0;
+  const photoValues = photos.map(p => {
+    if (p.kind === 'existing') return p.url;
+    return newUploads[newIndex++].key;
+  });
+
+  await authPatch<{ product: unknown }>(`/products/${productId}`, token, {
+    ...payload,
+    photos: photoValues,
+  });
 }
 
 // --- Product read API ---
