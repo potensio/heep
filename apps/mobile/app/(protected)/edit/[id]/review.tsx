@@ -1,8 +1,11 @@
+import { Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { ReviewStep } from '@/features/sell/components/ReviewStep';
 import { useEditFormContext } from '@/features/edit/context/EditFormContext';
 import { useAuth } from '@/context/AuthContext';
 import { updateProduct } from '@/lib/api';
+import { queryKeys } from '@/lib/queryKeys';
 import type { SellFormData } from '@/features/sell/types';
 
 export default function EditReviewStep() {
@@ -10,6 +13,7 @@ export default function EditReviewStep() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { formData, isSubmitting, setSubmitting } = useEditFormContext();
   const { token } = useAuth();
+  const queryClient = useQueryClient();
 
   const formDataForReview: SellFormData = {
     photos: formData.photos.map(p => (p.kind === 'existing' ? p.url : p.uri)),
@@ -34,11 +38,13 @@ export default function EditReviewStep() {
         subcategory: formData.subcategory as string,
         attributes: formData.attributes,
         location: formData.location,
-        listingStatus: 'active',
+        listingStatus: formData.listingStatus,
       });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.product(id) });
       router.replace(`/edit/${id}/success` as any);
     } catch (error) {
       console.error('Update failed:', error);
+      Alert.alert('Gagal Menyimpan', 'Terjadi kesalahan saat menyimpan perubahan. Coba lagi.');
     } finally {
       setSubmitting(false);
     }
@@ -52,6 +58,7 @@ export default function EditReviewStep() {
       onEditInfo={() => router.push(`/edit/${id}/info` as any)}
       onPublish={handleSave}
       onBack={() => router.back()}
+      publishLabel="Simpan Perubahan"
     />
   );
 }

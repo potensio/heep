@@ -45,8 +45,7 @@ productsRoutes.patch('/:id', requireAuth, zValidator('json', updateProductSchema
   const productId = c.req.param('id');
   const userId = c.get('user').id;
   await c.get('productsService').updateProduct(productId, userId, input);
-  const product = await c.get('productsService').getProduct(productId);
-  return c.json({ product });
+  return c.json({ success: true });
 });
 
 productsRoutes.post('/', requireAuth, zValidator('json', createProductSchema), async (c) => {

@@ -13,6 +13,7 @@ export function ReviewStep({
   onEditInfo,
   onPublish,
   onBack,
+  publishLabel,
 }: ReviewStepProps) {
   const categoryDef = CATEGORIES.find(c => c.id === formData.category);
   const subcategoryDef = categoryDef?.subcategories.find(s => s.id === formData.subcategory);
@@ -44,7 +45,7 @@ export function ReviewStep({
         loading={isSubmitting}
         style={{ flex: 1 }}
       >
-        Publish Sekarang
+        {publishLabel ?? 'Publish Sekarang'}
       </Button>
     </View>
   );

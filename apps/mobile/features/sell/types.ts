@@ -55,6 +55,7 @@ export interface ReviewStepProps {
   onEditInfo: () => void;
   onPublish: () => void;
   onBack: () => void;
+  publishLabel?: string;
 }
 
 export interface SuccessScreenProps {

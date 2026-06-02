@@ -15,4 +15,5 @@ export interface EditFormData {
   price: number;
   description: string;
   location: Location | null;
+  listingStatus: 'draft' | 'active';
 }

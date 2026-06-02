@@ -16,6 +16,7 @@ function fromProduct(product: ProductDetailItem): EditFormData {
     price: product.price,
     description: product.description,
     location: product.location,
+    listingStatus: product.listingStatus as 'draft' | 'active',
   };
 }
 

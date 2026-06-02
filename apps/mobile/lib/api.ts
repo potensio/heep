@@ -213,7 +213,7 @@ export async function updateProduct(
     return newUploads[newIndex++].key;
   });
 
-  await authPatch<{ product: unknown }>(`/products/${productId}`, token, {
+  await authPatch<unknown>(`/products/${productId}`, token, {
     ...payload,
     photos: photoValues,
   });
