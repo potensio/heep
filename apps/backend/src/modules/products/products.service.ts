@@ -1,5 +1,5 @@
 import { CATEGORIES } from '@bantujual/categories';
-import { NotFoundError, ValidationError } from '../../core/errors';
+import { ForbiddenError, NotFoundError, ValidationError } from '../../core/errors';
 import { storageService, type StorageService } from '../../core/storage';
 import {
   type ListFilters,
@@ -7,7 +7,7 @@ import {
   type ProductListRow,
   type ProductsRepository,
 } from './products.repository';
-import type { CreateProductInput } from './products.validation';
+import type { CreateProductInput, UpdateProductInput } from './products.validation';
 
 export interface ProductsDeps {
   repo: ProductsRepository;
@@ -182,6 +182,40 @@ export function createProductsService(deps: ProductsDeps) {
       const row = await repo.findById(id);
       if (!row) throw new NotFoundError('Product not found');
       return toDetailItem(row);
+    },
+
+    async updateProduct(
+      productId: string,
+      requestingUserId: string,
+      input: UpdateProductInput,
+    ): Promise<void> {
+      const existing = await repo.findByIdForEdit(productId);
+      if (!existing) throw new NotFoundError('Product not found');
+      if (existing.seller.id !== requestingUserId) throw new ForbiddenError();
+
+      validateCategoryAndAttributes(input.category, input.subcategory, input.attributes);
+
+      const photos = input.photos.map((photoValue, position) => {
+        const url = photoValue.startsWith('https://')
+          ? photoValue
+          : storage.keyToPublicUrl(photoValue);
+        return { url, position };
+      });
+
+      await repo.update(productId, {
+        name: input.name,
+        price: input.price,
+        description: input.description,
+        category: input.category,
+        subcategory: input.subcategory,
+        attributes: input.attributes,
+        listingStatus: input.listingStatus,
+        locationName: input.location.name,
+        locationPlaceId: input.location.placeId,
+        locationLat: input.location.lat,
+        locationLng: input.location.lng,
+        photos,
+      });
     },
   };
 }

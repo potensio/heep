@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createProductsService } from './products.service';
 import { FakeStorageService } from '../../core/storage';
-import type { ProductsRepository, Product, ProductImage, CreateProductRepoInput, ProductListRow, ProductDetailRow } from './products.repository';
+import type { ProductsRepository, Product, ProductImage, CreateProductRepoInput, UpdateProductRepoInput, ProductListRow, ProductDetailRow } from './products.repository';
 
 const stubProduct: Product = {
   id: 'prod-uuid',
@@ -30,8 +30,13 @@ const stubImage: ProductImage = {
   position: 0,
 };
 
-function makeFakeRepo(): { repo: ProductsRepository; getLastInput: () => CreateProductRepoInput | null } {
+function makeFakeRepo(): {
+  repo: ProductsRepository;
+  getLastInput: () => CreateProductRepoInput | null;
+  getLastUpdateInput: () => { id: string; input: UpdateProductRepoInput } | null;
+} {
   let captured: CreateProductRepoInput | null = null;
+  let capturedUpdate: { id: string; input: UpdateProductRepoInput } | null = null;
   return {
     repo: {
       async create(input) {
@@ -41,10 +46,14 @@ function makeFakeRepo(): { repo: ProductsRepository; getLastInput: () => CreateP
       async list() { return { rows: [], nextCursor: null }; },
       async findById() { return null; },
       async countForSeller() { return 0; },
-      async update() { return { product: { ...stubProduct } as Product, images: [stubImage] }; },
+      async update(id, input) {
+        capturedUpdate = { id, input };
+        return { product: { ...stubProduct } as Product, images: [stubImage] };
+      },
       async findByIdForEdit() { return null; },
     },
     getLastInput: () => captured,
+    getLastUpdateInput: () => capturedUpdate,
   };
 }
 
@@ -225,5 +234,58 @@ describe('createProductsService — read methods', () => {
     const { repo } = makeReadRepo();
     const svc = createProductsService({ repo, storage: fakeStorage });
     await expect(svc.getProduct('unknown')).rejects.toMatchObject({ status: 404 });
+  });
+});
+
+const updateInput = {
+  name: 'Toyota Avanza Updated',
+  price: 160_000_000,
+  description: 'Updated',
+  category: 'kendaraan' as const,
+  subcategory: 'mobil' as const,
+  attributes: { brand: 'Toyota', condition: 'Bekas', year: 2021, mileage: 20000, fuel: 'Bensin' },
+  location: { name: 'Bandung', placeId: 'p456', lat: -6.9, lng: 107.6 },
+  photos: ['https://cdn.test.example.com/products/uploads/existing.jpg'],
+  listingStatus: 'active' as const,
+};
+
+describe('updateProduct', () => {
+  it('throws NotFoundError when product not found', async () => {
+    const { repo } = makeFakeRepo();
+    const service = createProductsService({ repo, storage: fakeStorage });
+    await expect(
+      service.updateProduct('prod-uuid', 'user-uuid', updateInput),
+    ).rejects.toThrow('Product not found');
+  });
+
+  it('throws ForbiddenError when user is not the seller', async () => {
+    const { repo } = makeFakeRepo();
+    repo.findByIdForEdit = async () => ({
+      ...stubDetailRow,
+      seller: { id: 'other-user', name: null, avatarUrl: null },
+    });
+    const service = createProductsService({ repo, storage: fakeStorage });
+    await expect(
+      service.updateProduct('prod-uuid', 'user-uuid', updateInput),
+    ).rejects.toThrow('Forbidden');
+  });
+
+  it('passes existing https:// URLs through and converts new keys to URLs', async () => {
+    const { repo, getLastUpdateInput } = makeFakeRepo();
+    repo.findByIdForEdit = async () => ({
+      ...stubDetailRow,
+      seller: { id: 'user-uuid', name: null, avatarUrl: null },
+    });
+    const service = createProductsService({ repo, storage: fakeStorage });
+    await service.updateProduct('prod-uuid', 'user-uuid', {
+      ...updateInput,
+      photos: [
+        'https://cdn.test.example.com/products/uploads/existing.jpg',
+        'products/uploads/new-key.jpg',
+      ],
+    });
+    const last = getLastUpdateInput()!;
+    expect(last.input.photos[0].url).toBe('https://cdn.test.example.com/products/uploads/existing.jpg');
+    expect(last.input.photos[1].url).toContain('products/uploads/new-key.jpg');
   });
 });
