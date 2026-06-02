@@ -185,8 +185,8 @@ export interface ProductListItem {
   photos: { url: string; position: number }[];
   category: string;
   subcategory: string;
-  location: { name: string; lat: number; lng: number } | null;
-  seller: { id: string; name: string | null; avatarUrl: string | null };
+  location: { name: string; placeId: string; lat: number; lng: number } | null;
+  seller: { id: string; name: string | null; avatarUrl: string | null; phone?: string };
   createdAt: string;
 }
 
@@ -201,6 +201,7 @@ export interface PublicSellerProfile {
   id: string;
   name: string | null;
   avatarUrl: string | null;
+  phone: string | null;
   createdAt: string;
   activeListingCount: number;
 }
@@ -292,7 +293,7 @@ export interface SavedProductItem {
   photos: { url: string; position: number }[];
   category: string;
   subcategory: string;
-  location: { name: string; lat: number; lng: number } | null;
+  location: { name: string; placeId: string; lat: number; lng: number } | null;
   seller: { id: string; name: string | null; avatarUrl: string | null };
   createdAt: string;
   savedAt: string;

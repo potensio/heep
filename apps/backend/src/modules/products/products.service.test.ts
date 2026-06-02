@@ -170,6 +170,7 @@ const stubDetailRow: ProductDetailRow = {
   listingStatus: 'active',
   approvalStatus: 'approved',
   locationName: 'Jakarta',
+  locationPlaceId: 'ChIJnUvjRenzaS4RmA3vxiiGRiY',
   locationLat: -6.2,
   locationLng: 106.8,
   createdAt: new Date('2024-01-01'),

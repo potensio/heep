@@ -53,7 +53,7 @@ export interface ProductListItem {
   photos: { url: string; position: number }[];
   category: string;
   subcategory: string;
-  location: { name: string; lat: number; lng: number } | null;
+  location: { name: string; placeId: string; lat: number; lng: number } | null;
   seller: { id: string; name: string | null; avatarUrl: string | null };
   createdAt: string;
 }
@@ -80,7 +80,7 @@ function toListItem(row: ProductListRow): ProductListItem {
     subcategory: row.subcategory,
     location:
       row.locationName != null && row.locationLat != null && row.locationLng != null
-        ? { name: row.locationName, lat: row.locationLat, lng: row.locationLng }
+        ? { name: row.locationName, placeId: '', lat: row.locationLat, lng: row.locationLng }
         : null,
     seller: row.seller,
     createdAt: row.createdAt.toISOString(),
@@ -101,7 +101,12 @@ function toDetailItem(row: ProductDetailRow): ProductDetailItem {
     approvalStatus: row.approvalStatus,
     location:
       row.locationName != null && row.locationLat != null && row.locationLng != null
-        ? { name: row.locationName, lat: row.locationLat, lng: row.locationLng }
+        ? {
+            name: row.locationName,
+            placeId: row.locationPlaceId ?? '',
+            lat: row.locationLat,
+            lng: row.locationLng,
+          }
         : null,
     seller: row.seller,
     createdAt: row.createdAt.toISOString(),

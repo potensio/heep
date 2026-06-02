@@ -74,6 +74,7 @@ export interface ProductDetailRow {
   listingStatus: string;
   approvalStatus: string;
   locationName: string | null;
+  locationPlaceId: string | null;
   locationLat: number | null;
   locationLng: number | null;
   createdAt: Date;
@@ -245,6 +246,7 @@ export function createProductsRepository(db: Database): ProductsRepository {
           listingStatus: products.listingStatus,
           approvalStatus: products.approvalStatus,
           locationName: products.locationName,
+          locationPlaceId: products.locationPlaceId,
           locationLat: products.locationLat,
           locationLng: products.locationLng,
           createdAt: products.createdAt,
@@ -280,6 +282,7 @@ export function createProductsRepository(db: Database): ProductsRepository {
         listingStatus: row.listingStatus,
         approvalStatus: row.approvalStatus,
         locationName: row.locationName,
+        locationPlaceId: row.locationPlaceId,
         locationLat: row.locationLat,
         locationLng: row.locationLng,
         createdAt: row.createdAt,
@@ -301,6 +304,7 @@ export function createProductsRepository(db: Database): ProductsRepository {
           listingStatus: products.listingStatus,
           approvalStatus: products.approvalStatus,
           locationName: products.locationName,
+          locationPlaceId: products.locationPlaceId,
           locationLat: products.locationLat,
           locationLng: products.locationLng,
           createdAt: products.createdAt,
@@ -332,6 +336,7 @@ export function createProductsRepository(db: Database): ProductsRepository {
         listingStatus: row.listingStatus,
         approvalStatus: row.approvalStatus,
         locationName: row.locationName,
+        locationPlaceId: row.locationPlaceId,
         locationLat: row.locationLat,
         locationLng: row.locationLng,
         createdAt: row.createdAt,
@@ -364,10 +369,13 @@ export function createProductsRepository(db: Database): ProductsRepository {
 
         await tx.delete(productImages).where(eq(productImages.productId, id));
 
-        const images = await tx
-          .insert(productImages)
-          .values(photos.map(p => ({ productId: id, url: p.url, position: p.position })))
-          .returning();
+        const images =
+          photos.length > 0
+            ? await tx
+                .insert(productImages)
+                .values(photos.map(p => ({ productId: id, url: p.url, position: p.position })))
+                .returning()
+            : [];
 
         return { product, images };
       });
