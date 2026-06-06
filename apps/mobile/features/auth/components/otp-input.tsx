@@ -29,7 +29,10 @@ export function OtpInput({
     onChangeText(updatedValue);
 
     if (numericText && index < length - 1) {
-      inputRefs.current[index + 1]?.focus();
+      // Focus next input
+      setTimeout(() => {
+        inputRefs.current[index + 1]?.focus();
+      }, 0);
     }
   };
 
@@ -42,7 +45,6 @@ export function OtpInput({
   const handlePaste = (text: string) => {
     const numericText = text.replace(/[^0-9]/g, '').slice(0, length);
     onChangeText(numericText);
-    inputRefs.current[numericText.length - 1]?.focus();
   };
 
   return (
@@ -56,7 +58,6 @@ export function OtpInput({
             className="w-12 h-12"
           >
             <InputField
-              ref={(ref) => { inputRefs.current[index] = ref; }}
               value={value[index] || ''}
               onChangeText={(text) => {
                 if (text.length > 1) {

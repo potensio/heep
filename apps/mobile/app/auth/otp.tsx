@@ -12,7 +12,7 @@ export default function OtpRoute() {
     // TODO: Call API here
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsLoading(false);
-    router.replace('/(tabs)');
+    router.replace('/auth');
   };
 
   const handleResend = () => {

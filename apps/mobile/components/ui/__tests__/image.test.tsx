@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { Image } from '../Image';
+import { Image } from '../image';
 
 jest.mock('expo-image', () => ({
   Image: ({ testID, source, placeholder, cachePolicy, transition, contentFit, style }: any) => {

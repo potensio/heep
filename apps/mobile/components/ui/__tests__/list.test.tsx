@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Text } from 'react-native';
 import { render } from '@testing-library/react-native';
-import { List } from '../List';
+import { List } from '../list';
 
 jest.mock('@shopify/flash-list', () => {
   const { FlatList } = require('react-native');

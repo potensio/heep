@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "@expo/html-elements": "^56.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }
