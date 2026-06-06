@@ -3,6 +3,9 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StyleSheet } from "react-native";
 import { useFonts } from "expo-font";
+import { useEffect } from "react";
+import * as SplashScreen from "expo-splash-screen";
+import { enableScreens } from "react-native-screens";
 import { FjallaOne_400Regular } from "@expo-google-fonts/fjalla-one";
 import {
   PlusJakartaSans_400Regular,
@@ -14,6 +17,9 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "../global.css";
 
+enableScreens();
+SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     "Fjalla-One": FjallaOne_400Regular,
@@ -23,9 +29,11 @@ export default function RootLayout() {
     "Plus-Jakarta-Bold": PlusJakartaSans_700Bold,
   });
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
 
   return (
     <GestureHandlerRootView style={styles.container}>
