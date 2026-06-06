@@ -1,10 +1,10 @@
 import { FlashList, FlashListProps } from "@shopify/flash-list";
 
-type PerformantListProps<T> = Omit<FlashListProps<T>, "estimatedItemSize"> & {
+type ListProps<T> = Omit<FlashListProps<T>, "estimatedItemSize"> & {
   estimatedItemSize: number;
 };
 
-export function PerformantList<T>({
+export function List<T>({
   estimatedItemSize,
   ...props
 }: PerformantListProps<T>) {

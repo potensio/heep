@@ -1,8 +1,8 @@
 import { memo } from "react";
-import { Image } from "expo-image";
+import { Image as ExpoImage } from "expo-image";
 import { StyleProp, ImageStyle, DimensionValue } from "react-native";
 
-interface PerformantImageProps {
+interface ImageProps {
   uri: string;
   blurhash?: string;
   width?: DimensionValue;
@@ -12,7 +12,7 @@ interface PerformantImageProps {
   testID?: string;
 }
 
-export const PerformantImage = memo(function PerformantImage({
+export const Image = memo(function Image({
   uri,
   blurhash,
   width,
@@ -20,9 +20,9 @@ export const PerformantImage = memo(function PerformantImage({
   contentFit = "cover",
   style,
   testID,
-}: PerformantImageProps) {
+}: ImageProps) {
   return (
-    <Image
+    <ExpoImage
       source={{ uri }}
       placeholder={blurhash ? { blurhash } : undefined}
       cachePolicy="memory-disk"
@@ -32,4 +32,5 @@ export const PerformantImage = memo(function PerformantImage({
       testID={testID}
     />
   );
+
 });

@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Text } from 'react-native';
 import { render } from '@testing-library/react-native';
-import { PerformantList } from '../PerformantList';
+import { List } from '../List';
 
 jest.mock('@shopify/flash-list', () => {
   const { FlatList } = require('react-native');
@@ -12,7 +12,7 @@ const Item = memo(function Item({ label }: { label: string }) {
   return <Text testID={`item-${label}`}>{label}</Text>;
 });
 
-describe('PerformantList', () => {
+describe('List', () => {
   const data = [
     { id: '1', label: 'Apple' },
     { id: '2', label: 'Banana' },
@@ -20,7 +20,7 @@ describe('PerformantList', () => {
 
   it('renders all items', async () => {
     const { getByTestId } = await render(
-      <PerformantList
+      <List
         data={data}
         renderItem={({ item }) => <Item label={item.label} />}
         keyExtractor={(item) => item.id}
@@ -35,7 +35,7 @@ describe('PerformantList', () => {
   it('accepts estimatedItemSize as required prop', async () => {
     // TypeScript will enforce this at compile time — this test documents the contract
     const { getByTestId } = await render(
-      <PerformantList
+      <List
         data={[{ id: '1', label: 'Test' }]}
         renderItem={({ item }) => <Item label={item.label} />}
         keyExtractor={(item) => item.id}
