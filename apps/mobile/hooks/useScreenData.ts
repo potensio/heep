@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { InteractionManager } from "react-native";
 
 interface ScreenDataState<T> {
@@ -15,18 +15,28 @@ export function useScreenData<T>(
     loading: true,
     error: null,
   });
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
+
     const task = InteractionManager.runAfterInteractions(async () => {
       try {
         const data = await fetcher();
-        setState({ data, loading: false, error: null });
+        if (isMounted.current) {
+          setState({ data, loading: false, error: null });
+        }
       } catch (error) {
-        setState({ data: null, loading: false, error: error as Error });
+        if (isMounted.current) {
+          setState({ data: null, loading: false, error: error as Error });
+        }
       }
     });
 
-    return () => task.cancel();
+    return () => {
+      isMounted.current = false;
+      task.cancel();
+    };
   }, []);
 
   return state;
