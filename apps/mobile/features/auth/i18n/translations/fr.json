@@ -1,0 +1,29 @@
+{
+  "login.title": "Connexion ou Inscription",
+  "login.subtitle": "Entrez votre email pour continuer",
+  "login.emailLabel": "Email",
+  "login.passwordLabel": "Mot de passe",
+  "login.submitButton": "Continuer",
+  "login.forgotPassword": "Mot de passe oublié ?",
+  "login.noAccount": "Pas encore de compte ?",
+  "login.signUpLink": "S'inscrire",
+
+  "signup.title": "Créer un compte",
+  "signup.subtitle": "Entrez vos informations pour commencer",
+  "signup.nameLabel": "Nom complet",
+  "signup.emailLabel": "Email",
+  "signup.passwordLabel": "Mot de passe",
+  "signup.submitButton": "Créer un compte",
+  "signup.haveAccount": "Vous avez déjà un compte ?",
+  "signup.loginLink": "Se connecter",
+
+  "otp.title": "Vérifiez votre email",
+  "otp.subtitle": "Nous avons envoyé un code à {{email}}",
+  "otp.resend": "Renvoyer le code",
+  "otp.verifyButton": "Vérifier",
+
+  "validation.emailInvalid": "Veuillez entrer un email valide",
+  "validation.passwordMin": "Le mot de passe doit contenir au moins 8 caractères",
+  "validation.nameMin": "Le nom doit contenir au moins 2 caractères",
+  "validation.otpLength": "L'OTP doit contenir 6 chiffres"
+}
