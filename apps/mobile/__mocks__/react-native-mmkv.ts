@@ -1,4 +1,4 @@
-export const MMKV = jest.fn().mockImplementation(() => {
+export const createMMKV = jest.fn().mockImplementation(() => {
   const store = new Map<string, string | number | boolean>();
   return {
     set: (key: string, value: string | number | boolean) => store.set(key, value),
