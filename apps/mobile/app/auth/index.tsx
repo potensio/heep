@@ -1,12 +1,5 @@
-import { LoginScreen } from "@/features/auth/screens/login-screen";
+import { Redirect } from 'expo-router';
 
 export default function AuthIndex() {
-  return (
-    <LoginScreen
-      onSubmit={(email) => {
-        console.log("Email submitted:", email);
-        // TODO: Navigate or handle submission
-      }}
-    />
-  );
+  return <Redirect href="/auth/login" />;
 }
