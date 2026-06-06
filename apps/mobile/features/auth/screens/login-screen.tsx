@@ -6,14 +6,14 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { Input, InputField } from "@/components/ui/input";
 import { VStack } from "@/components/ui/vstack";
 
-interface EmailScreenProps {
+interface LoginScreenProps {
   onSubmit: (email: string) => void;
   onGuestLogin?: () => void;
 }
 
 const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
 
-export function EmailScreen({ onSubmit, onGuestLogin }: EmailScreenProps) {
+export function LoginScreen({ onSubmit, onGuestLogin }: LoginScreenProps) {
   const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -49,10 +49,10 @@ export function EmailScreen({ onSubmit, onGuestLogin }: EmailScreenProps) {
           </Box>
 
           <Text className="text-2xl font-heading text-typography-900 mb-2 text-center">
-            Masuk atau Daftar
+            masuk atau daftar
           </Text>
           <Text className="text-base text-typography-600 mb-8 text-center">
-            Masukkan email untuk melanjutkan
+            masukkan email untuk melanjutkan
           </Text>
 
           <VStack space="4" className="mb-4">
@@ -79,7 +79,7 @@ export function EmailScreen({ onSubmit, onGuestLogin }: EmailScreenProps) {
             isDisabled={!isValidEmail}
           >
             <ButtonText>
-              {isLoading ? "Memproses..." : "Lanjutkan"}
+              {isLoading ? "memproses..." : "lanjutkan"}
             </ButtonText>
           </Button>
 
@@ -92,7 +92,7 @@ export function EmailScreen({ onSubmit, onGuestLogin }: EmailScreenProps) {
               </View>
 
               <Button variant="outline" size="lg" onPress={onGuestLogin}>
-                <ButtonText className="text-primary-500">Lewati</ButtonText>
+                <ButtonText className="text-primary-500">lewati</ButtonText>
               </Button>
             </>
           )}

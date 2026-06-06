@@ -1,8 +1,8 @@
-import { LoginScreen } from "@/features/auth/screens/login-screen";
+import { SignupScreen } from "@/features/auth/screens/signup-screen";
 
-export default function AuthIndex() {
+export default function AuthSignup() {
   return (
-    <LoginScreen
+    <SignupScreen
       onSubmit={(email) => {
         console.log("Email submitted:", email);
         // TODO: Navigate or handle submission
