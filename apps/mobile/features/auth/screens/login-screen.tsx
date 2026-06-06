@@ -1,103 +1,91 @@
-import { View, Text, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
-import { useState } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Box } from "@/components/ui/box";
-import { Button, ButtonText } from "@/components/ui/button";
-import { Input, InputField } from "@/components/ui/input";
-import { VStack } from "@/components/ui/vstack";
+import { View } from 'react-native';
+import { Controller } from 'react-hook-form';
+import { AuthLayout } from '../components/auth-layout';
+import { PasswordInput } from '../components/password-input';
+import { Button, ButtonText } from '@/components/ui/button';
+import { Input, InputField } from '@/components/ui/input';
+import { Text } from '@/components/ui/text';
+import { VStack } from '@/components/ui/vstack';
+import { useAuthForm } from '../hooks/use-auth-form';
+import { useAuthTranslation } from '../i18n';
+import { loginSchema } from '../schemas/auth-schemas';
+import type { LoginScreenProps } from '../types';
 
-interface LoginScreenProps {
-  onSubmit: (email: string) => void;
-  onGuestLogin?: () => void;
-}
-
-const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
-
-export function LoginScreen({ onSubmit, onGuestLogin }: LoginScreenProps) {
-  const insets = useSafeAreaInsets();
-  const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleContinue = async () => {
-    if (!EMAIL_REGEX.test(email)) return;
-    setIsLoading(true);
-    // TODO: Call API here
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsLoading(false);
-    onSubmit(email);
-  };
-
-  const isValidEmail = EMAIL_REGEX.test(email);
+export function LoginScreen({ onSubmit, onNavigateToSignup, isLoading }: LoginScreenProps) {
+  const { t } = useAuthTranslation();
+  const { control, handleSubmit, formState: { isValid } } = useAuthForm(loginSchema);
 
   return (
-    <Box className="flex-1 bg-background-50">
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1"
-      >
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{
-            paddingTop: insets.top + 40,
-            paddingHorizontal: 20,
-            paddingBottom: 40,
-          }}
-          keyboardShouldPersistTaps="handled"
-        >
-          <Box className="w-full h-48 rounded-2xl mb-8 items-center justify-center bg-secondary-100">
-            <Text className="text-typography-400 text-sm">Illustration</Text>
-          </Box>
-
-          <Text className="text-2xl font-heading text-typography-900 mb-2 text-center">
-            masuk atau daftar
-          </Text>
-          <Text className="text-base text-typography-600 mb-8 text-center">
-            masukkan email untuk melanjutkan
-          </Text>
-
-          <VStack space="4" className="mb-4">
+    <AuthLayout
+      title={t('login.title')}
+      subtitle={t('login.subtitle')}
+    >
+      <Controller
+        control={control}
+        name="email"
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <VStack space="1">
             <Text className="text-sm text-typography-600 font-medium">
-              Email
+              {t('login.emailLabel')}
             </Text>
             <Input variant="outline" size="lg">
               <InputField
-                value={email}
-                onChangeText={setEmail}
-                placeholder="nama@email.com"
+                value={value}
+                onChangeText={onChange}
+                placeholder="email@example.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
                 autoCorrect={false}
-                onSubmitEditing={handleContinue}
                 editable={!isLoading}
               />
             </Input>
+            {error && (
+              <Text className="text-error-500 text-sm">{error.message}</Text>
+            )}
           </VStack>
+        )}
+      />
 
-          <Button
-            size="lg"
-            onPress={handleContinue}
-            isDisabled={!isValidEmail}
-          >
-            <ButtonText>
-              {isLoading ? "memproses..." : "lanjutkan"}
-            </ButtonText>
-          </Button>
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, value }, fieldState: { error } }) => (
+          <VStack space="1">
+            <Text className="text-sm text-typography-600 font-medium">
+              {t('login.passwordLabel')}
+            </Text>
+            <PasswordInput
+              value={value}
+              onChangeText={onChange}
+              error={error?.message}
+              isDisabled={isLoading}
+            />
+          </VStack>
+        )}
+      />
 
-          {onGuestLogin && (
-            <>
-              <View className="flex-row items-center my-6">
-                <View className="flex-1 h-px bg-outline-200" />
-                <Text className="mx-4 text-sm text-typography-500">atau</Text>
-                <View className="flex-1 h-px bg-outline-200" />
-              </View>
+      <Button
+        size="lg"
+        onPress={handleSubmit(onSubmit)}
+        isDisabled={!isValid || isLoading}
+        className="mt-4"
+      >
+        <ButtonText>
+          {isLoading ? 'Loading...' : t('login.submitButton')}
+        </ButtonText>
+      </Button>
 
-              <Button variant="outline" size="lg" onPress={onGuestLogin}>
-                <ButtonText className="text-primary-500">lewati</ButtonText>
-              </Button>
-            </>
-          )}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </Box>
+      <View className="flex-row items-center justify-center mt-6">
+        <Text className="text-sm text-typography-500">
+          {t('login.noAccount')}{' '}
+        </Text>
+        <Text
+          className="text-sm text-primary-500 font-medium"
+          onPress={onNavigateToSignup}
+        >
+          {t('login.signUpLink')}
+        </Text>
+      </View>
+    </AuthLayout>
   );
 }
