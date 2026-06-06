@@ -1,4 +1,4 @@
-import { View, TextInput, TextInputProps } from "react-native";
+import { View, TextInput, TextInputProps, ViewProps } from "react-native";
 
 type InputVariant = "outline" | "underlined" | "rounded";
 type InputSize = "sm" | "md" | "lg" | "xl";
@@ -63,3 +63,27 @@ export function InputField({ className, ...props }: InputFieldProps) {
 }
 
 InputField.displayName = "InputField";
+
+type InputSlotProps = ViewProps & { className?: string };
+
+export function InputSlot({ className, ...props }: InputSlotProps) {
+  return (
+    <View
+      className={`justify-center items-center ${className || ""}`}
+      {...props}
+    />
+  );
+}
+
+InputSlot.displayName = "InputSlot";
+
+type InputIconProps = {
+  as: React.ElementType;
+  className?: string;
+};
+
+export function InputIcon({ as: Icon, className }: InputIconProps) {
+  return <Icon className={`w-5 h-5 ${className || ""}`} />;
+}
+
+InputIcon.displayName = "InputIcon";
