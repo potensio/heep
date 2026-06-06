@@ -10,22 +10,9 @@ import {
   PlusJakartaSans_600SemiBold,
   PlusJakartaSans_700Bold,
 } from "@expo-google-fonts/plus-jakarta-sans";
-import { configureReanimatedLogger, ReanimatedLogLevel } from "react-native-reanimated";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { FilterSheetProvider } from "@/features/search/context/FilterSheetContext";
-import { AvatarSheetProvider, preloadAvatars } from "@/features/auth/components/AvatarSheetContext";
-import { AuthProvider } from "@/context/AuthContext";
-import { QueryClientProvider } from '@tanstack/react-query';
-import { queryClient } from '@/lib/queryClient';
+import { ThemeProvider } from "@/context/ThemeContext";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "../global.css";
-
-configureReanimatedLogger({
-  level: ReanimatedLogLevel.warn,
-  strict: false,
-});
-
-// Preload avatars at app start
-preloadAvatars();
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -41,26 +28,17 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={styles.container}>
-        <SafeAreaProvider>
-          <AuthProvider>
-            <FilterSheetProvider>
-              <AvatarSheetProvider>
-                <BottomSheetModalProvider>
-                <Stack screenOptions={{ headerShown: false }}>
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen name="(public)" />
-                  <Stack.Screen name="(protected)" />
-                  <Stack.Screen name="auth" />
-                </Stack>
-                </BottomSheetModalProvider>
-              </AvatarSheetProvider>
-            </FilterSheetProvider>
-          </AuthProvider>
-        </SafeAreaProvider>
-      </GestureHandlerRootView>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={styles.container}>
+      <SafeAreaProvider>
+        <ThemeProvider>
+          <GluestackUIProvider>
+            <Stack screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="auth" />
+            </Stack>
+          </GluestackUIProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

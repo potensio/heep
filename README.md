@@ -1,4 +1,4 @@
-# BantuJual
+# Heep
 
 A mobile marketplace app for buying and selling products, built with React Native and Expo.
 

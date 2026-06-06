@@ -5,15 +5,9 @@ import { createDb } from '../db/client';
 import { emailService } from '../email';
 import { createAuthRepository } from '../../modules/auth/auth.repository';
 import { createUsersRepository } from '../../modules/users/users.repository';
-import { createProductsRepository } from '../../modules/products/products.repository';
-import { createSavedProductsRepository } from '../../modules/saved-products/saved-products.repository';
 import { createAuthService } from '../../modules/auth/auth.service';
 import { createUsersService } from '../../modules/users/users.service';
-import { createProductsService } from '../../modules/products/products.service';
-import { createSavedProductsService } from '../../modules/saved-products/saved-products.service';
-import { createChatRepository } from '../../modules/chat/chat.repository';
-import { createChatService } from '../../modules/chat/chat.service';
-import { FakeStorageService } from '../storage';
+import { R2StorageService, FakeStorageService } from '../storage';
 
 export async function servicesMiddleware(
   c: Context<{ Bindings: Env; Variables: AppVariables }>,
@@ -22,12 +16,9 @@ export async function servicesMiddleware(
   const db = createDb(c.env.DATABASE_URL);
   const authRepo = createAuthRepository(db);
   const usersRepo = createUsersRepository(db);
-  const productsRepo = createProductsRepository(db);
-  const savedProductsRepo = createSavedProductsRepository(db);
 
   const usersService = createUsersService({
     repo: usersRepo,
-    countActiveListings: (userId) => productsRepo.countForSeller(userId),
   });
 
   const authService = createAuthService({
@@ -42,18 +33,26 @@ export async function servicesMiddleware(
     otpMaxAttempts: Number(c.env.OTP_MAX_ATTEMPTS),
   });
 
-  const storage = new FakeStorageService();
+  // Use R2StorageService if all R2 env vars are present, otherwise fallback to FakeStorageService
+  const hasR2Config =
+    c.env.R2_ACCOUNT_ID &&
+    c.env.R2_ACCESS_KEY_ID &&
+    c.env.R2_SECRET_ACCESS_KEY &&
+    c.env.R2_BUCKET_NAME &&
+    c.env.R2_PUBLIC_URL;
 
-  const productsService = createProductsService({ repo: productsRepo, storage });
-  const savedProductsService = createSavedProductsService({ repo: savedProductsRepo });
-  const chatRepo = createChatRepository(db);
-  const chatService = createChatService({ chatRepo });
+  const storage = hasR2Config
+    ? new R2StorageService({
+        R2_ACCOUNT_ID: c.env.R2_ACCOUNT_ID!,
+        R2_ACCESS_KEY_ID: c.env.R2_ACCESS_KEY_ID!,
+        R2_SECRET_ACCESS_KEY: c.env.R2_SECRET_ACCESS_KEY!,
+        R2_BUCKET_NAME: c.env.R2_BUCKET_NAME!,
+        R2_PUBLIC_URL: c.env.R2_PUBLIC_URL!,
+      })
+    : new FakeStorageService();
 
   c.set('db', db);
   c.set('authService', authService);
   c.set('usersService', usersService);
-  c.set('productsService', productsService);
-  c.set('savedProductsService', savedProductsService);
-  c.set('chatService', chatService);
   await next();
 }

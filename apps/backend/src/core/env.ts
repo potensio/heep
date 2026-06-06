@@ -9,7 +9,7 @@ const EnvSchema = z.object({
   OTP_TTL: z.coerce.number().int().positive().default(300),
   OTP_MAX_ATTEMPTS: z.coerce.number().int().positive().default(5),
   RESEND_API_KEY: z.string().optional(),
-  EMAIL_FROM: z.string().default('BantuJual <noreply@bantujual.app>'),
+  EMAIL_FROM: z.string().default('Heep <noreply@heep.dev>'),
   WEB_ORIGIN: z.string().default('http://localhost:5173'),
   R2_ACCOUNT_ID: z.string().optional(),
   R2_ACCESS_KEY_ID: z.string().optional(),

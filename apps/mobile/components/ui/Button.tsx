@@ -1,127 +1,75 @@
-import { type ReactNode } from "react";
-import {
-  TouchableOpacity,
-  Text,
-  ActivityIndicator,
-  type ViewStyle,
-} from "react-native";
+import { Pressable, Text, PressableProps } from "react-native";
 
-export type ButtonVariant = "primary" | "secondary" | "outline" | "ghost";
-export type ButtonSize = "sm" | "md" | "lg";
+type ButtonVariant = "solid" | "outline" | "link";
+type ButtonAction = "primary" | "secondary" | "positive" | "negative";
+type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl";
 
-interface ButtonProps {
-  /** Button text */
-  children?: string;
-  /** Icon element (React element) */
-  icon?: ReactNode;
-  /** Visual style variant */
+type ButtonProps = PressableProps & {
+  className?: string;
   variant?: ButtonVariant;
-  /** Size variant */
   size?: ButtonSize;
-  /** Loading state */
-  loading?: boolean;
-  /** Disabled state */
-  disabled?: boolean;
-  /** Additional container style */
-  style?: ViewStyle;
-  /** Press handler */
-  onPress?: () => void;
-}
-
-const SIZE_STYLES: Record<
-  ButtonSize,
-  { height: number; paddingHorizontal: number; fontSize: number }
-> = {
-  sm: { height: 36, paddingHorizontal: 16, fontSize: 14 },
-  md: { height: 48, paddingHorizontal: 20, fontSize: 16 },
-  lg: { height: 52, paddingHorizontal: 24, fontSize: 16 },
+  action?: ButtonAction;
+  isDisabled?: boolean;
+  children?: React.ReactNode;
 };
 
-const VARIANT_STYLES: Record<
-  ButtonVariant,
-  {
-    bgColor: string;
-    textColor: string;
-    borderWidth?: number;
-    borderColor?: string;
-  }
-> = {
-  primary: {
-    bgColor: "#000000",
-    textColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#000000",
-  },
-  secondary: {
-    bgColor: "#F3F4F6",
-    textColor: "#111827",
-    borderWidth: 1,
-    borderColor: "#F3F4F6",
-  },
-  outline: {
-    bgColor: "transparent",
-    textColor: "#000000",
-    borderWidth: 1,
-    borderColor: "#000000",
-  },
-  ghost: { bgColor: "transparent", textColor: "#000000" },
+const variantStyles: Record<ButtonVariant, string> = {
+  solid: "bg-primary-500 data-[active=true]:bg-primary-600",
+  outline: "bg-transparent border border-primary-500 data-[active=true]:bg-primary-50",
+  link: "bg-transparent",
+};
+
+const actionStyles: Record<ButtonAction, string> = {
+  primary: "",
+  secondary: "bg-secondary-500 border-secondary-500 data-[active=true]:bg-secondary-600",
+  positive: "bg-success-500 border-success-500 data-[active=true]:bg-success-600",
+  negative: "bg-error-500 border-error-500 data-[active=true]:bg-error-600",
+};
+
+const sizeStyles: Record<ButtonSize, string> = {
+  xs: "h-8 px-3.5 rounded",
+  sm: "h-9 px-4 rounded",
+  md: "h-10 px-5 rounded-md",
+  lg: "h-11 px-6 rounded-lg",
+  xl: "h-12 px-7 rounded-lg",
 };
 
 export function Button({
-  children,
-  icon,
-  variant = "primary",
+  className,
+  variant = "solid",
   size = "md",
-  loading = false,
-  disabled = false,
-  style,
-  onPress,
+  action = "primary",
+  isDisabled,
+  children,
+  ...props
 }: ButtonProps) {
-  const variantStyle = VARIANT_STYLES[variant];
-  const sizeStyle = SIZE_STYLES[size];
-  const isDisabled = disabled || loading;
-  const isIconOnly = icon && !children;
-
-  const buttonStyle: ViewStyle = {
-    height: sizeStyle.height,
-    width: isIconOnly ? sizeStyle.height : undefined,
-    paddingHorizontal: isIconOnly ? 0 : sizeStyle.paddingHorizontal,
-    backgroundColor: variantStyle.bgColor,
-    borderRadius: isIconOnly ? sizeStyle.height / 2 : 12,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row",
-    borderWidth: variantStyle.borderWidth,
-    borderColor: variantStyle.borderColor,
-    opacity: isDisabled ? 0.5 : 1,
-  };
+  const baseStyle = "flex-row items-center justify-center data-[disabled=true]:opacity-50";
+  const variantStyle = action === "primary" ? variantStyles[variant] : actionStyles[action];
+  const sizeStyle = sizeStyles[size];
 
   return (
-    <TouchableOpacity
-      style={[buttonStyle, style]}
+    <Pressable
+      className={`${baseStyle} ${variantStyle} ${sizeStyle} ${className || ""}`}
       disabled={isDisabled}
-      activeOpacity={0.7}
-      onPress={onPress}
+      {...props}
     >
-      {loading ? (
-        <ActivityIndicator color={variantStyle.textColor} />
-      ) : (
-        <>
-          {icon && <>{icon}</>}
-          {children && (
-            <Text
-              style={{
-                fontSize: sizeStyle.fontSize,
-                fontWeight: "500",
-                color: variantStyle.textColor,
-                marginLeft: icon ? 8 : 0,
-              }}
-            >
-              {children}
-            </Text>
-          )}
-        </>
-      )}
-    </TouchableOpacity>
+      {children}
+    </Pressable>
   );
 }
+
+Button.displayName = "Button";
+
+type ButtonTextProps = { className?: string; children?: React.ReactNode };
+
+export function ButtonText({ className, children }: ButtonTextProps) {
+  return (
+    <Text
+      className={`text-white font-semibold text-base ${className || ""}`}
+    >
+      {children}
+    </Text>
+  );
+}
+
+ButtonText.displayName = "ButtonText";

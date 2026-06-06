@@ -10,16 +10,15 @@ export interface PublicUser {
   id: string;
   name: string | null;
   avatarUrl: string | null;
+  phone: string | null;
   createdAt: string;
-  activeListingCount: number;
 }
 
 export interface UsersDeps {
   repo: UsersRepository;
-  countActiveListings: (userId: string) => Promise<number>;
 }
 
-export function createUsersService({ repo, countActiveListings }: UsersDeps) {
+export function createUsersService({ repo }: UsersDeps) {
   return {
     async findOrCreateByEmail(email: string): Promise<User> {
       return (await repo.findByEmail(email)) ?? (await repo.create({ email }));
@@ -34,13 +33,12 @@ export function createUsersService({ repo, countActiveListings }: UsersDeps) {
     async getById(id: string): Promise<PublicUser> {
       const user = await repo.findById(id);
       if (!user) throw new NotFoundError('User not found');
-      const activeListingCount = await countActiveListings(id);
       return {
         id: user.id,
         name: user.name,
         avatarUrl: user.avatarUrl,
+        phone: user.phone,
         createdAt: user.createdAt.toISOString(),
-        activeListingCount,
       };
     },
 

@@ -79,12 +79,6 @@ export const CATEGORIES = [
         required: true,
       },
       {
-        id: 'model',
-        label: 'Tipe',
-        type: 'text',
-        required: false,
-      },
-      {
         id: 'fuel',
         label: 'Bahan Bakar',
         type: 'select',

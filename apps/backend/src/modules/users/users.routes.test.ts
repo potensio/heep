@@ -5,12 +5,8 @@ import { createApp } from '../../app';
 import { signAccessToken } from '../../core/jwt';
 import { createUsersRepository } from './users.repository';
 import { testDb as db } from '../../core/test/db';
-import { products as productsTable } from '../../core/db/schema';
-import { eq } from 'drizzle-orm';
-import { createProductsRepository } from '../products/products.repository';
 
 const usersRepository = createUsersRepository(db);
-const productsRepository = createProductsRepository(db);
 
 useTestDb();
 
@@ -26,29 +22,6 @@ const testEnv = {
   WEB_ORIGIN: 'http://localhost:5173',
   CHAT_ROOM: {} as any,
 };
-
-const baseProductForUsers = {
-  name: 'Toyota Avanza',
-  price: 150_000_000,
-  description: 'Kondisi baik',
-  category: 'kendaraan',
-  subcategory: 'mobil',
-  attributes: { brand: 'Toyota', condition: 'Bekas', year: 2020, mileage: 30000, fuel: 'Bensin' },
-  listingStatus: 'active' as const,
-  approvalStatus: 'pending' as const,
-  expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-  locationName: 'Jakarta',
-  locationPlaceId: 'place-1',
-  locationLat: -6.2,
-  locationLng: 106.8,
-  photos: [{ url: 'https://cdn.example.com/img.jpg', position: 0 }],
-};
-
-async function createApprovedProductForUser(sellerId: string) {
-  const { product } = await productsRepository.create({ sellerId, ...baseProductForUsers });
-  await db.update(productsTable).set({ approvalStatus: 'approved' }).where(eq(productsTable.id, product.id));
-  return product;
-}
 
 describe('users routes (integration)', () => {
   it('GET /users/:id returns a public profile', async () => {
@@ -91,43 +64,11 @@ describe('users routes (integration)', () => {
 });
 
 describe('GET /users/:id — extended response', () => {
-  it('includes createdAt and activeListingCount', async () => {
+  it('includes createdAt', async () => {
     const u = await usersRepository.create({ email: 'extended@example.com' });
-    await createApprovedProductForUser(u.id);
-    await createApprovedProductForUser(u.id);
     const res = await createApp().request(`/users/${u.id}`, {}, testEnv);
     expect(res.status).toBe(200);
     const body = await res.json() as any;
     expect(typeof body.createdAt).toBe('string');
-    expect(body.activeListingCount).toBe(2);
-  });
-
-  it('returns 0 activeListingCount for new user', async () => {
-    const u = await usersRepository.create({ email: 'zero-count@example.com' });
-    const res = await createApp().request(`/users/${u.id}`, {}, testEnv);
-    expect(res.status).toBe(200);
-    const body = await res.json() as any;
-    expect(body.activeListingCount).toBe(0);
-  });
-});
-
-describe('GET /users/:id/products', () => {
-  it('returns seller active+approved products', async () => {
-    const u = await usersRepository.create({ email: 'seller-products@example.com' });
-    await createApprovedProductForUser(u.id);
-    const res = await createApp().request(`/users/${u.id}/products`, {}, testEnv);
-    expect(res.status).toBe(200);
-    const body = await res.json() as any;
-    expect(body.items).toHaveLength(1);
-    expect(body.items[0].seller.id).toBe(u.id);
-    expect(body.nextCursor).toBeNull();
-  });
-
-  it('returns empty items for seller with no approved listings', async () => {
-    const u = await usersRepository.create({ email: 'no-products@example.com' });
-    const res = await createApp().request(`/users/${u.id}/products`, {}, testEnv);
-    expect(res.status).toBe(200);
-    const body = await res.json() as any;
-    expect(body.items).toHaveLength(0);
   });
 });

@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@expo/html-elements": "^56.0.1"
+  }
+}

@@ -8,9 +8,6 @@ import type { Env } from './types/env';
 import type { AppVariables } from './types/hono';
 import { usersRoutes } from './modules/users/users.routes';
 import { authRoutes } from './modules/auth/auth.routes';
-import { productsRoutes } from './modules/products/products.routes';
-import { savedProductsRoutes } from './modules/saved-products/saved-products.routes';
-import { chatRoutes } from './modules/chat/chat.routes';
 
 export function createApp() {
   const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
@@ -24,9 +21,6 @@ export function createApp() {
 
   app.route('/auth', authRoutes);
   app.route('/users', usersRoutes);
-  app.route('/products', productsRoutes);
-  app.route('/saved-products', savedProductsRoutes);
-  app.route('/chat', chatRoutes);
 
   app.onError(errorHandler);
   return app;

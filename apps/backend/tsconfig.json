@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "verbatimModuleSyntax": false,
     "paths": {
-      "@bantujual/categories": ["../../packages/categories/index.ts"]
+      "@heep/categories": ["../../packages/categories/index.ts"]
     }
   },
   "include": ["src"],
