@@ -9,7 +9,5 @@ ip = "0.0.0.0"
 [vars]
 ACCESS_TOKEN_TTL = "900"
 REFRESH_TOKEN_TTL = "2592000"
-OTP_TTL = "300"
-OTP_MAX_ATTEMPTS = "5"
-EMAIL_FROM = "Heep <noreply@heep.dev>"
+BUBBLE_API_URL = "https://app.heep.ai/version-13djz"
 WEB_ORIGIN = "http://localhost:5173"
