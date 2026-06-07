@@ -1,6 +1,15 @@
-import React, { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
-import { Pressable, StyleSheet } from "react-native";
-import { BottomSheetView } from "@gorhom/bottom-sheet";
+import React, {
+  forwardRef,
+  startTransition,
+  useCallback,
+  useDeferredValue,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { BottomSheetScrollView, BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { MagnifyingGlass } from "phosphor-react-native";
 import { BottomSheet, BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Text } from "@/components/ui/text";
 
@@ -48,6 +57,14 @@ export const LocationPickerBottomSheet = forwardRef<
   LocationPickerBottomSheetProps
 >(({ locations, selectedLocation, onSelect }, ref) => {
   const sheetRef = useRef<BottomSheetRef>(null);
+  const [query, setQuery] = useState("");
+  const deferredQuery = useDeferredValue(query);
+
+  const filteredLocations = deferredQuery.trim()
+    ? locations.filter((l) =>
+        l.toLowerCase().includes(deferredQuery.toLowerCase().trim())
+      )
+    : locations;
 
   useImperativeHandle(ref, () => ({
     open: () => sheetRef.current?.open(),
@@ -55,21 +72,40 @@ export const LocationPickerBottomSheet = forwardRef<
   }));
 
   const handleClose = useCallback(() => sheetRef.current?.close(), []);
+  const handleQueryChange = useCallback((text: string) => {
+    startTransition(() => setQuery(text));
+  }, []);
 
   return (
-    <BottomSheet ref={sheetRef} snapPoints={["40%"]}>
-      <BottomSheetView style={styles.container}>
+    <BottomSheet ref={sheetRef} snapPoints={["55%"]}>
+      <BottomSheetScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Select a location</Text>
-        {locations.map((location) => (
-          <LocationItem
-            key={location}
-            location={location}
-            isSelected={location === selectedLocation}
-            onPress={onSelect}
-            sheetClose={handleClose}
+        <View style={styles.searchRow}>
+          <MagnifyingGlass size={16} color="rgba(255,255,255,0.4)" weight="regular" />
+          <BottomSheetTextInput
+            style={styles.searchInput}
+            placeholder="Search..."
+            placeholderTextColor="rgba(255,255,255,0.3)"
+            value={query}
+            onChangeText={handleQueryChange}
+            autoCorrect={false}
+            autoCapitalize="none"
           />
-        ))}
-      </BottomSheetView>
+        </View>
+        {filteredLocations.length === 0 ? (
+          <Text style={styles.emptyText}>No results</Text>
+        ) : (
+          filteredLocations.map((location) => (
+            <LocationItem
+              key={location}
+              location={location}
+              isSelected={location === selectedLocation}
+              onPress={onSelect}
+              sheetClose={handleClose}
+            />
+          ))
+        )}
+      </BottomSheetScrollView>
     </BottomSheet>
   );
 });
@@ -80,12 +116,29 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: 32,
     gap: 8,
   },
   title: {
     color: "rgba(255,255,255,0.6)",
     fontSize: 13,
-    marginBottom: 8,
+    marginBottom: 4,
+  },
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.08)",
+    borderRadius: 100,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 10,
+    marginBottom: 4,
+  },
+  searchInput: {
+    flex: 1,
+    color: "#fff",
+    fontSize: 14,
+    paddingVertical: 0,
   },
   item: {
     paddingVertical: 14,
@@ -103,5 +156,11 @@ const styles = StyleSheet.create({
   },
   itemTextSelected: {
     color: "#000",
+  },
+  emptyText: {
+    color: "rgba(255,255,255,0.4)",
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 16,
   },
 });

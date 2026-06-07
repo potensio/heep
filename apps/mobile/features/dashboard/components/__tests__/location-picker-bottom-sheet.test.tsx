@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 import {
   LocationPickerBottomSheet,
   LocationPickerBottomSheetRef,
@@ -7,9 +7,17 @@ import {
 
 let mockClose: jest.Mock;
 
-jest.mock('@gorhom/bottom-sheet', () => ({
-  BottomSheetView: ({ children, style }: any) => children ?? null,
-}));
+jest.mock('@gorhom/bottom-sheet', () => {
+  const React = require('react');
+  const { ScrollView, TextInput } = require('react-native');
+  return {
+    BottomSheetScrollView: ({ children, contentContainerStyle }: any) =>
+      <ScrollView contentContainerStyle={contentContainerStyle}>{children}</ScrollView>,
+    BottomSheetTextInput: React.forwardRef((props: any, ref: any) =>
+      <TextInput ref={ref} testID="search-input" {...props} />
+    ),
+  };
+});
 
 jest.mock('@/components/ui/bottom-sheet', () => {
   const React = require('react');
@@ -74,5 +82,38 @@ describe('LocationPickerBottomSheet', () => {
         expect.objectContaining({ backgroundColor: '#fff' }),
       ])
     );
+  });
+
+  it('filters locations by search query', async () => {
+    const ref = React.createRef<LocationPickerBottomSheetRef>();
+    const { getByTestId, getByText, queryByText } = await render(
+      <LocationPickerBottomSheet
+        ref={ref}
+        locations={locations}
+        selectedLocation={null}
+        onSelect={jest.fn()}
+      />
+    );
+    await act(async () => {
+      fireEvent.changeText(getByTestId('search-input'), 'villa');
+    });
+    expect(getByText('Villa Sunset')).toBeTruthy();
+    expect(queryByText('City Loft')).toBeNull();
+  });
+
+  it('shows no results when query matches nothing', async () => {
+    const ref = React.createRef<LocationPickerBottomSheetRef>();
+    const { getByTestId, getByText } = await render(
+      <LocationPickerBottomSheet
+        ref={ref}
+        locations={locations}
+        selectedLocation={null}
+        onSelect={jest.fn()}
+      />
+    );
+    await act(async () => {
+      fireEvent.changeText(getByTestId('search-input'), 'zzz');
+    });
+    expect(getByText('No results')).toBeTruthy();
   });
 });
