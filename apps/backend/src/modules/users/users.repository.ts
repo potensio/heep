@@ -7,6 +7,8 @@ export type User = typeof users.$inferSelect;
 
 export interface CreateUserInput {
   email: string;
+  bubbleId?: string;
+  name?: string;
 }
 
 export interface UpdateUserInput {
@@ -15,11 +17,13 @@ export interface UpdateUserInput {
   gender?: 'male' | 'female';
   profileCompleted?: boolean;
   phone?: string;
+  bubbleId?: string;
 }
 
 export interface UsersRepository {
   findById(id: string): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
+  findByBubbleId(bubbleId: string): Promise<User | null>;
   create(input: CreateUserInput): Promise<User>;
   update(id: string, patch: UpdateUserInput): Promise<User>;
 }
@@ -36,8 +40,17 @@ export function createUsersRepository(db: Database): UsersRepository {
       return row ?? null;
     },
 
+    async findByBubbleId(bubbleId) {
+      const [row] = await db.select().from(users).where(eq(users.bubbleId, bubbleId)).limit(1);
+      return row ?? null;
+    },
+
     async create(input) {
-      const [row] = await db.insert(users).values({ email: input.email }).returning();
+      const [row] = await db.insert(users).values({
+        email: input.email,
+        bubbleId: input.bubbleId,
+        name: input.name,
+      }).returning();
       return row;
     },
 

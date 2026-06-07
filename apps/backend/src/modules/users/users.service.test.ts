@@ -3,6 +3,29 @@ import { describe, it, expect } from 'vitest';
 import { createUsersService } from './users.service';
 import type { User, UsersRepository, CreateUserInput, UpdateUserInput } from './users.repository';
 
+const baseUser: User = {
+  id: 'u1', bubbleId: 'b1', email: 'a@example.com', name: null,
+  avatarUrl: null, gender: null, phone: null, profileCompleted: false,
+  createdAt: new Date(), updatedAt: new Date(),
+};
+
+function makeBubbleRepo(initial: User[] = []): UsersRepository {
+  const store = [...initial];
+  return {
+    findById: async (id) => store.find((u) => u.id === id) ?? null,
+    findByEmail: async (email) => store.find((u) => u.email === email) ?? null,
+    findByBubbleId: async (bubbleId) => store.find((u) => u.bubbleId === bubbleId) ?? null,
+    create: async (input: CreateUserInput) => {
+      const u: User = { ...baseUser, id: `new-${store.length}`, email: input.email, bubbleId: input.bubbleId ?? null, name: input.name ?? null };
+      store.push(u); return u;
+    },
+    update: async (id, patch) => {
+      const u = store.find((x) => x.id === id)!;
+      Object.assign(u, patch); return u;
+    },
+  };
+}
+
 function makeFakeRepo(): UsersRepository {
   const rows = new Map<string, User>();
   let seq = 0;
@@ -11,6 +34,9 @@ function makeFakeRepo(): UsersRepository {
     async findById(id) { return rows.get(id) ?? null; },
     async findByEmail(email) {
       return [...rows.values()].find((u) => u.email === email) ?? null;
+    },
+    async findByBubbleId(bubbleId) {
+      return [...rows.values()].find((u) => u.bubbleId === bubbleId) ?? null;
     },
     async create(input: CreateUserInput) {
       const user: User = {
@@ -56,5 +82,32 @@ describe('usersService', () => {
     const u = await svc.findOrCreateByEmail('count@example.com');
     const profile = await svc.getById(u.id);
     expect((profile as any).createdAt).toBeDefined();
+  });
+});
+
+describe('findOrCreateByBubbleId', () => {
+  it('returns existing user by bubbleId', async () => {
+    const repo = makeBubbleRepo([baseUser]);
+    const svc = createUsersService({ repo });
+    const user = await svc.findOrCreateByBubbleId('b1', 'a@example.com');
+    expect(user.id).toBe('u1');
+  });
+
+  it('links bubbleId to existing user found by email', async () => {
+    const existing: User = { ...baseUser, id: 'u2', bubbleId: null, email: 'b@example.com' };
+    const repo = makeBubbleRepo([existing]);
+    const svc = createUsersService({ repo });
+    const user = await svc.findOrCreateByBubbleId('new-bubble', 'b@example.com');
+    expect(user.id).toBe('u2');
+    expect(user.bubbleId).toBe('new-bubble');
+  });
+
+  it('creates a new user when not found by bubbleId or email', async () => {
+    const repo = makeBubbleRepo([]);
+    const svc = createUsersService({ repo });
+    const user = await svc.findOrCreateByBubbleId('brand-new', 'new@example.com', 'Jane Doe');
+    expect(user.email).toBe('new@example.com');
+    expect(user.bubbleId).toBe('brand-new');
+    expect(user.name).toBe('Jane Doe');
   });
 });

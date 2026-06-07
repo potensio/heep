@@ -24,6 +24,16 @@ export function createUsersService({ repo }: UsersDeps) {
       return (await repo.findByEmail(email)) ?? (await repo.create({ email }));
     },
 
+    async findOrCreateByBubbleId(bubbleId: string, email: string, name?: string): Promise<User> {
+      const byBubble = await repo.findByBubbleId(bubbleId);
+      if (byBubble) return byBubble;
+
+      const byEmail = await repo.findByEmail(email);
+      if (byEmail) return repo.update(byEmail.id, { bubbleId });
+
+      return repo.create({ email, bubbleId, name });
+    },
+
     async getMe(id: string): Promise<User> {
       const user = await repo.findById(id);
       if (!user) throw new NotFoundError('User not found');
