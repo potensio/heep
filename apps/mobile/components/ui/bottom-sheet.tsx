@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
-import { StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import Animated, {
   interpolate,
   useAnimatedStyle,
@@ -9,6 +9,7 @@ import {
   BottomSheetModal,
   BottomSheetBackdropProps,
   useBottomSheetSpringConfigs,
+  useBottomSheet,
 } from "@gorhom/bottom-sheet";
 import { BlurView } from "expo-blur";
 
@@ -19,10 +20,12 @@ export interface BottomSheetRef {
 
 interface BottomSheetProps {
   children: React.ReactNode;
-  snapPoints?: string[];
+  snapPoints?: (string | number)[];
 }
 
 function CustomBackdrop({ animatedIndex, style }: BottomSheetBackdropProps) {
+  const { close } = useBottomSheet();
+
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: interpolate(
       animatedIndex.value,
@@ -34,7 +37,17 @@ function CustomBackdrop({ animatedIndex, style }: BottomSheetBackdropProps) {
 
   return (
     <Animated.View style={[style, animatedStyle]}>
-      <BlurView intensity={25} style={StyleSheet.absoluteFill} tint="dark" />
+      <Pressable
+        testID="bottom-sheet-backdrop"
+        style={StyleSheet.absoluteFill}
+        onPress={close}
+      />
+      <BlurView
+        intensity={25}
+        style={StyleSheet.absoluteFill}
+        tint="dark"
+        pointerEvents="none"
+      />
     </Animated.View>
   );
 }
