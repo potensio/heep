@@ -7,6 +7,7 @@ export const genderEnum = pgEnum('gender', ['male', 'female']);
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
+  bubbleId: text('bubble_id').unique(),
   email: text('email').notNull().unique(),
   name: text('name'),
   avatarUrl: text('avatar_url'),
@@ -16,16 +17,6 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
-
-export const otpCodes = pgTable('otp_codes', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  email: text('email').notNull(),
-  codeHash: text('code_hash').notNull(),
-  expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
-  consumedAt: timestamp('consumed_at', { withTimezone: true }),
-  attempts: integer('attempts').notNull().default(0),
-  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-}, (t) => [index('otp_codes_email_idx').on(t.email)]);
 
 export const refreshTokens = pgTable('refresh_tokens', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -42,8 +33,4 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const refreshTokensRelations = relations(refreshTokens, ({ one }) => ({
   user: one(users, { fields: [refreshTokens.userId], references: [users.id] }),
-}));
-
-export const otpCodesRelations = relations(otpCodes, ({ one }) => ({
-  // No direct relation to users since otpCodes reference email, not user id
 }));
