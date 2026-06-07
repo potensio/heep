@@ -38,3 +38,9 @@ export class TooManyAttemptsError extends AppError {
     super(429, 'TOO_MANY_ATTEMPTS', message);
   }
 }
+
+export class ConflictError extends AppError {
+  constructor(message = 'Conflict') {
+    super(409, 'CONFLICT', message);
+  }
+}
