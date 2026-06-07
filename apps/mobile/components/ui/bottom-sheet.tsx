@@ -1,5 +1,5 @@
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import Animated, {
   Easing,
   Extrapolation,
@@ -8,7 +8,6 @@ import Animated, {
 } from "react-native-reanimated";
 import {
   BottomSheetBackdropProps,
-  BottomSheetBackgroundProps,
   BottomSheetModal,
   useBottomSheet,
   useBottomSheetTimingConfigs,
@@ -54,14 +53,6 @@ function CustomBackdrop({ animatedIndex, style }: BottomSheetBackdropProps) {
   );
 }
 
-function SheetBackground({ style }: BottomSheetBackgroundProps) {
-  return (
-    <View style={[style, styles.sheetBackground]}>
-      <BlurView intensity={80} style={StyleSheet.absoluteFill} tint="dark" />
-    </View>
-  );
-}
-
 export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
   ({ children, snapPoints = ["40%"] }, ref) => {
     const modalRef = useRef<BottomSheetModal>(null);
@@ -81,17 +72,12 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       []
     );
 
-    const renderBackground = useCallback(
-      (props: BottomSheetBackgroundProps) => <SheetBackground {...props} />,
-      []
-    );
-
     return (
       <BottomSheetModal
         ref={modalRef}
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}
-        backgroundComponent={renderBackground}
+        backgroundStyle={{ backgroundColor: "#000" }}
         handleComponent={() => null}
         animationConfigs={animConfig}
       >
@@ -102,9 +88,3 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
 );
 
 BottomSheet.displayName = "BottomSheet";
-
-const styles = StyleSheet.create({
-  sheetBackground: {
-    overflow: "hidden",
-  },
-});
