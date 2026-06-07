@@ -103,14 +103,34 @@ Unchanged from existing implementation — Hono already handles refresh token ro
 
 ### Credentials Storage
 
-`BUBBLE_API_URL` and `BUBBLE_API_KEY` are stored as Hono environment variables. The admin API key is used for all Bubble.io calls from the backend.
+`BUBBLE_API_URL` and `BUBBLE_API_KEY` are stored as Hono environment variables. Never commit these values to git.
+
+```
+BUBBLE_API_URL=https://app.heep.ai/version-13djz
+BUBBLE_API_KEY=<secret>
+```
 
 ### Endpoints Used
 
 | Purpose | Method | Bubble.io Endpoint |
 |---------|--------|--------------------|
-| Login (verify credentials) | POST | `/api/1.1/user/login` (built-in) |
-| Signup (create user) | POST | `/api/1.1/wf/signup` (custom workflow) |
+| Login (verify credentials) | POST | `/api/1.1/wf/hono-login` (custom workflow) |
+| Signup (create user) | POST | `/api/1.1/wf/hono-signup` (custom workflow, to be created) |
+
+### Login Workflow Response Format
+
+```json
+{
+  "status": "success",
+  "response": {
+    "token": "bus|...",
+    "user_id": "1780741283761x668392950583469600",
+    "expires": 31536000
+  }
+}
+```
+
+Hono uses only `user_id` from this response. `token` and `expires` are discarded.
 
 ### Future Data Calls
 
