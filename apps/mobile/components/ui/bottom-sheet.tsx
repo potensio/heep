@@ -1,17 +1,18 @@
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import Animated, {
+  Easing,
+  Extrapolation,
   interpolate,
   useAnimatedStyle,
-  Extrapolation,
 } from "react-native-reanimated";
 import {
-  BottomSheetModal,
   BottomSheetBackdropProps,
-  useBottomSheetTimingConfigs,
+  BottomSheetBackgroundProps,
+  BottomSheetModal,
   useBottomSheet,
+  useBottomSheetTimingConfigs,
 } from "@gorhom/bottom-sheet";
-import { Easing } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 
 export interface BottomSheetRef {
@@ -44,12 +45,20 @@ function CustomBackdrop({ animatedIndex, style }: BottomSheetBackdropProps) {
         onPress={close}
       />
       <BlurView
-        intensity={25}
+        intensity={50}
         style={StyleSheet.absoluteFill}
         tint="dark"
         pointerEvents="none"
       />
     </Animated.View>
+  );
+}
+
+function SheetBackground({ style }: BottomSheetBackgroundProps) {
+  return (
+    <View style={[style, styles.sheetBackground]}>
+      <BlurView intensity={80} style={StyleSheet.absoluteFill} tint="dark" />
+    </View>
   );
 }
 
@@ -72,12 +81,17 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
       []
     );
 
+    const renderBackground = useCallback(
+      (props: BottomSheetBackgroundProps) => <SheetBackground {...props} />,
+      []
+    );
+
     return (
       <BottomSheetModal
         ref={modalRef}
         snapPoints={snapPoints}
         backdropComponent={renderBackdrop}
-        backgroundStyle={{ backgroundColor: "#000" }}
+        backgroundComponent={renderBackground}
         handleComponent={() => null}
         animationConfigs={animConfig}
       >
@@ -88,3 +102,9 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
 );
 
 BottomSheet.displayName = "BottomSheet";
+
+const styles = StyleSheet.create({
+  sheetBackground: {
+    overflow: "hidden",
+  },
+});

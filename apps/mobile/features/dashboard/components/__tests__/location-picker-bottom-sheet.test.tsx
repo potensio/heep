@@ -84,6 +84,65 @@ describe('LocationPickerBottomSheet', () => {
     );
   });
 
+  it('shows check icon next to selected location', async () => {
+    const ref = React.createRef<LocationPickerBottomSheetRef>();
+    const { getByTestId, queryByTestId } = await render(
+      <LocationPickerBottomSheet
+        ref={ref}
+        locations={locations}
+        selectedLocation="Villa Sunset"
+        onSelect={jest.fn()}
+      />
+    );
+    expect(getByTestId('check-icon-Villa Sunset')).toBeTruthy();
+    expect(queryByTestId('check-icon-City Loft')).toBeNull();
+  });
+
+  it('shows clear button when a location is selected and onClear is provided', async () => {
+    const ref = React.createRef<LocationPickerBottomSheetRef>();
+    const { getByTestId } = await render(
+      <LocationPickerBottomSheet
+        ref={ref}
+        locations={locations}
+        selectedLocation="Villa Sunset"
+        onSelect={jest.fn()}
+        onClear={jest.fn()}
+      />
+    );
+    expect(getByTestId('clear-button')).toBeTruthy();
+  });
+
+  it('calls onClear and closes sheet when clear button is pressed', async () => {
+    const ref = React.createRef<LocationPickerBottomSheetRef>();
+    const onClear = jest.fn();
+    const { getByTestId } = await render(
+      <LocationPickerBottomSheet
+        ref={ref}
+        locations={locations}
+        selectedLocation="Villa Sunset"
+        onSelect={jest.fn()}
+        onClear={onClear}
+      />
+    );
+    fireEvent.press(getByTestId('clear-button'));
+    expect(onClear).toHaveBeenCalled();
+    expect(mockClose).toHaveBeenCalled();
+  });
+
+  it('does not show clear button when no location is selected', async () => {
+    const ref = React.createRef<LocationPickerBottomSheetRef>();
+    const { queryByTestId } = await render(
+      <LocationPickerBottomSheet
+        ref={ref}
+        locations={locations}
+        selectedLocation={null}
+        onSelect={jest.fn()}
+        onClear={jest.fn()}
+      />
+    );
+    expect(queryByTestId('clear-button')).toBeNull();
+  });
+
   it('filters locations by search query', async () => {
     const ref = React.createRef<LocationPickerBottomSheetRef>();
     const { getByTestId, getByText, queryByText } = await render(

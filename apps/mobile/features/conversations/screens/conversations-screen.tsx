@@ -137,6 +137,7 @@ export default function ConversationsScreen() {
         locations={LOCATIONS}
         selectedLocation={selectedLocation}
         onSelect={setSelectedLocation}
+        onClear={() => setSelectedLocation(null)}
       />
     </Box>
   );

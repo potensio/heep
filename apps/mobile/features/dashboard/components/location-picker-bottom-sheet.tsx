@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { BottomSheetScrollView, BottomSheetTextInput } from "@gorhom/bottom-sheet";
-import { MagnifyingGlass } from "phosphor-react-native";
+import { Check, MagnifyingGlass } from "phosphor-react-native";
 import { BottomSheet, BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Text } from "@/components/ui/text";
 
@@ -19,6 +19,7 @@ interface LocationPickerBottomSheetProps {
   locations: string[];
   selectedLocation: string | null;
   onSelect: (location: string) => void;
+  onClear?: () => void;
 }
 
 interface LocationItemProps {
@@ -48,6 +49,9 @@ const LocationItem = React.memo(function LocationItem({
       <Text style={[styles.itemText, isSelected && styles.itemTextSelected]}>
         {location}
       </Text>
+      {isSelected && (
+        <Check testID={`check-icon-${location}`} size={16} color="#000" weight="bold" />
+      )}
     </Pressable>
   );
 });
@@ -55,7 +59,7 @@ const LocationItem = React.memo(function LocationItem({
 export const LocationPickerBottomSheet = forwardRef<
   LocationPickerBottomSheetRef,
   LocationPickerBottomSheetProps
->(({ locations, selectedLocation, onSelect }, ref) => {
+>(({ locations, selectedLocation, onSelect, onClear }, ref) => {
   const sheetRef = useRef<BottomSheetRef>(null);
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
@@ -72,9 +76,15 @@ export const LocationPickerBottomSheet = forwardRef<
   }));
 
   const handleClose = useCallback(() => sheetRef.current?.close(), []);
+
   const handleQueryChange = useCallback((text: string) => {
     startTransition(() => setQuery(text));
   }, []);
+
+  const handleClear = useCallback(() => {
+    onClear?.();
+    handleClose();
+  }, [onClear, handleClose]);
 
   return (
     <BottomSheet ref={sheetRef} snapPoints={["55%"]}>
@@ -104,6 +114,15 @@ export const LocationPickerBottomSheet = forwardRef<
               sheetClose={handleClose}
             />
           ))
+        )}
+        {selectedLocation && onClear && (
+          <Pressable
+            testID="clear-button"
+            onPress={handleClear}
+            style={styles.clearButton}
+          >
+            <Text style={styles.clearButtonText}>Clear selection</Text>
+          </Pressable>
         )}
       </BottomSheetScrollView>
     </BottomSheet>
@@ -141,11 +160,13 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   item: {
+    flexDirection: "row",
     paddingVertical: 14,
     paddingHorizontal: 20,
     borderRadius: 100,
     backgroundColor: "rgba(255,255,255,0.1)",
     alignItems: "center",
+    justifyContent: "space-between",
   },
   itemSelected: {
     backgroundColor: "#fff",
@@ -162,5 +183,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: "center",
     marginTop: 16,
+  },
+  clearButton: {
+    marginTop: 4,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 100,
+    backgroundColor: "rgba(255,255,255,0.06)",
+    alignItems: "center",
+  },
+  clearButtonText: {
+    color: "rgba(255,255,255,0.45)",
+    fontSize: 14,
   },
 });

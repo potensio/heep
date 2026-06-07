@@ -17,7 +17,10 @@ import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { Image } from "@/components/ui/image";
 import { useTheme } from "@/context/ThemeContext";
-import { LocationPickerBottomSheet, LocationPickerBottomSheetRef } from "@/features/dashboard/components/location-picker-bottom-sheet";
+import {
+  LocationPickerBottomSheet,
+  LocationPickerBottomSheetRef,
+} from "@/features/dashboard/components/location-picker-bottom-sheet";
 
 const LOCATIONS = ["Villa Sunset", "City Loft", "Beach House"];
 
@@ -66,7 +69,7 @@ export default function DashboardScreen() {
                 <Text className="text-xs text-foreground">
                   {selectedLocation ?? "Select a location"}
                 </Text>
-                <CaretRight size={16} color={iconColor} weight="regular" />
+                <CaretRight size={20} color={iconColor} weight="regular" />
               </HStack>
             </Pressable>
           </HStack>
@@ -237,8 +240,8 @@ export default function DashboardScreen() {
 
                 {/* Description */}
                 <Text className="text-xs mt-4 opacity-80 tracking-tight">
-                  Guests who couldn't book right away but still want a table.
-                  Don't miss the chance to seat them.
+                  Guests who couldn&apos;t book right away but still want a
+                  table. Don&apos;t miss the chance to seat them.
                 </Text>
 
                 {/* Stats Pills */}
@@ -276,6 +279,7 @@ export default function DashboardScreen() {
         locations={LOCATIONS}
         selectedLocation={selectedLocation}
         onSelect={setSelectedLocation}
+        onClear={() => setSelectedLocation(null)}
       />
     </Box>
   );
