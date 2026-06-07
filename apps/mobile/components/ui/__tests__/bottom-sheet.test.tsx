@@ -24,7 +24,7 @@ jest.mock('@gorhom/bottom-sheet', () => {
       });
       return <>{backdrop}{children ?? null}</>;
     }),
-    useBottomSheetSpringConfigs: () => ({}),
+    useBottomSheetTimingConfigs: () => ({}),
     useBottomSheet: () => ({ close: mockClose }),
   };
 });

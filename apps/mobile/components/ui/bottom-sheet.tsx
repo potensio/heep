@@ -8,9 +8,10 @@ import Animated, {
 import {
   BottomSheetModal,
   BottomSheetBackdropProps,
-  useBottomSheetSpringConfigs,
+  useBottomSheetTimingConfigs,
   useBottomSheet,
 } from "@gorhom/bottom-sheet";
+import { Easing } from "react-native-reanimated";
 import { BlurView } from "expo-blur";
 
 export interface BottomSheetRef {
@@ -56,9 +57,9 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
   ({ children, snapPoints = ["40%"] }, ref) => {
     const modalRef = useRef<BottomSheetModal>(null);
 
-    const springConfig = useBottomSheetSpringConfigs({
-      damping: 20,
-      stiffness: 200,
+    const animConfig = useBottomSheetTimingConfigs({
+      duration: 350,
+      easing: Easing.out(Easing.exp),
     });
 
     useImperativeHandle(ref, () => ({
@@ -78,7 +79,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         backdropComponent={renderBackdrop}
         backgroundStyle={{ backgroundColor: "#000" }}
         handleComponent={() => null}
-        animationConfigs={springConfig}
+        animationConfigs={animConfig}
       >
         {children}
       </BottomSheetModal>
