@@ -6,6 +6,7 @@ import { createAuthRepository } from '../../modules/auth/auth.repository';
 import { createUsersRepository } from '../../modules/users/users.repository';
 import { createAuthService } from '../../modules/auth/auth.service';
 import { createUsersService } from '../../modules/users/users.service';
+import { createBubbleClient } from '../bubble/client';
 import { R2StorageService, FakeStorageService } from '../storage';
 
 export async function servicesMiddleware(
@@ -20,9 +21,12 @@ export async function servicesMiddleware(
     repo: usersRepo,
   });
 
+  const bubbleClient = createBubbleClient(c.env.BUBBLE_API_URL, c.env.BUBBLE_API_KEY);
+
   const authService = createAuthService({
     authRepo,
     usersService,
+    bubbleClient,
     jwtAccessSecret: c.env.JWT_ACCESS_SECRET,
     jwtRefreshSecret: c.env.JWT_REFRESH_SECRET,
     accessTokenTtl: Number(c.env.ACCESS_TOKEN_TTL),

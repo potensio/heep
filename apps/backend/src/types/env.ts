@@ -4,10 +4,8 @@ export interface Env {
   JWT_REFRESH_SECRET: string;
   ACCESS_TOKEN_TTL: string;
   REFRESH_TOKEN_TTL: string;
-  OTP_TTL: string;
-  OTP_MAX_ATTEMPTS: string;
-  RESEND_API_KEY: string;
-  EMAIL_FROM: string;
+  BUBBLE_API_URL: string;
+  BUBBLE_API_KEY: string;
   WEB_ORIGIN: string;
   R2_ACCOUNT_ID?: string;
   R2_ACCESS_KEY_ID?: string;
