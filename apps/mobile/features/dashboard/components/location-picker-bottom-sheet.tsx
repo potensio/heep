@@ -1,5 +1,6 @@
-import { forwardRef, useImperativeHandle, useRef } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import React, { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { Pressable, StyleSheet } from "react-native";
+import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { BottomSheet, BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Text } from "@/components/ui/text";
 
@@ -10,6 +11,37 @@ interface LocationPickerBottomSheetProps {
   selectedLocation: string | null;
   onSelect: (location: string) => void;
 }
+
+interface LocationItemProps {
+  location: string;
+  isSelected: boolean;
+  onPress: (location: string) => void;
+  sheetClose: () => void;
+}
+
+const LocationItem = React.memo(function LocationItem({
+  location,
+  isSelected,
+  onPress,
+  sheetClose,
+}: LocationItemProps) {
+  const handlePress = useCallback(() => {
+    onPress(location);
+    sheetClose();
+  }, [location, onPress, sheetClose]);
+
+  return (
+    <Pressable
+      testID={`location-item-${location}`}
+      onPress={handlePress}
+      style={[styles.item, isSelected && styles.itemSelected]}
+    >
+      <Text style={[styles.itemText, isSelected && styles.itemTextSelected]}>
+        {location}
+      </Text>
+    </Pressable>
+  );
+});
 
 export const LocationPickerBottomSheet = forwardRef<
   LocationPickerBottomSheetRef,
@@ -22,29 +54,22 @@ export const LocationPickerBottomSheet = forwardRef<
     close: () => sheetRef.current?.close(),
   }));
 
+  const handleClose = useCallback(() => sheetRef.current?.close(), []);
+
   return (
     <BottomSheet ref={sheetRef} snapPoints={["40%"]}>
-      <View style={styles.container}>
+      <BottomSheetView style={styles.container}>
         <Text style={styles.title}>Select a location</Text>
-        {locations.map((location) => {
-          const isSelected = location === selectedLocation;
-          return (
-            <Pressable
-              key={location}
-              testID={`location-item-${location}`}
-              onPress={() => {
-                onSelect(location);
-                sheetRef.current?.close();
-              }}
-              style={[styles.item, isSelected && styles.itemSelected]}
-            >
-              <Text style={[styles.itemText, isSelected && styles.itemTextSelected]}>
-                {location}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+        {locations.map((location) => (
+          <LocationItem
+            key={location}
+            location={location}
+            isSelected={location === selectedLocation}
+            onPress={onSelect}
+            sheetClose={handleClose}
+          />
+        ))}
+      </BottomSheetView>
     </BottomSheet>
   );
 });

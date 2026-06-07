@@ -5,13 +5,20 @@ import {
   LocationPickerBottomSheetRef,
 } from '../location-picker-bottom-sheet';
 
+let mockClose: jest.Mock;
+
+jest.mock('@gorhom/bottom-sheet', () => ({
+  BottomSheetView: ({ children, style }: any) => children ?? null,
+}));
+
 jest.mock('@/components/ui/bottom-sheet', () => {
   const React = require('react');
   return {
     BottomSheet: React.forwardRef(({ children }: any, ref: any) => {
+      mockClose = jest.fn();
       React.useImperativeHandle(ref, () => ({
         open: jest.fn(),
-        close: jest.fn(),
+        close: mockClose,
       }));
       return children ?? null;
     }),
@@ -35,7 +42,7 @@ describe('LocationPickerBottomSheet', () => {
     expect(getByText('City Loft')).toBeTruthy();
   });
 
-  it('calls onSelect with the tapped location', async () => {
+  it('calls onSelect with the tapped location and closes the sheet', async () => {
     const ref = React.createRef<LocationPickerBottomSheetRef>();
     const onSelect = jest.fn();
     const { getByText } = await render(
@@ -48,6 +55,7 @@ describe('LocationPickerBottomSheet', () => {
     );
     fireEvent.press(getByText('Villa Sunset'));
     expect(onSelect).toHaveBeenCalledWith('Villa Sunset');
+    expect(mockClose).toHaveBeenCalled();
   });
 
   it('renders selected location with white background', async () => {
