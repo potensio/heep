@@ -6,13 +6,14 @@ import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { enableScreens } from "react-native-screens";
-import { FjallaOne_400Regular } from "@expo-google-fonts/fjalla-one";
 import {
-  PlusJakartaSans_400Regular,
-  PlusJakartaSans_500Medium,
-  PlusJakartaSans_600SemiBold,
-  PlusJakartaSans_700Bold,
-} from "@expo-google-fonts/plus-jakarta-sans";
+  DMSans_300Light,
+  DMSans_400Regular,
+  DMSans_500Medium,
+  DMSans_600SemiBold,
+  DMSans_700Bold,
+} from "@expo-google-fonts/dm-sans";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "../global.css";
@@ -22,11 +23,11 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    "Fjalla-One": FjallaOne_400Regular,
-    "Plus-Jakarta": PlusJakartaSans_400Regular,
-    "Plus-Jakarta-Medium": PlusJakartaSans_500Medium,
-    "Plus-Jakarta-SemiBold": PlusJakartaSans_600SemiBold,
-    "Plus-Jakarta-Bold": PlusJakartaSans_700Bold,
+    "DM-Sans-Light": DMSans_300Light,
+    "DM-Sans": DMSans_400Regular,
+    "DM-Sans-Medium": DMSans_500Medium,
+    "DM-Sans-SemiBold": DMSans_600SemiBold,
+    "DM-Sans-Bold": DMSans_700Bold,
   });
 
   useEffect(() => {
@@ -40,9 +41,17 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider>
           <GluestackUIProvider>
-            <Stack screenOptions={{ headerShown: false }}>
-              <Stack.Screen name="auth" />
-            </Stack>
+            <BottomSheetModalProvider>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: "transparent" },
+                }}
+              >
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="auth" />
+              </Stack>
+            </BottomSheetModalProvider>
           </GluestackUIProvider>
         </ThemeProvider>
       </SafeAreaProvider>
