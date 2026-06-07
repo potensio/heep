@@ -58,8 +58,8 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
     const modalRef = useRef<BottomSheetModal>(null);
 
     const animConfig = useBottomSheetTimingConfigs({
-      duration: 350,
-      easing: Easing.out(Easing.exp),
+      duration: 300,
+      easing: Easing.bezier(0.25, 0.1, 0.25, 1),
     });
 
     useImperativeHandle(ref, () => ({
