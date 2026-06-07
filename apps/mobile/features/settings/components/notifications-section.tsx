@@ -1,10 +1,10 @@
-import { View } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { VStack } from '@/components/ui/vstack';
+import { Box } from '@/components/ui/box';
 
 export function NotificationsSection() {
   return (
-    <View testID="notifications-section" className="bg-white rounded-[32px] p-6 mt-6">
+    <Box testID="notifications-section" className="bg-white rounded-[32px] p-6 mt-6">
       <Text className="text-xl font-semibold" style={{ marginBottom: 16 }}>
         Notifications
       </Text>
@@ -13,6 +13,6 @@ export function NotificationsSection() {
           Coming soon
         </Text>
       </VStack>
-    </View>
+    </Box>
   );
 }

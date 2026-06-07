@@ -33,7 +33,7 @@ export default function SettingsScreen() {
           Settings
         </Text>
 
-        <HStack className="mt-6" style={{ gap: 10, flexWrap: 'wrap' }}>
+        <HStack className="mt-6 flex-wrap" style={{ gap: 10 }}>
           {TABS.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
