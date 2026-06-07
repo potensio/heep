@@ -1,19 +1,21 @@
-// src/modules/auth/auth.validation.ts
 import { z } from 'zod';
 
-export const requestOtpSchema = z.object({
+export const loginSchema = z.object({
   email: z.string().email(),
+  password: z.string().min(1),
 });
 
-export const verifyOtpSchema = z.object({
+export const signupSchema = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
   email: z.string().email(),
-  code: z.string().regex(/^\d{6}$/, 'Code must be 6 digits'),
+  password: z.string().min(8),
 });
 
 export const refreshSchema = z.object({
   refreshToken: z.string().min(1),
 });
 
-export type RequestOtpInput = z.infer<typeof requestOtpSchema>;
-export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
+export type SignupInput = z.infer<typeof signupSchema>;
 export type RefreshInput = z.infer<typeof refreshSchema>;

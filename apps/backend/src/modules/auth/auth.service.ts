@@ -24,7 +24,9 @@ export function createAuthService(deps: AuthDeps) {
   }
 
   async function signAccessToken(userId: string): Promise<string> {
-    return sign({ sub: userId, type: 'access', exp: nowSeconds() + accessTokenTtl }, jwtAccessSecret, 'HS256');
+    const now = nowSeconds();
+    const jti = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('');
+    return sign({ sub: userId, type: 'access', jti, iat: now, exp: now + accessTokenTtl }, jwtAccessSecret, 'HS256');
   }
 
   async function issueTokens(user: User) {

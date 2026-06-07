@@ -1,12 +1,23 @@
-// src/modules/auth/auth.routes.ts
 import { Hono } from 'hono';
 import { zValidator } from '@hono/zod-validator';
 import { requireAuth } from '../../core/middleware/auth';
 import type { Env } from '../../types/env';
 import type { AppVariables } from '../../types/hono';
-import { refreshSchema } from './auth.validation';
+import { loginSchema, signupSchema, refreshSchema } from './auth.validation';
 
 export const authRoutes = new Hono<{ Bindings: Env; Variables: AppVariables }>();
+
+authRoutes.post('/login', zValidator('json', loginSchema), async (c) => {
+  const { email, password } = c.req.valid('json');
+  const result = await c.get('authService').login(email, password);
+  return c.json(result);
+});
+
+authRoutes.post('/signup', zValidator('json', signupSchema), async (c) => {
+  const { firstName, lastName, email, password } = c.req.valid('json');
+  const result = await c.get('authService').signup(firstName, lastName, email, password);
+  return c.json(result, 201);
+});
 
 authRoutes.post('/refresh', zValidator('json', refreshSchema), async (c) => {
   const { refreshToken } = c.req.valid('json');
