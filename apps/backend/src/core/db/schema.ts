@@ -1,5 +1,5 @@
 import {
-  pgTable, pgEnum, uuid, text, integer, boolean, timestamp, index,
+  pgTable, pgEnum, uuid, text, boolean, timestamp, index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 

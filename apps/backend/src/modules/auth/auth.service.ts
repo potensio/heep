@@ -1,24 +1,20 @@
-import { generateOtpCode, hashOtpCode, verifyOtpCode, generateRefreshToken, hashRefreshToken } from '../../core/crypto';
+import { generateRefreshToken, hashRefreshToken } from '../../core/crypto';
 import { sign } from 'hono/jwt';
-import { emailService, type EmailService } from '../../core/email';
 import { type UsersService } from '../users/users.service';
 import { type AuthRepository } from './auth.repository';
-import { UnauthorizedError, TooManyAttemptsError } from '../../core/errors';
+import { UnauthorizedError } from '../../core/errors';
 
 export interface AuthDeps {
   authRepo: AuthRepository;
   usersService: UsersService;
-  email: EmailService;
   jwtAccessSecret: string;
   jwtRefreshSecret: string;
   accessTokenTtl: number;
   refreshTokenTtl: number;
-  otpTtl: number;
-  otpMaxAttempts: number;
 }
 
 export function createAuthService(deps: AuthDeps) {
-  const { authRepo, usersService, email, jwtAccessSecret, accessTokenTtl, refreshTokenTtl, otpTtl, otpMaxAttempts } = deps;
+  const { authRepo, usersService, jwtAccessSecret, accessTokenTtl, refreshTokenTtl } = deps;
 
   function nowSeconds(): number {
     return Math.floor(Date.now() / 1000);
@@ -40,31 +36,6 @@ export function createAuthService(deps: AuthDeps) {
   }
 
   return {
-    async requestOtp(emailAddr: string): Promise<void> {
-      const code = generateOtpCode();
-      const codeHash = await hashOtpCode(code);
-      await authRepo.createOtp({
-        email: emailAddr,
-        codeHash,
-        expiresAt: new Date(Date.now() + otpTtl * 1000),
-      });
-      await email.sendOtp(emailAddr, code);
-    },
-
-    async verifyOtp(emailAddr: string, code: string) {
-      const otp = await authRepo.findActiveOtp(emailAddr);
-      if (!otp) throw new UnauthorizedError('Invalid or expired code');
-      if (otp.attempts >= otpMaxAttempts) throw new TooManyAttemptsError();
-      const ok = await verifyOtpCode(code, otp.codeHash);
-      if (!ok) {
-        await authRepo.incrementAttempts(otp.id);
-        throw new UnauthorizedError('Invalid or expired code');
-      }
-      await authRepo.consumeOtp(otp.id);
-      const user = await usersService.findOrCreateByEmail(emailAddr);
-      return issueTokens(user);
-    },
-
     async refresh(refreshToken: string) {
       const existing = await authRepo.findValidRefreshToken(await hashRefreshToken(refreshToken));
       if (!existing) throw new UnauthorizedError('Invalid refresh token');

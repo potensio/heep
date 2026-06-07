@@ -14,7 +14,7 @@ function makeFakeRepo(): UsersRepository {
     },
     async create(input: CreateUserInput) {
       const user: User = {
-        id: `id-${++seq}`, email: input.email, name: null, avatarUrl: null,
+        id: `id-${++seq}`, email: input.email, name: null, avatarUrl: null, bubbleId: null,
         gender: null, phone: null, profileCompleted: false, createdAt: now, updatedAt: now,
       };
       rows.set(user.id, user);

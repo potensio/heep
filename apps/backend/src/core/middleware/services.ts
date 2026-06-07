@@ -2,7 +2,6 @@ import type { Context, Next } from 'hono';
 import type { Env } from '../../types/env';
 import type { AppVariables } from '../../types/hono';
 import { createDb } from '../db/client';
-import { emailService } from '../email';
 import { createAuthRepository } from '../../modules/auth/auth.repository';
 import { createUsersRepository } from '../../modules/users/users.repository';
 import { createAuthService } from '../../modules/auth/auth.service';
@@ -24,13 +23,10 @@ export async function servicesMiddleware(
   const authService = createAuthService({
     authRepo,
     usersService,
-    email: emailService,
     jwtAccessSecret: c.env.JWT_ACCESS_SECRET,
     jwtRefreshSecret: c.env.JWT_REFRESH_SECRET,
     accessTokenTtl: Number(c.env.ACCESS_TOKEN_TTL),
     refreshTokenTtl: Number(c.env.REFRESH_TOKEN_TTL),
-    otpTtl: Number(c.env.OTP_TTL),
-    otpMaxAttempts: Number(c.env.OTP_MAX_ATTEMPTS),
   });
 
   // Use R2StorageService if all R2 env vars are present, otherwise fallback to FakeStorageService
