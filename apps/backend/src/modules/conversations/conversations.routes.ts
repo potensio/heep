@@ -9,7 +9,7 @@ export const conversationsRoutes = new Hono<{ Bindings: Env; Variables: AppVaria
 
 conversationsRoutes.get('/', requireAuth, zValidator('query', listConversationsSchema), async (c) => {
   const { cursor, limit, property_id, q } = c.req.valid('query');
-  const result = await (c.get('conversationsService') as any).getConversations(c.get('user').id, {
+  const result = await c.get('conversationsService').getConversations(c.get('user').id, {
     cursor,
     limit,
     propertyId: property_id,
@@ -21,7 +21,7 @@ conversationsRoutes.get('/', requireAuth, zValidator('query', listConversationsS
 conversationsRoutes.get('/:id/messages', requireAuth, zValidator('query', listMessagesSchema), async (c) => {
   const conversationId = c.req.param('id');
   const { cursor, limit } = c.req.valid('query');
-  const result = await (c.get('conversationsService') as any).getMessages(c.get('user').id, conversationId, {
+  const result = await c.get('conversationsService').getMessages(c.get('user').id, conversationId, {
     cursor,
     limit,
   });

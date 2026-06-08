@@ -7,6 +7,8 @@ import { createUsersRepository } from '../../modules/users/users.repository';
 import { createAuthService } from '../../modules/auth/auth.service';
 import { createUsersService } from '../../modules/users/users.service';
 import { createBubbleClient } from '../bubble/client';
+import { createBubbleDataClient } from '../bubble/data-client';
+import { createConversationsService } from '../../modules/conversations/conversations.service';
 
 export async function servicesMiddleware(
   c: Context<{ Bindings: Env; Variables: AppVariables }>,
@@ -18,6 +20,7 @@ export async function servicesMiddleware(
 
   const usersService = createUsersService({ repo: usersRepo });
   const bubbleClient = createBubbleClient(c.env.BUBBLE_API_URL, c.env.BUBBLE_API_KEY);
+  const bubbleDataClient = createBubbleDataClient(c.env.BUBBLE_DATA_URL, c.env.BUBBLE_API_KEY);
 
   const authService = createAuthService({
     authRepo,
@@ -29,7 +32,10 @@ export async function servicesMiddleware(
     refreshTokenTtl: Number(c.env.REFRESH_TOKEN_TTL),
   });
 
+  const conversationsService = createConversationsService({ bubbleDataClient, usersService });
+
   c.set('authService', authService);
   c.set('usersService', usersService);
+  c.set('conversationsService', conversationsService);
   await next();
 }
