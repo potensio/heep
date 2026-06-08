@@ -1,1 +1,1 @@
-ALTER TABLE "users" ADD COLUMN "bubble_token" text;
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "bubble_token" text;

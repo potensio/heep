@@ -20,7 +20,7 @@ export async function servicesMiddleware(
 
   const usersService = createUsersService({ repo: usersRepo });
   const bubbleClient = createBubbleClient(c.env.BUBBLE_API_URL, c.env.BUBBLE_API_KEY);
-  const bubbleDataClient = createBubbleDataClient(c.env.BUBBLE_DATA_URL, c.env.BUBBLE_API_KEY);
+  const bubbleDataClient = createBubbleDataClient(c.env.BUBBLE_API_URL);
 
   const authService = createAuthService({
     authRepo,
