@@ -6,6 +6,7 @@ import type { ConversationsService } from '../modules/conversations/conversation
 
 export interface AuthUser {
   id: string;
+  bubble_id: string | null;
 }
 
 export interface AppVariables {

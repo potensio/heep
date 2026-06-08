@@ -4,13 +4,14 @@ import { UnauthorizedError } from './errors';
 // Convenience helper for tests: signs an access token with a well-known test secret.
 export const TEST_ACCESS_SECRET = 'test-access-secret-16chars';
 
-export async function signAccessToken(userId: string, secret = TEST_ACCESS_SECRET): Promise<string> {
+export async function signAccessToken(userId: string, secret = TEST_ACCESS_SECRET, bubbleId?: string | null): Promise<string> {
   const exp = Math.floor(Date.now() / 1000) + 900;
-  return sign({ sub: userId, type: 'access', exp }, secret, 'HS256');
+  return sign({ sub: userId, bubble_id: bubbleId ?? null, type: 'access', exp }, secret, 'HS256');
 }
 
 export interface AccessPayload {
   sub: string;
+  bubble_id: string | null;
   type: 'access';
   exp: number;
   [key: string]: unknown;

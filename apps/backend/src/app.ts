@@ -10,6 +10,8 @@ import { authRoutes } from './modules/auth/auth.routes';
 import { conversationsRoutes } from './modules/conversations/conversations.routes';
 import { webhookRoutes } from './modules/internal/webhook.routes';
 import { requireAuth } from './core/middleware/auth';
+import { verifyAccessToken } from './core/jwt';
+import { UnauthorizedError } from './core/errors';
 
 export function createApp() {
   const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
@@ -26,9 +28,16 @@ export function createApp() {
   app.route('/conversations', conversationsRoutes);
   app.route('/internal', webhookRoutes);
 
-  app.get('/ws', requireAuth, async (c) => {
-    const userId = c.get('user').id;
-    const id = c.env.CONNECTIONS.idFromName(userId);
+  app.get('/ws', async (c) => {
+    const header = c.req.header('Authorization');
+    const queryToken = c.req.query('token');
+    const raw = header?.startsWith('Bearer ') ? header.slice(7) : queryToken;
+    if (!raw) throw new UnauthorizedError('Missing token');
+    const payload = await verifyAccessToken(raw, c.env.JWT_ACCESS_SECRET);
+    c.set('user', { id: payload.sub, bubble_id: payload.bubble_id ?? null });
+
+    const doName = payload.bubble_id ?? payload.sub;
+    const id = c.env.CONNECTIONS.idFromName(doName);
     const stub = c.env.CONNECTIONS.get(id);
     return stub.fetch(new Request('https://do/connect', c.req.raw));
   });

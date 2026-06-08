@@ -21,14 +21,15 @@ import {
   LocationPickerBottomSheet,
   LocationPickerBottomSheetRef,
 } from "@/features/dashboard/components/location-picker-bottom-sheet";
-
-const LOCATIONS = ["Villa Sunset", "City Loft", "Beach House"];
+import { useLocations } from "@/features/dashboard/hooks/use-locations";
+import type { Location } from "@/features/dashboard/types";
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
 
-  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const locationSheetRef = useRef<LocationPickerBottomSheetRef>(null);
+  const { data: locations = [] } = useLocations();
 
   return (
     <Box className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
@@ -69,7 +70,7 @@ export default function DashboardScreen() {
                 <Text
                   className={`text-xs shrink ${selectedLocation ? "text-background" : "text-foreground"}`}
                 >
-                  {selectedLocation ?? "Select a location"}
+                  {selectedLocation?.name ?? "Select a location"}
                 </Text>
                 <CaretRightIcon
                   size={20}
@@ -274,7 +275,7 @@ export default function DashboardScreen() {
       {/* Location Picker Sheet */}
       <LocationPickerBottomSheet
         ref={locationSheetRef}
-        locations={LOCATIONS}
+        locations={locations}
         selectedLocation={selectedLocation}
         onSelect={setSelectedLocation}
         onClear={() => setSelectedLocation(null)}

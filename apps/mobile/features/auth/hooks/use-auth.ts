@@ -21,6 +21,7 @@ export function useCurrentUser() {
 async function onAuthSuccess(accessToken: string, refreshToken: string, user: AuthUser) {
   await Promise.all([saveTokens(accessToken, refreshToken), saveUser(user)]);
   queryClient.setQueryData(ME_KEY, user);
+  queryClient.invalidateQueries({ queryKey: ['locations'] });
 }
 
 export function useLoginMutation() {

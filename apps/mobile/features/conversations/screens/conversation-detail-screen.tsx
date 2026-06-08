@@ -1,157 +1,59 @@
-import React, { memo, useCallback, useEffect, useState } from "react";
-import {
-  Keyboard,
-  Pressable,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
-import { useRouter } from "expo-router";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { UserIcon, CaretLeftIcon } from "phosphor-react-native";
-import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
-import { Text } from "@/components/ui/text";
-import { List } from "@/components/ui/list";
+import React, { memo, useCallback } from 'react';
+import { Pressable, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { CaretLeftIcon, UserIcon } from 'phosphor-react-native';
+import { useState } from 'react';
+import { Box } from '@/components/ui/box';
+import { HStack } from '@/components/ui/hstack';
+import { VStack } from '@/components/ui/vstack';
+import { Text } from '@/components/ui/text';
+import { List } from '@/components/ui/list';
+import { ChannelIcon } from '../components/channel-icon';
+import type { Conversation, ConversationListResponse, Message } from '../types';
 
-type Message = {
-  id: string;
-  text: string;
-  sender: "me" | "them";
-  time: string;
-};
-
-const MOCK_MESSAGES: Message[] = [
-  {
-    id: "1",
-    sender: "them",
-    text: "Hey! I just arrived at the villa. The place is absolutely amazing!",
-    time: "10:02",
-  },
-  {
-    id: "2",
-    sender: "me",
-    text: "Welcome, Mathis! So glad you love it. Don't hesitate to reach out if you need anything at all.",
-    time: "10:03",
-  },
-  {
-    id: "3",
-    sender: "them",
-    text: "Quick question — what's the WiFi password?",
-    time: "10:05",
-  },
-  {
-    id: "4",
-    sender: "me",
-    text: 'Of course! The network is "VillaSunset_5G" and the password is "sunset2025". Let me know if you have trouble connecting.',
-    time: "10:05",
-  },
-  {
-    id: "5",
-    sender: "them",
-    text: "Perfect, thanks! Is there a supermarket nearby?",
-    time: "10:18",
-  },
-  {
-    id: "6",
-    sender: "me",
-    text: "Yes! There's a Carrefour about 5 minutes away by car on Rue de la République. There's also a smaller convenience store just a 2-minute walk.",
-    time: "10:19",
-  },
-  {
-    id: "7",
-    sender: "them",
-    text: "Great, will check it out. One more thing — can we get a late checkout? We're planning a trip Sunday morning.",
-    time: "14:32",
-  },
-  {
-    id: "8",
-    sender: "me",
-    text: "I'll check on that for you! What time were you thinking? We can usually accommodate up to 12:00 PM.",
-    time: "14:33",
-  },
-  {
-    id: "9",
-    sender: "them",
-    text: "Around 1pm would be perfect if possible 🙏",
-    time: "14:35",
-  },
-];
-
-type MessageBubbleProps = {
-  message: Message;
-};
+type MessageBubbleProps = { message: Message };
 
 const MessageBubble = memo(({ message }: MessageBubbleProps) => {
-  const isMe = message.sender === "me";
+  const isAgent = message.is_from_agent;
+  const time = message.sent_at
+    ? new Date(message.sent_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+    : '';
+
   return (
-    <Box className={`px-4 mb-2 ${isMe ? "items-end" : "items-start"}`}>
+    <Box className={`px-4 mb-2 ${isAgent ? 'items-end' : 'items-start'}`}>
       <Box
-        className={`rounded-[20px] px-4 py-3 max-w-[78%] ${
-          isMe ? "bg-[#4A6660]" : "bg-white"
-        }`}
+        className={`rounded-[20px] px-4 py-3 max-w-[78%] ${isAgent ? 'bg-[#4A6660]' : 'bg-white'}`}
         style={{
-          borderBottomRightRadius: isMe ? 4 : 20,
-          borderBottomLeftRadius: isMe ? 20 : 4,
+          borderBottomRightRadius: isAgent ? 4 : 20,
+          borderBottomLeftRadius: isAgent ? 20 : 4,
         }}
       >
-        <Text
-          className={`text-sm leading-5 ${
-            isMe ? "text-white" : "text-foreground"
-          }`}
-        >
+        <Text className={`text-sm leading-5 ${isAgent ? 'text-white' : 'text-foreground'}`}>
           {message.text}
         </Text>
       </Box>
-      <Text className="text-muted text-xs mt-1 px-1">{message.time}</Text>
+      <Text className="text-muted text-xs mt-1 px-1">{time}</Text>
     </Box>
   );
 });
 
-MessageBubble.displayName = "MessageBubble";
+MessageBubble.displayName = 'MessageBubble';
 
-type ConversationDetailScreenProps = {
-  name?: string;
-  phone?: string;
-};
-
-export default function ConversationDetailScreen({
-  name = "Mathis Vella",
-  phone = "+33 7 78 56 61 00",
-}: ConversationDetailScreenProps) {
+export default function ConversationDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [message, setMessage] = useState("");
-  const [aiPaused, setAiPaused] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(MOCK_MESSAGES);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const queryClient = useQueryClient();
+  const [message, setMessage] = useState('');
 
-  useEffect(() => {
-    const showEvent = Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
-    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
-    const show = Keyboard.addListener(showEvent, () => setKeyboardVisible(true));
-    const hide = Keyboard.addListener(hideEvent, () => setKeyboardVisible(false));
-    return () => {
-      show.remove();
-      hide.remove();
-    };
-  }, []);
+  const cached = queryClient.getQueryData<InfiniteData<ConversationListResponse>>(['conversations']);
+  const conversation: Conversation | undefined = cached?.pages
+    .flatMap((p) => p.data)
+    .find((c) => c.id === id);
 
-  const handleSend = useCallback(() => {
-    if (!message.trim()) return;
-    const newMsg: Message = {
-      id: String(Date.now()),
-      sender: "me",
-      text: message.trim(),
-      time: new Date().toLocaleTimeString("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    };
-    setMessages((prev) => [...prev, newMsg]);
-    setMessage("");
-  }, [message]);
+  const messages = conversation?.messages ?? [];
 
   const renderMessage = useCallback(
     ({ item }: { item: Message }) => <MessageBubble message={item} />,
@@ -163,7 +65,7 @@ export default function ConversationDetailScreen({
   return (
     <KeyboardAvoidingView
       className="flex-1 bg-background-muted"
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ paddingTop: insets.top }}
     >
       {/* Header */}
@@ -177,69 +79,62 @@ export default function ConversationDetailScreen({
         <Text className="text-base text-subtle">Details</Text>
       </HStack>
 
-      {/* Separator */}
-      <Box className="h-px bg-outline-200 mx-0" />
+      <Box className="h-px bg-outline-200" />
 
       {/* Contact Card */}
       <Box className="border-b border-border/10 px-4 py-4">
         <HStack className="items-center justify-between">
           <HStack className="items-center flex-1" style={{ gap: 12 }}>
-            <Box className="w-12 h-12 rounded-full bg-[#C8D1CE] items-center justify-center">
-              <UserIcon size={24} color="#8A9690" weight="light" />
+            <Box className="w-12 h-12 relative">
+              <Box className="w-12 h-12 rounded-full bg-[#C8D1CE] items-center justify-center">
+                <UserIcon size={24} color="#8A9690" weight="light" />
+              </Box>
+              <Box className="absolute bottom-0 right-0 w-5 h-5 rounded-full bg-white items-center justify-center">
+                {conversation && <ChannelIcon channel={conversation.channel} size={13} />}
+              </Box>
             </Box>
             <VStack style={{ gap: 2 }}>
               <Text className="text-foreground text-lg font-medium tracking-tight">
-                {name}
+                {conversation?.contact.name.trim() || '—'}
               </Text>
-              <Text className="text-muted text-sm">{phone}</Text>
+              {conversation?.contact.phone ? (
+                <Text className="text-muted text-sm">{conversation.contact.phone}</Text>
+              ) : null}
             </VStack>
-          </HStack>
-          <HStack style={{ gap: 8 }}>
-            <Pressable>
-              <Box className="p-2 rounded-full border border-outline-200 bg-white">
-                <Text className="text-subtle text-[10px]">Translate</Text>
-              </Box>
-            </Pressable>
           </HStack>
         </HStack>
       </Box>
 
-      {/* Messages */}
+      {/* Messages — inverted so newest is at bottom */}
       <Box className="flex-1">
         <List
           data={messages}
           renderItem={renderMessage}
           keyExtractor={keyExtractor}
           estimatedItemSize={72}
-          contentContainerStyle={{ paddingTop: 8, paddingBottom: 120 }}
+          inverted
+          contentContainerStyle={{ paddingTop: 8, paddingBottom: 8 }}
           showsVerticalScrollIndicator={false}
         />
       </Box>
 
-      {/* Bottom Area */}
+      {/* Bottom */}
       <VStack
         className="rounded-t-2xl"
-        style={{ paddingBottom: keyboardVisible ? 8 : insets.bottom + 8 }}
+        style={{ paddingBottom: insets.bottom + 8 }}
       >
-        {/* Pause AI Wrapper - transparent */}
-        <Box className="mx-4">
-          <HStack className="items-center justify-between bg-teal-100 rounded-t-2xl px-4 py-2">
-            <Text className="text-xs tracking-tighter">
-              Pause AI on this conversation
-            </Text>
-            <Pressable onPress={() => setAiPaused(!aiPaused)}>
-              <Text
-                className={`text-xs font-medium ${aiPaused ? "text-teal-600" : "text-red-500"}`}
-              >
-                {aiPaused ? "Turn on" : "Turn off"}
+        {conversation?.is_ai_paused !== undefined && (
+          <Box className="mx-4">
+            <HStack className="items-center justify-between bg-teal-100 rounded-t-2xl px-4 py-2">
+              <Text className="text-xs tracking-tighter">Pause AI on this conversation</Text>
+              <Text className={`text-xs font-medium ${conversation.is_ai_paused ? 'text-teal-600' : 'text-red-500'}`}>
+                {conversation.is_ai_paused ? 'Turn on' : 'Turn off'}
               </Text>
-            </Pressable>
-          </HStack>
-        </Box>
+            </HStack>
+          </Box>
+        )}
 
-        {/* Input Container */}
         <Box className="bg-white pt-3 border border-border/10 rounded-t-2xl">
-          {/* Input Row */}
           <Box className="mx-4 mb-3">
             <HStack
               className="items-center border border-border/30 bg-background-muted rounded-2xl px-4"
@@ -252,7 +147,7 @@ export default function ConversationDetailScreen({
                 value={message}
                 onChangeText={setMessage}
                 multiline
-                style={{ fontFamily: "DM-Sans" }}
+                style={{ fontFamily: 'DM-Sans' }}
               />
             </HStack>
           </Box>

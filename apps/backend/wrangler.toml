@@ -20,4 +20,4 @@ class_name = "ConnectionManager"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["ConnectionManager"]
+new_sqlite_classes = ["ConnectionManager"]

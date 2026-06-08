@@ -14,6 +14,6 @@ export async function requireAuth(
   const token = header.slice('Bearer '.length);
   const secret = c.env.JWT_ACCESS_SECRET;
   const payload = await verifyAccessToken(token, secret);
-  c.set('user', { id: payload.sub });
+  c.set('user', { id: payload.sub, bubble_id: payload.bubble_id ?? null });
   await next();
 }

@@ -7,6 +7,7 @@ export interface AuthUser {
   last_name: string | null;
   avatar_url: string | null;
   profile_completed: boolean;
+  bubble_token: string | null;
 }
 
 export interface AuthTokens {

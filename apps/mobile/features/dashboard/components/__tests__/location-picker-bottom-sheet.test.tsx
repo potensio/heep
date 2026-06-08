@@ -4,6 +4,7 @@ import {
   LocationPickerBottomSheet,
   LocationPickerBottomSheetRef,
 } from '../location-picker-bottom-sheet';
+import type { Location } from '../../types';
 
 let mockClose: jest.Mock;
 
@@ -34,7 +35,10 @@ jest.mock('@/components/ui/bottom-sheet', () => {
 });
 
 describe('LocationPickerBottomSheet', () => {
-  const locations = ['Villa Sunset', 'City Loft'];
+  const locations: Location[] = [
+    { id: '1', name: 'Villa Sunset' },
+    { id: '2', name: 'City Loft' },
+  ];
 
   it('renders all location buttons', async () => {
     const ref = React.createRef<LocationPickerBottomSheetRef>();
@@ -62,7 +66,7 @@ describe('LocationPickerBottomSheet', () => {
       />
     );
     fireEvent.press(getByText('Villa Sunset'));
-    expect(onSelect).toHaveBeenCalledWith('Villa Sunset');
+    expect(onSelect).toHaveBeenCalledWith(locations[0]);
     expect(mockClose).toHaveBeenCalled();
   });
 
@@ -72,11 +76,11 @@ describe('LocationPickerBottomSheet', () => {
       <LocationPickerBottomSheet
         ref={ref}
         locations={locations}
-        selectedLocation="Villa Sunset"
+        selectedLocation={locations[0]}
         onSelect={jest.fn()}
       />
     );
-    const selectedItem = getByTestId('location-item-Villa Sunset');
+    const selectedItem = getByTestId('location-item-1');
     expect(selectedItem.props.style).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ backgroundColor: '#fff' }),
@@ -90,12 +94,12 @@ describe('LocationPickerBottomSheet', () => {
       <LocationPickerBottomSheet
         ref={ref}
         locations={locations}
-        selectedLocation="Villa Sunset"
+        selectedLocation={locations[0]}
         onSelect={jest.fn()}
       />
     );
-    expect(getByTestId('check-icon-Villa Sunset')).toBeTruthy();
-    expect(queryByTestId('check-icon-City Loft')).toBeNull();
+    expect(getByTestId('check-icon-1')).toBeTruthy();
+    expect(queryByTestId('check-icon-2')).toBeNull();
   });
 
   it('shows clear button when a location is selected and onClear is provided', async () => {
@@ -104,7 +108,7 @@ describe('LocationPickerBottomSheet', () => {
       <LocationPickerBottomSheet
         ref={ref}
         locations={locations}
-        selectedLocation="Villa Sunset"
+        selectedLocation={locations[0]}
         onSelect={jest.fn()}
         onClear={jest.fn()}
       />
@@ -119,7 +123,7 @@ describe('LocationPickerBottomSheet', () => {
       <LocationPickerBottomSheet
         ref={ref}
         locations={locations}
-        selectedLocation="Villa Sunset"
+        selectedLocation={locations[0]}
         onSelect={jest.fn()}
         onClear={onClear}
       />

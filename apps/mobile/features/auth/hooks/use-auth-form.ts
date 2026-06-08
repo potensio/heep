@@ -7,7 +7,7 @@ export function useAuthForm<T extends FieldValues>(
   props?: Omit<UseFormProps<T>, 'resolver'>
 ) {
   return useForm<T>({
-    resolver: zodResolver(schema) as any,
+    resolver: zodResolver(schema as any),
     mode: 'onChange',
     ...props,
   });

@@ -1,4 +1,4 @@
-import type { BubbleDataClient, PaginatedResult, BubbleConversation, BubbleMessage } from '../../core/bubble/data-client';
+import type { BubbleDataClient, PaginatedResult, BubbleConversation } from '../../core/bubble/data-client';
 import type { UsersService } from '../users/users.service';
 
 export interface ConversationsServiceDeps {
@@ -9,6 +9,7 @@ export interface ConversationsServiceDeps {
 export interface GetConversationsQuery {
   cursor?: number;
   limit?: number;
+  messagesLimit?: number;
 }
 
 export function createConversationsService({ bubbleDataClient, usersService }: ConversationsServiceDeps) {
@@ -21,22 +22,9 @@ export function createConversationsService({ bubbleDataClient, usersService }: C
       if (!user.bubble_token) throw new Error('User has no Bubble token — please log in again');
       return bubbleDataClient.getConversations({
         bubbleToken: user.bubble_token,
-        cursor: query.cursor ? Number(query.cursor) : undefined,
-        limit: query.limit ?? 20,
-      });
-    },
-
-    async getMessages(
-      userId: string,
-      conversationId: string,
-      query: { cursor?: number; limit?: number },
-    ): Promise<PaginatedResult<BubbleMessage>> {
-      const user = await usersService.getMe(userId);
-      if (!user.bubble_token) throw new Error('User has no Bubble token — please log in again');
-      return bubbleDataClient.getMessages(conversationId, {
-        bubbleToken: user.bubble_token,
         cursor: query.cursor,
-        limit: query.limit ?? 30,
+        limit: query.limit ?? 20,
+        messagesLimit: query.messagesLimit ?? 20,
       });
     },
   };

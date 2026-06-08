@@ -12,20 +12,21 @@ import { BottomSheetScrollView, BottomSheetTextInput } from "@gorhom/bottom-shee
 import { CheckIcon, MagnifyingGlassIcon } from "phosphor-react-native";
 import { BottomSheet, BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Text } from "@/components/ui/text";
+import type { Location } from "../types";
 
 export type LocationPickerBottomSheetRef = BottomSheetRef;
 
 interface LocationPickerBottomSheetProps {
-  locations: string[];
-  selectedLocation: string | null;
-  onSelect: (location: string) => void;
+  locations: Location[];
+  selectedLocation: Location | null;
+  onSelect: (location: Location) => void;
   onClear?: () => void;
 }
 
 interface LocationItemProps {
-  location: string;
+  location: Location;
   isSelected: boolean;
-  onPress: (location: string) => void;
+  onPress: (location: Location) => void;
   sheetClose: () => void;
 }
 
@@ -42,15 +43,15 @@ const LocationItem = React.memo(function LocationItem({
 
   return (
     <Pressable
-      testID={`location-item-${location}`}
+      testID={`location-item-${location.id}`}
       onPress={handlePress}
       style={[styles.item, isSelected && styles.itemSelected]}
     >
       <Text style={[styles.itemText, isSelected && styles.itemTextSelected]}>
-        {location}
+        {location.name}
       </Text>
       {isSelected && (
-        <CheckIcon testID={`check-icon-${location}`} size={16} color="#000" weight="bold" />
+        <CheckIcon testID={`check-icon-${location.id}`} size={16} color="#000" weight="bold" />
       )}
     </Pressable>
   );
@@ -66,7 +67,7 @@ export const LocationPickerBottomSheet = forwardRef<
 
   const filteredLocations = deferredQuery.trim()
     ? locations.filter((l) =>
-        l.toLowerCase().includes(deferredQuery.toLowerCase().trim())
+        l.name.toLowerCase().includes(deferredQuery.toLowerCase().trim())
       )
     : locations;
 
@@ -107,9 +108,9 @@ export const LocationPickerBottomSheet = forwardRef<
         ) : (
           filteredLocations.map((location) => (
             <LocationItem
-              key={location}
+              key={location.id}
               location={location}
-              isSelected={location === selectedLocation}
+              isSelected={location.id === selectedLocation?.id}
               onPress={onSelect}
               sheetClose={handleClose}
             />

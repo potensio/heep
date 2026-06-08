@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useCallback } from "react";
 import { Pressable, TextInput } from "react-native";
-import { useRouter } from "expo-router";
 import { SignOutIcon, TrashIcon } from "phosphor-react-native";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { Box } from "@/components/ui/box";
+import { useLogout, useCurrentUser } from "@/features/auth/hooks/use-auth";
+import { queryClient } from "@/lib/query-client";
 
 function ProfileField({
   label,
@@ -49,9 +50,13 @@ function ProfileField({
 }
 
 export function AccountSection() {
-  const router = useRouter();
-  const [firstName, setFirstName] = useState("Hanif");
-  const [lastName, setLastName] = useState("Yaskur");
+  const logout = useLogout();
+  const user = useCurrentUser();
+
+  const handleLogout = useCallback(async () => {
+    queryClient.removeQueries({ queryKey: ['conversations'] });
+    await logout();
+  }, [logout]);
 
   return (
     <VStack testID="account-section">
@@ -60,16 +65,16 @@ export function AccountSection() {
       <Box className="bg-white rounded-[32px] p-6 mt-4">
         <HStack style={{ gap: 12, marginBottom: 16 }}>
           <Box style={{ flex: 1 }}>
-            <ProfileField label="First Name" value={firstName} onChangeText={setFirstName} />
+            <ProfileField label="First Name" value={user?.first_name ?? ""} disabled />
           </Box>
           <Box style={{ flex: 1 }}>
-            <ProfileField label="Last Name" value={lastName} onChangeText={setLastName} />
+            <ProfileField label="Last Name" value={user?.last_name ?? ""} disabled />
           </Box>
         </HStack>
-        <ProfileField label="Email" value="hanifyaskur@gmail.com" disabled />
+        <ProfileField label="Email" value={user?.email ?? ""} disabled />
 
         <Pressable
-          onPress={() => router.replace("/auth")}
+          onPress={handleLogout}
           className="flex-row items-center rounded-full self-start mt-5 bg-danger/10"
           style={{
             paddingHorizontal: 20,

@@ -17,7 +17,7 @@ const mockPaginated = {
 const makeApp = () => {
   const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
   app.use('*', async (c, next) => {
-    c.set('user', { id: 'user-1' });
+    c.set('user', { id: 'user-1', bubble_id: null });
     c.set('conversationsService', {
       getConversations: vi.fn().mockResolvedValue(mockPaginated),
       getMessages: vi.fn().mockResolvedValue({ data: [], pagination: { cursor: null, has_more: false } }),

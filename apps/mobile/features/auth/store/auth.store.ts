@@ -38,3 +38,8 @@ export async function getStoredUser(): Promise<AuthUser | null> {
   const raw = await AsyncStorage.getItem(KEYS.USER);
   return raw ? (JSON.parse(raw) as AuthUser) : null;
 }
+
+export async function getBubbleToken(): Promise<string | null> {
+  const user = await getStoredUser();
+  return user?.bubble_token ?? null;
+}

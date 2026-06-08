@@ -11,7 +11,9 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "analyze": "react-native-bundle-visualizer"
+    "analyze": "react-native-bundle-visualizer",
+    "deploy": "npx expo export -p web && wrangler deploy",
+    "preview": "npx expo export -p web && wrangler dev"
   },
   "dependencies": {
     "@expo-google-fonts/dm-sans": "^0.4.2",
@@ -81,7 +83,8 @@
     "prettier-plugin-tailwindcss": "^0.5.14",
     "react-native-bundle-visualizer": "^4.0.0",
     "tailwindcss": "^3.4.19",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "wrangler": "^4.98.0"
   },
   "private": true,
   "jest": {
