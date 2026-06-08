@@ -6,6 +6,9 @@ export interface Env {
   ACCESS_TOKEN_TTL: string;
   REFRESH_TOKEN_TTL: string;
   BUBBLE_API_URL: string;
+  BUBBLE_DATA_URL: string;
   BUBBLE_API_KEY: string;
+  WEBHOOK_SECRET: string;
   WEB_ORIGIN: string;
+  CONNECTIONS: DurableObjectNamespace;
 }
