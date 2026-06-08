@@ -6,9 +6,12 @@ export const webhookRoutes = new Hono<{ Bindings: Env; Variables: AppVariables }
 
 webhookRoutes.post('/webhook', async (c) => {
   const secret = c.req.header('X-Webhook-Secret');
-  if (!secret || secret !== c.env.WEBHOOK_SECRET) {
-    return c.json({ error: 'Unauthorized' }, 401);
-  }
+  if (!secret) return c.json({ error: 'Unauthorized' }, 401);
+  const encoder = new TextEncoder();
+  const a = encoder.encode(secret);
+  const b = encoder.encode(c.env.WEBHOOK_SECRET);
+  const valid = a.length === b.length && await crypto.subtle.timingSafeEqual(a, b);
+  if (!valid) return c.json({ error: 'Unauthorized' }, 401);
 
   const body = await c.req.json() as {
     user_id: string;
