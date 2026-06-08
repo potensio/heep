@@ -1,10 +1,19 @@
-import { and, eq, gt, isNull } from 'drizzle-orm';
-import type { Database } from '../../core/db/client';
-import { refreshTokens } from '../../core/db/schema';
+import type { SupabaseClient } from '../../core/supabase/client';
 
-export type RefreshToken = typeof refreshTokens.$inferSelect;
+export interface RefreshToken {
+  id: string;
+  user_id: string;
+  token_hash: string;
+  expires_at: string;
+  revoked_at: string | null;
+  created_at: string;
+}
 
-export interface CreateRefreshTokenInput { userId: string; tokenHash: string; expiresAt: Date; }
+export interface CreateRefreshTokenInput {
+  userId: string;
+  tokenHash: string;
+  expiresAt: Date;
+}
 
 export interface AuthRepository {
   createRefreshToken(input: CreateRefreshTokenInput): Promise<RefreshToken>;
@@ -12,21 +21,35 @@ export interface AuthRepository {
   revokeRefreshToken(id: string): Promise<void>;
 }
 
-export function createAuthRepository(db: Database): AuthRepository {
+export function createAuthRepository(supabase: SupabaseClient): AuthRepository {
   return {
-    async createRefreshToken(input) {
-      const [row] = await db.insert(refreshTokens).values(input).returning();
-      return row;
+    async createRefreshToken({ userId, tokenHash, expiresAt }) {
+      const { data, error } = await supabase
+        .from('refresh_tokens')
+        .insert({ user_id: userId, token_hash: tokenHash, expires_at: expiresAt.toISOString() })
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return data;
     },
+
     async findValidRefreshToken(tokenHash) {
-      const [row] = await db
-        .select().from(refreshTokens)
-        .where(and(eq(refreshTokens.tokenHash, tokenHash), isNull(refreshTokens.revokedAt), gt(refreshTokens.expiresAt, new Date())))
-        .limit(1);
-      return row ?? null;
+      const { data } = await supabase
+        .from('refresh_tokens')
+        .select('*')
+        .eq('token_hash', tokenHash)
+        .is('revoked_at', null)
+        .gt('expires_at', new Date().toISOString())
+        .maybeSingle();
+      return data;
     },
+
     async revokeRefreshToken(id) {
-      await db.update(refreshTokens).set({ revokedAt: new Date() }).where(eq(refreshTokens.id, id));
+      const { error } = await supabase
+        .from('refresh_tokens')
+        .update({ revoked_at: new Date().toISOString() })
+        .eq('id', id);
+      if (error) throw new Error(error.message);
     },
   };
 }

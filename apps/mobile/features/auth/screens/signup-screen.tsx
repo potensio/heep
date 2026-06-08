@@ -1,116 +1,212 @@
-import { View } from 'react-native';
-import { Controller } from 'react-hook-form';
-import { AuthLayout } from '../components/auth-layout';
-import { PasswordInput } from '../components/password-input';
-import { Button, ButtonText } from '@/components/ui/button';
-import { Input, InputField } from '@/components/ui/input';
-import { Text } from '@/components/ui/text';
-import { VStack } from '@/components/ui/vstack';
-import { useAuthForm } from '../hooks/use-auth-form';
-import { useAuthTranslation } from '../i18n';
-import { signupSchema } from '../schemas/auth-schemas';
-import type { SignupScreenProps } from '../types';
+import { useRef } from "react";
+import { View, ScrollView } from "react-native";
+import { Controller } from "react-hook-form";
+import { PasswordInput } from "../components/password-input";
+import { Input, InputField } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { AuthButton } from "../components/auth-button";
+import { useAuthForm } from "../hooks/use-auth-form";
+import { useKeyboardAwareScroll } from "../hooks/use-keyboard-aware-scroll";
+import { signupSchema } from "../schemas/auth-schemas";
+import type { SignupScreenProps } from "../types";
 
-export function SignupScreen({ onSubmit, onNavigateToLogin, isLoading }: SignupScreenProps) {
-  const { t } = useAuthTranslation();
-  const { control, handleSubmit, formState: { isValid } } = useAuthForm(signupSchema);
+export function SignupScreen({
+  onSubmit,
+  onNavigateToLogin,
+  isLoading,
+  error,
+}: SignupScreenProps) {
+  const {
+    control,
+    handleSubmit,
+    formState: { isValid },
+  } = useAuthForm(signupSchema);
+
+  const { scrollRef, keyboardHeight, scrollToInput } = useKeyboardAwareScroll();
+  const emailContainerRef = useRef<View>(null);
+  const passwordContainerRef = useRef<View>(null);
 
   return (
-    <AuthLayout
-      title={t('signup.title')}
-      subtitle={t('signup.subtitle')}
+    <ScrollView
+      ref={scrollRef}
+      className="flex-1"
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingHorizontal: 32,
+        paddingBottom: keyboardHeight,
+      }}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      automaticallyAdjustKeyboardInsets
     >
-      <Controller
-        control={control}
-        name="nama"
-        render={({ field: { onChange, value }, fieldState: { error } }) => (
-          <VStack space="1">
-            <Text className="text-sm text-typography-600 font-medium">
-              {t('signup.nameLabel')}
-            </Text>
-            <Input variant="outline" size="lg">
-              <InputField
-                value={value}
-                onChangeText={onChange}
-                placeholder="John Doe"
-                autoCapitalize="words"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
-            </Input>
-            {error && (
-              <Text className="text-error-500 text-sm">{error.message}</Text>
-            )}
-          </VStack>
-        )}
-      />
+      <View className="max-w-md mx-auto w-full py-12">
+        <Text className="text-[28px] font-medium text-white tracking-[-1] mt-5 mb-5">
+          Heep.ai
+        </Text>
 
-      <Controller
-        control={control}
-        name="email"
-        render={({ field: { onChange, value }, fieldState: { error } }) => (
-          <VStack space="1">
-            <Text className="text-sm text-typography-600 font-medium">
-              {t('signup.emailLabel')}
-            </Text>
-            <Input variant="outline" size="lg">
-              <InputField
-                value={value}
-                onChangeText={onChange}
-                placeholder="email@example.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
-            </Input>
-            {error && (
-              <Text className="text-error-500 text-sm">{error.message}</Text>
-            )}
-          </VStack>
-        )}
-      />
+        <Text className="text-[46px] text-white font-medium tracking-[-4] mb-4">
+          Create account
+        </Text>
 
-      <Controller
-        control={control}
-        name="password"
-        render={({ field: { onChange, value }, fieldState: { error } }) => (
-          <VStack space="1">
-            <Text className="text-sm text-typography-600 font-medium">
-              {t('signup.passwordLabel')}
-            </Text>
-            <PasswordInput
-              value={value}
-              onChangeText={onChange}
-              error={error?.message}
-              isDisabled={isLoading}
+        <Text className="text-[16px] font-light text-white tracking-tight mb-8">
+          Please enter your details to sign up
+        </Text>
+
+        <View className="flex flex-col p-8 bg-black/30 rounded-[30] h-fit">
+          <View className="flex-row gap-3 mb-4">
+            <Controller
+              control={control}
+              name="firstName"
+              render={({
+                field: { onChange, value },
+                fieldState: { error },
+              }) => (
+                <View className="flex-1">
+                  <Text className="text-white text-[16px] font-light tracking-tighter mb-3">
+                    First Name
+                  </Text>
+                  <Input
+                    variant="outline"
+                    size="lg"
+                    isInvalid={!!error}
+                    className="bg-white"
+                  >
+                    <InputField
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="First"
+                      autoCapitalize="words"
+                      autoCorrect={false}
+                      editable={!isLoading}
+                    />
+                  </Input>
+                  {error && (
+                    <Text className="text-error-500 text-sm tracking-tighter mt-1">
+                      {error.message}
+                    </Text>
+                  )}
+                </View>
+              )}
             />
-          </VStack>
-        )}
-      />
 
-      <Button
-        size="lg"
-        onPress={handleSubmit(onSubmit)}
-        isDisabled={!isValid || isLoading}
-        className="mt-4"
-      >
-        <ButtonText>
-          {isLoading ? 'Loading...' : t('signup.submitButton')}
-        </ButtonText>
-      </Button>
+            <Controller
+              control={control}
+              name="lastName"
+              render={({
+                field: { onChange, value },
+                fieldState: { error },
+              }) => (
+                <View className="flex-1">
+                  <Text className="text-white text-[16px] font-light tracking-tighter mb-3">
+                    Last Name
+                  </Text>
+                  <Input
+                    variant="outline"
+                    size="lg"
+                    isInvalid={!!error}
+                    className="bg-white"
+                  >
+                    <InputField
+                      value={value}
+                      onChangeText={onChange}
+                      placeholder="Last"
+                      autoCapitalize="words"
+                      autoCorrect={false}
+                      editable={!isLoading}
+                    />
+                  </Input>
+                  {error && (
+                    <Text className="text-error-500 text-sm tracking-tighter mt-1">
+                      {error.message}
+                    </Text>
+                  )}
+                </View>
+              )}
+            />
+          </View>
 
-      <View className="flex-row items-center justify-center mt-6">
-        <Text className="text-sm text-typography-500">
-          {t('signup.haveAccount')}{' '}
-        </Text>
-        <Text
-          className="text-sm text-primary-500 font-medium"
-          onPress={onNavigateToLogin}
-        >
-          {t('signup.loginLink')}
-        </Text>
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <View ref={emailContainerRef} className="mb-4">
+                <Text className="text-white text-[16px] font-light tracking-tighter mb-3">
+                  Email Address
+                </Text>
+                <Input
+                  variant="outline"
+                  size="lg"
+                  isInvalid={!!error}
+                  className="bg-white"
+                >
+                  <InputField
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Enter your email"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    autoCorrect={false}
+                    editable={!isLoading}
+                    onFocus={() => scrollToInput(emailContainerRef)}
+                  />
+                </Input>
+                {error && (
+                  <Text className="text-error-500 text-sm tracking-tighter mt-1">
+                    {error.message}
+                  </Text>
+                )}
+              </View>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <View ref={passwordContainerRef} className="mb-3">
+                <Text className="text-white text-[16px] font-light tracking-tighter mb-3">
+                  Password
+                </Text>
+                <PasswordInput
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="• • • • • • • • • • • • "
+                  error={error?.message}
+                  isDisabled={isLoading}
+                  onFocus={() => scrollToInput(passwordContainerRef)}
+                />
+              </View>
+            )}
+          />
+
+          {error && (
+            <Text className="text-error-500 text-sm tracking-tighter mb-3">
+              {error}
+            </Text>
+          )}
+
+          <AuthButton
+            label="Sign Up"
+            onPress={handleSubmit(onSubmit)}
+            isLoading={isLoading}
+            isDisabled={!isValid || isLoading}
+            style={{ marginTop: 4, marginBottom: 12 }}
+          />
+
+          <View className="flex-row items-center justify-start gap-0">
+            <Text className="text-white text-xs leading-tight tracking-tighter mr-0.5">
+              Already have an account?{" "}
+            </Text>
+            <Button variant="link" onPress={onNavigateToLogin}>
+              <Text className="font-light text-white text-xs leading-tight tracking-tighter underline">
+                Sign in
+              </Text>
+            </Button>
+          </View>
+        </View>
       </View>
-    </AuthLayout>
+    </ScrollView>
   );
 }

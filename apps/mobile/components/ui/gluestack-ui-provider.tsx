@@ -21,14 +21,8 @@ export function GluestackUIProvider({
 
   return (
     <View
-      style={[
-        {
-          flex: 1,
-          backgroundColor: resolvedTheme === "dark" ? "#0a0a0a" : "#F9F2E6",
-        },
-        props.style,
-      ]}
-      className={resolvedTheme === "dark" ? "dark" : ""}
+      style={props.style}
+      className={`flex-1 bg-background ${resolvedTheme === "dark" ? "dark" : ""}`}
     >
       {props.children}
     </View>

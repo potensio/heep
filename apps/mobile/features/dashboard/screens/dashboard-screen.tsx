@@ -2,21 +2,21 @@ import { useRef, useState } from "react";
 import { Pressable, ScrollView, ImageBackground } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  House,
-  CaretRight,
-  Info,
-  ArrowsClockwise,
-  ClipboardText,
-  CalendarBlank,
-  ChatCircle,
-  CurrencyDollar,
+  HouseIcon,
+  CaretRightIcon,
+  InfoIcon,
+  ArrowsClockwiseIcon,
+  ClipboardTextIcon,
+  CalendarBlankIcon,
+  ChatCircleIcon,
+  CurrencyDollarIcon,
 } from "phosphor-react-native";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
 import { Image } from "@/components/ui/image";
-import { useTheme } from "@/context/ThemeContext";
+
 import {
   LocationPickerBottomSheet,
   LocationPickerBottomSheetRef,
@@ -26,8 +26,6 @@ const LOCATIONS = ["Villa Sunset", "City Loft", "Beach House"];
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
-  const { resolvedTheme } = useTheme();
-  const iconColor = resolvedTheme === "dark" ? "#ffffff" : "#000000";
 
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const locationSheetRef = useRef<LocationPickerBottomSheetRef>(null);
@@ -50,26 +48,33 @@ export default function DashboardScreen() {
           </Box>
 
           {/* Location Buttons Row */}
-          <HStack className="w-full mt-6 gap-5">
+          <HStack className="w-full mt-6 gap-3">
             {/* All Locations Button */}
             <HStack
               className="items-center px-6 py-4 rounded-full bg-white"
               style={{ gap: 12 }}
             >
-              <House size={20} color={iconColor} weight="regular" />
-              <Text className="text-xs text-foreground">All Locations</Text>
+              <HouseIcon size={20} />
+              <Text className="text-xs text-foreground shrink">
+                All Locations
+              </Text>
             </HStack>
 
             {/* Select Location Button */}
             <Pressable onPress={() => locationSheetRef.current?.open()}>
               <HStack
-                className="items-center px-6 py-4 rounded-full bg-white"
+                className={`items-center px-6 py-4 rounded-full ${selectedLocation ? "bg-foreground" : "bg-white"}`}
                 style={{ gap: 12 }}
               >
-                <Text className="text-xs text-foreground">
+                <Text
+                  className={`text-xs shrink ${selectedLocation ? "text-background" : "text-foreground"}`}
+                >
                   {selectedLocation ?? "Select a location"}
                 </Text>
-                <CaretRight size={20} color={iconColor} weight="regular" />
+                <CaretRightIcon
+                  size={20}
+                  color={selectedLocation ? "#fff" : "#000"}
+                />
               </HStack>
             </Pressable>
           </HStack>
@@ -85,7 +90,7 @@ export default function DashboardScreen() {
             style={{ gap: 16 }}
           >
             <Box className="self-center">
-              <Info size={24} color="yellow" weight="regular" />
+              <InfoIcon size={24} color="#F54802" weight="regular" />
             </Box>
             <VStack className="flex-1">
               <Text className="text-[17px] text-white tracking-tight">
@@ -119,52 +124,54 @@ export default function DashboardScreen() {
                   {/* Bookings Stat */}
                   <VStack className="mt-6 px-4">
                     <HStack className="px-3 h-8 items-center bg-white/40 rounded-[1000px] self-start">
-                      <CalendarBlank
-                        size={16}
-                        color="#000000"
-                        weight="regular"
-                      />
-                      <Text className="text-xs ml-2">
+                      <CalendarBlankIcon size={16} />
+                      <Text numberOfLines={1} className="text-xs ml-2 shrink">
                         Bookings confirmed today
                       </Text>
                     </HStack>
                     <HStack className="mt-5 mx-3 items-end" style={{ gap: 10 }}>
-                      <Text className="text-7xl font-normal tracking-tight">
+                      <Text className="text-7xl font-normal leading-tighter tracking-tight">
                         12
                       </Text>
-                      <Text className="text-xs mb-2">Bookings confirmed</Text>
+                      <Text className="text-xs mb-2 shrink">
+                        Bookings confirmed
+                      </Text>
                     </HStack>
                   </VStack>
 
                   {/* Conversations Stat */}
                   <VStack className="mt-6 px-4">
                     <HStack className="px-3 h-8 items-center bg-white/40 rounded-[1000px] self-start">
-                      <ChatCircle size={16} color="#000000" weight="regular" />
-                      <Text className="text-xs ml-2">Conversation handled</Text>
+                      <ChatCircleIcon size={16} />
+                      <Text numberOfLines={1} className="text-xs ml-2 shrink">
+                        Conversation handled
+                      </Text>
                     </HStack>
                     <HStack className="mt-5 mx-3 items-end" style={{ gap: 10 }}>
-                      <Text className="text-7xl font-normal tracking-tight">
+                      <Text className="text-7xl font-normal leading-tighter tracking-tight">
                         12
                       </Text>
-                      <Text className="text-xs mb-2">Chats responded</Text>
+                      <Text className="text-xs mb-2 shrink">
+                        Chats responded
+                      </Text>
                     </HStack>
                   </VStack>
 
                   {/* Revenue Stat */}
                   <VStack className="mt-6 mb-8 px-4">
                     <HStack className="px-3 h-8 items-center bg-white/40 rounded-[1000px] self-start">
-                      <CurrencyDollar
-                        size={16}
-                        color="#000000"
-                        weight="regular"
-                      />
-                      <Text className="text-xs ml-2">Revenue with heep</Text>
+                      <CurrencyDollarIcon size={16} />
+                      <Text numberOfLines={1} className="text-xs ml-2 shrink">
+                        Revenue with heep
+                      </Text>
                     </HStack>
                     <HStack className="mt-5 mx-3 items-end" style={{ gap: 10 }}>
-                      <Text className="text-5xl font-normal tracking-tight">
+                      <Text className="text-[44px] font-normal tracking-tight">
                         23.000€
                       </Text>
-                      <Text className="text-xs mb-2">Last 30 days</Text>
+                      <Text className="text-xs mb-2 shrink">
+                        Last 30 days
+                      </Text>
                     </HStack>
                   </VStack>
                 </VStack>
@@ -174,68 +181,59 @@ export default function DashboardScreen() {
             {/* Right Column: Monthly Usage & Requests Cards */}
             <VStack className="min-w-full" style={{ gap: 12 }}>
               {/* Monthly Usage Card */}
-              <VStack
-                className="border-2 rounded-[32px] p-6"
-                style={{ borderColor: "rgba(153, 153, 153, 0.3)" }}
-              >
+              <VStack className="border-2 border-border/30 rounded-[32px] p-6">
                 {/* Header */}
                 <HStack className="items-center" style={{ gap: 10 }}>
-                  <HStack
-                    className="p-3 rounded-full border"
-                    style={{ borderColor: "rgb(153, 153, 153)" }}
-                  >
-                    <ArrowsClockwise
-                      size={20}
-                      color={iconColor}
-                      weight="regular"
-                    />
+                  <HStack className="p-3 rounded-full border border-border">
+                    <ArrowsClockwiseIcon size={20} />
                   </HStack>
-                  <Text className="text-xl tracking-tighter">
+                  <Text className="text-xl tracking-tighter shrink">
                     Monthly Usage
                   </Text>
                 </HStack>
 
                 {/* Credits */}
                 <HStack className="mt-5 items-end" style={{ gap: 10 }}>
-                  <Text className="text-7xl font-normal tracking-tight">
+                  <Text className="text-7xl font-normal leading-tighter tracking-tight">
                     1000
                   </Text>
-                  <Text className="text-xs mb-2">Credits remaining</Text>
+                  <Text className="text-xs mb-2 shrink">
+                    Credits remaining
+                  </Text>
                 </HStack>
 
                 {/* Daily Usage */}
                 <VStack className="mt-6">
                   <HStack className="px-3 h-8 items-center bg-white/40 rounded-[1000px] self-start">
-                    <ChatCircle size={16} color="#000000" weight="regular" />
-                    <Text className="text-xs ml-2">Avg daily usage</Text>
+                    <ChatCircleIcon size={16} />
+                    <Text numberOfLines={1} className="text-xs ml-2 shrink">
+                      Avg daily usage
+                    </Text>
                   </HStack>
                   <HStack className="mt-5 items-end" style={{ gap: 10 }}>
                     <Text className="text-5xl font-normal tracking-tight">
                       24
                     </Text>
-                    <Text className="text-xs mb-2">messages/day</Text>
+                    <Text className="text-xs mb-2 shrink">
+                      messages/day
+                    </Text>
                   </HStack>
                 </VStack>
               </VStack>
 
               {/* Requests Card */}
-              <VStack
-                className="border-2 rounded-[32px] p-6"
-                style={{ borderColor: "rgba(153, 153, 153, 0.3)" }}
-              >
+              <VStack className="border-2 border-border/30 rounded-[32px] p-6">
                 {/* Header */}
                 <HStack className="items-center" style={{ gap: 10 }}>
                   <HStack
                     className="p-3 rounded-full border"
                     style={{ borderColor: "rgb(153, 153, 153)" }}
                   >
-                    <ClipboardText
-                      size={20}
-                      color={iconColor}
-                      weight="regular"
-                    />
+                    <ClipboardTextIcon size={20} />
                   </HStack>
-                  <Text className="text-xl">Requests</Text>
+                  <Text className="text-xl shrink">
+                    Requests
+                  </Text>
                 </HStack>
 
                 {/* Description */}
@@ -253,8 +251,8 @@ export default function DashboardScreen() {
                       backgroundColor: "rgba(118, 118, 128, 0.12)",
                     }}
                   >
-                    <Text className="text-xs font-semibold">22</Text>
-                    <Text className="text-xs">Unfulfilled Requests</Text>
+                    <Text className="text-xs font-semibold shrink">22</Text>
+                    <Text className="text-xs shrink">Unfulfilled Requests</Text>
                   </HStack>
                   <HStack
                     className="pl-3 pr-4 py-2.5 rounded-full items-center self-start"
@@ -263,8 +261,8 @@ export default function DashboardScreen() {
                       backgroundColor: "rgba(118, 118, 128, 0.12)",
                     }}
                   >
-                    <Text className="text-xs font-semibold">-</Text>
-                    <Text className="text-xs">Most Requested Time</Text>
+                    <Text className="text-xs font-semibold shrink">-</Text>
+                    <Text className="text-xs shrink">Most Requested Time</Text>
                   </HStack>
                 </VStack>
               </VStack>

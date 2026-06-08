@@ -18,7 +18,8 @@
       "bundleIdentifier": "com.heep.app"
     },
     "android": {
-      "package": "com.heep.app"
+      "package": "com.heep.app",
+      "softwareKeyboardLayoutMode": "pan"
     },
     "web": {
       "bundler": "metro",
@@ -31,11 +32,11 @@
         "expo-font",
         {
           "fonts": [
-            "./node_modules/@expo-google-fonts/fjalla-one/400Regular/FjallaOne_400Regular.ttf",
-            "./node_modules/@expo-google-fonts/plus-jakarta-sans/400Regular/PlusJakartaSans_400Regular.ttf",
-            "./node_modules/@expo-google-fonts/plus-jakarta-sans/500Medium/PlusJakartaSans_500Medium.ttf",
-            "./node_modules/@expo-google-fonts/plus-jakarta-sans/600SemiBold/PlusJakartaSans_600SemiBold.ttf",
-            "./node_modules/@expo-google-fonts/plus-jakarta-sans/700Bold/PlusJakartaSans_700Bold.ttf"
+            "./node_modules/@expo-google-fonts/dm-sans/300Light/DMSans_300Light.ttf",
+            "./node_modules/@expo-google-fonts/dm-sans/400Regular/DMSans_400Regular.ttf",
+            "./node_modules/@expo-google-fonts/dm-sans/500Medium/DMSans_500Medium.ttf",
+            "./node_modules/@expo-google-fonts/dm-sans/600SemiBold/DMSans_600SemiBold.ttf",
+            "./node_modules/@expo-google-fonts/dm-sans/700Bold/DMSans_700Bold.ttf"
           ]
         }
       ],
@@ -44,7 +45,8 @@
         {
           "photosPermission": "Aplikasi memerlukan akses galeri untuk upload foto produk"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true

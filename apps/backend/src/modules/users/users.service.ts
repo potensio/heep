@@ -1,4 +1,3 @@
-// src/modules/users/users.service.ts
 import { NotFoundError } from '../../core/errors';
 import {
   type User,
@@ -8,7 +7,8 @@ import {
 
 export interface PublicUser {
   id: string;
-  name: string | null;
+  firstName: string | null;
+  lastName: string | null;
   avatarUrl: string | null;
   phone: string | null;
   createdAt: string;
@@ -24,14 +24,19 @@ export function createUsersService({ repo }: UsersDeps) {
       return (await repo.findByEmail(email)) ?? (await repo.create({ email }));
     },
 
-    async findOrCreateByBubbleId(bubbleId: string, email: string, name?: string): Promise<User> {
+    async findOrCreateByBubbleId(bubbleId: string, email: string, firstName?: string, lastName?: string): Promise<User> {
       const byBubble = await repo.findByBubbleId(bubbleId);
-      if (byBubble) return byBubble;
+      if (byBubble) {
+        if (firstName && !byBubble.first_name) {
+          return repo.update(byBubble.id, { first_name: firstName, last_name: lastName ?? undefined });
+        }
+        return byBubble;
+      }
 
       const byEmail = await repo.findByEmail(email);
-      if (byEmail) return repo.update(byEmail.id, { bubbleId });
+      if (byEmail) return repo.update(byEmail.id, { bubble_id: bubbleId, first_name: firstName, last_name: lastName ?? undefined });
 
-      return repo.create({ email, bubbleId, name });
+      return repo.create({ email, bubble_id: bubbleId, first_name: firstName, last_name: lastName });
     },
 
     async getMe(id: string): Promise<User> {
@@ -45,18 +50,19 @@ export function createUsersService({ repo }: UsersDeps) {
       if (!user) throw new NotFoundError('User not found');
       return {
         id: user.id,
-        name: user.name,
-        avatarUrl: user.avatarUrl,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        avatarUrl: user.avatar_url,
         phone: user.phone,
-        createdAt: user.createdAt.toISOString(),
+        createdAt: user.created_at,
       };
     },
 
     async updateProfile(id: string, patch: UpdateUserInput): Promise<User> {
       const exists = await repo.findById(id);
       if (!exists) throw new NotFoundError('User not found');
-      const profileCompleted = patch.profileCompleted ?? (patch.name != null ? true : undefined);
-      return repo.update(id, { ...patch, profileCompleted });
+      const profile_completed = patch.profile_completed ?? (patch.first_name != null ? true : undefined);
+      return repo.update(id, { ...patch, profile_completed });
     },
   };
 }

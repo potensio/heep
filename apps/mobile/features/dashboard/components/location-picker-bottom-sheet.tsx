@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { BottomSheetScrollView, BottomSheetTextInput } from "@gorhom/bottom-sheet";
-import { Check, MagnifyingGlass } from "phosphor-react-native";
+import { CheckIcon, MagnifyingGlassIcon } from "phosphor-react-native";
 import { BottomSheet, BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Text } from "@/components/ui/text";
 
@@ -50,7 +50,7 @@ const LocationItem = React.memo(function LocationItem({
         {location}
       </Text>
       {isSelected && (
-        <Check testID={`check-icon-${location}`} size={16} color="#000" weight="bold" />
+        <CheckIcon testID={`check-icon-${location}`} size={16} color="#000" weight="bold" />
       )}
     </Pressable>
   );
@@ -91,7 +91,7 @@ export const LocationPickerBottomSheet = forwardRef<
       <BottomSheetScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Select a location</Text>
         <View style={styles.searchRow}>
-          <MagnifyingGlass size={16} color="rgba(255,255,255,0.4)" weight="regular" />
+          <MagnifyingGlassIcon size={16} color="rgba(255,255,255,0.4)" weight="regular" />
           <BottomSheetTextInput
             style={styles.searchInput}
             placeholder="Search..."

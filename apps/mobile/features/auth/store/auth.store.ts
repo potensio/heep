@@ -1,26 +1,40 @@
-import { storage } from '@/lib/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import type { AuthUser } from '../api/auth.api';
 
 const KEYS = {
   ACCESS_TOKEN: 'auth.access_token',
   REFRESH_TOKEN: 'auth.refresh_token',
+  USER: 'auth.user',
 } as const;
 
-export function saveTokens(accessToken: string, refreshToken: string): void {
-  storage.set(KEYS.ACCESS_TOKEN, accessToken);
-  storage.set(KEYS.REFRESH_TOKEN, refreshToken);
+export async function saveTokens(accessToken: string, refreshToken: string): Promise<void> {
+  await Promise.all([
+    AsyncStorage.setItem(KEYS.ACCESS_TOKEN, accessToken),
+    AsyncStorage.setItem(KEYS.REFRESH_TOKEN, refreshToken),
+  ]);
 }
 
-export function clearTokens(): void {
-  storage.delete(KEYS.ACCESS_TOKEN);
-  storage.delete(KEYS.REFRESH_TOKEN);
+export async function clearTokens(): Promise<void> {
+  await Promise.all([
+    AsyncStorage.removeItem(KEYS.ACCESS_TOKEN),
+    AsyncStorage.removeItem(KEYS.REFRESH_TOKEN),
+    AsyncStorage.removeItem(KEYS.USER),
+  ]);
 }
 
-export function getAccessToken(): string | undefined {
-  return storage.getString(KEYS.ACCESS_TOKEN);
+export function getAccessToken(): Promise<string | null> {
+  return AsyncStorage.getItem(KEYS.ACCESS_TOKEN);
 }
 
-export function getRefreshToken(): string | undefined {
-  return storage.getString(KEYS.REFRESH_TOKEN);
+export function getRefreshToken(): Promise<string | null> {
+  return AsyncStorage.getItem(KEYS.REFRESH_TOKEN);
 }
 
-export { KEYS as AUTH_STORAGE_KEYS };
+export async function saveUser(user: AuthUser): Promise<void> {
+  await AsyncStorage.setItem(KEYS.USER, JSON.stringify(user));
+}
+
+export async function getStoredUser(): Promise<AuthUser | null> {
+  const raw = await AsyncStorage.getItem(KEYS.USER);
+  return raw ? (JSON.parse(raw) as AuthUser) : null;
+}

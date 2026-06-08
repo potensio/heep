@@ -3,11 +3,6 @@ import { Text } from 'react-native';
 import { render } from '@testing-library/react-native';
 import { List } from '../list';
 
-jest.mock('@shopify/flash-list', () => {
-  const { FlatList } = require('react-native');
-  return { FlashList: FlatList };
-});
-
 const Item = memo(function Item({ label }: { label: string }) {
   return <Text testID={`item-${label}`}>{label}</Text>;
 });
@@ -32,8 +27,7 @@ describe('List', () => {
     expect(getByTestId('item-Banana')).toBeTruthy();
   });
 
-  it('accepts estimatedItemSize as required prop', async () => {
-    // TypeScript will enforce this at compile time — this test documents the contract
+  it('accepts estimatedItemSize as optional prop', async () => {
     const { getByTestId } = await render(
       <List
         data={[{ id: '1', label: 'Test' }]}

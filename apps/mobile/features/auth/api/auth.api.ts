@@ -3,7 +3,10 @@ const API_URL = process.env.EXPO_PUBLIC_API_URL;
 export interface AuthUser {
   id: string;
   email: string;
-  name?: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
+  profile_completed: boolean;
 }
 
 export interface AuthTokens {

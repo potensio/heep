@@ -1,7 +1,7 @@
 name = "heep-api"
 main = "src/index.ts"
 compatibility_date = "2024-11-01"
-compatibility_flags = ["nodejs_compat"]
+compatibility_flags = ["nodejs_compat_v2"]
 
 [dev]
 ip = "0.0.0.0"
@@ -9,5 +9,6 @@ ip = "0.0.0.0"
 [vars]
 ACCESS_TOKEN_TTL = "900"
 REFRESH_TOKEN_TTL = "2592000"
-BUBBLE_API_URL = "https://app.heep.ai/version-13djz"
+BUBBLE_API_URL = "https://app.heep.ai/version-13djz/api/1.1/wf"
+SUPABASE_URL = "https://hqzrhlybtjjgxepvzbuo.supabase.co"
 WEB_ORIGIN = "http://localhost:5173"

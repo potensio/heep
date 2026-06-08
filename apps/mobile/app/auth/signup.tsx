@@ -1,33 +1,23 @@
-import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { SignupScreen } from '@/features/auth/screens/signup-screen';
-import { signupApi } from '@/features/auth/api/auth.api';
-import { saveTokens } from '@/features/auth/store/auth.store';
+import { useSignupMutation } from '@/features/auth/hooks/use-auth';
 
 export default function SignupRoute() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const mutation = useSignupMutation();
 
   return (
     <SignupScreen
-      isLoading={isLoading}
-      onSubmit={async (data) => {
-        setIsLoading(true);
-        try {
-          const { accessToken, refreshToken } = await signupApi(
-            data.firstName,
-            data.lastName,
-            data.email,
-            data.password,
-          );
-          saveTokens(accessToken, refreshToken);
-          router.replace('/(tabs)');
-        } catch {
-          // Error surfaced via form state or toast
-        } finally {
-          setIsLoading(false);
-        }
-      }}
+      isLoading={mutation.isPending}
+      error={mutation.error?.message}
+      onSubmit={(data) =>
+        mutation.mutate({
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          password: data.password,
+        })
+      }
       onNavigateToLogin={() => router.push('/auth/login')}
     />
   );

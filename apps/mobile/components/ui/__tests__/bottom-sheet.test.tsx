@@ -29,9 +29,13 @@ jest.mock('@gorhom/bottom-sheet', () => {
   };
 });
 
-jest.mock('expo-blur', () => ({
-  BlurView: 'BlurView',
-}));
+jest.mock('expo-blur', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  return {
+    BlurView: React.forwardRef((props: any, ref: any) => <View ref={ref} {...props} />),
+  };
+});
 
 describe('BottomSheet', () => {
   it('renders children', async () => {

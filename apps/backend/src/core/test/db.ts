@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach } from 'vitest';
-import { migrate } from 'drizzle-orm/neon-http/migrator';
+import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import { sql } from 'drizzle-orm';
 import { createDb } from '../db/client';
 

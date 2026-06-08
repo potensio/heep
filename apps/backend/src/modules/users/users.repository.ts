@@ -1,23 +1,34 @@
-// src/modules/users/users.repository.ts
-import { eq } from 'drizzle-orm';
-import type { Database } from '../../core/db/client';
-import { users } from '../../core/db/schema';
+import type { SupabaseClient } from '../../core/supabase/client';
 
-export type User = typeof users.$inferSelect;
+export interface User {
+  id: string;
+  bubble_id: string | null;
+  email: string;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
+  phone: string | null;
+  gender: 'male' | 'female' | null;
+  profile_completed: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface CreateUserInput {
   email: string;
-  bubbleId?: string;
-  name?: string;
+  bubble_id?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 export interface UpdateUserInput {
-  name?: string;
-  avatarUrl?: string;
+  first_name?: string;
+  last_name?: string;
+  avatar_url?: string;
   gender?: 'male' | 'female';
-  profileCompleted?: boolean;
+  profile_completed?: boolean;
   phone?: string;
-  bubbleId?: string;
+  bubble_id?: string;
 }
 
 export interface UsersRepository {
@@ -28,39 +39,38 @@ export interface UsersRepository {
   update(id: string, patch: UpdateUserInput): Promise<User>;
 }
 
-export function createUsersRepository(db: Database): UsersRepository {
+export function createUsersRepository(supabase: SupabaseClient): UsersRepository {
   return {
     async findById(id) {
-      const [row] = await db.select().from(users).where(eq(users.id, id)).limit(1);
-      return row ?? null;
+      const { data } = await supabase.from('users').select('*').eq('id', id).maybeSingle();
+      return data;
     },
 
     async findByEmail(email) {
-      const [row] = await db.select().from(users).where(eq(users.email, email)).limit(1);
-      return row ?? null;
+      const { data } = await supabase.from('users').select('*').eq('email', email).maybeSingle();
+      return data;
     },
 
     async findByBubbleId(bubbleId) {
-      const [row] = await db.select().from(users).where(eq(users.bubbleId, bubbleId)).limit(1);
-      return row ?? null;
+      const { data } = await supabase.from('users').select('*').eq('bubble_id', bubbleId).maybeSingle();
+      return data;
     },
 
     async create(input) {
-      const [row] = await db.insert(users).values({
-        email: input.email,
-        bubbleId: input.bubbleId,
-        name: input.name,
-      }).returning();
-      return row;
+      const { data, error } = await supabase.from('users').insert(input).select().single();
+      if (error) throw new Error(error.message);
+      return data;
     },
 
     async update(id, patch) {
-      const [row] = await db
-        .update(users)
-        .set({ ...patch, updatedAt: new Date() })
-        .where(eq(users.id, id))
-        .returning();
-      return row;
+      const { data, error } = await supabase
+        .from('users')
+        .update({ ...patch, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw new Error(error.message);
+      return data;
     },
   };
 }

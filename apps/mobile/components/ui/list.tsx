@@ -1,17 +1,9 @@
-import { FlashList, FlashListProps } from "@shopify/flash-list";
+import { FlatList, FlatListProps } from "react-native";
 
-type ListProps<T> = Omit<FlashListProps<T>, "estimatedItemSize"> & {
-  estimatedItemSize: number;
+type ListProps<T> = Omit<FlatListProps<T>, "estimatedItemSize"> & {
+  estimatedItemSize?: number;
 };
 
-export function List<T>({
-  estimatedItemSize,
-  ...props
-}: PerformantListProps<T>) {
-  return (
-    <FlashList<T>
-      estimatedItemSize={estimatedItemSize}
-      {...(props as any)}
-    />
-  );
+export function List<T>({ estimatedItemSize: _, ...props }: ListProps<T>) {
+  return <FlatList<T> {...(props as any)} />;
 }

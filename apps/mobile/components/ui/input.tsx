@@ -13,7 +13,7 @@ type InputProps = {
 };
 
 const variantStyles: Record<InputVariant, string> = {
-  outline: "border border-outline-200 bg-background-0 rounded-lg px-3",
+  outline: "border border-outline-200 bg-background-0 rounded-full px-3",
   underlined: "border-b border-outline-200 bg-transparent",
   rounded: "border border-outline-200 bg-background-0 rounded-full px-4",
 };
@@ -21,7 +21,7 @@ const variantStyles: Record<InputVariant, string> = {
 const sizeStyles: Record<InputSize, string> = {
   sm: "h-9",
   md: "h-10",
-  lg: "h-11",
+  lg: "h-[44px]",
   xl: "h-12",
 };
 
@@ -55,8 +55,8 @@ type InputFieldProps = TextInputProps & { className?: string };
 export function InputField({ className, ...props }: InputFieldProps) {
   return (
     <TextInput
-      className={`flex-1 text-typography-900 text-base py-0 ${className || ""}`}
-      placeholderTextColor="rgb(var(--color-typography-400))"
+      className={`flex-1 text-foreground text-base py-0 bg-transparent ${className || ""}`}
+      placeholderTextColor="rgb(var(--color-muted))"
       {...props}
     />
   );
@@ -83,7 +83,7 @@ type InputIconProps = {
 };
 
 export function InputIcon({ as: Icon, className }: InputIconProps) {
-  return <Icon className={`w-5 h-5 ${className || ""}`} />;
+  return <Icon className={`w-4 h-4 ${className || ""}`} />;
 }
 
 InputIcon.displayName = "InputIcon";

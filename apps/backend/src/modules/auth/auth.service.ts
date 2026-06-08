@@ -42,14 +42,15 @@ export function createAuthService(deps: AuthDeps) {
 
   return {
     async login(email: string, password: string) {
-      const { user_id } = await bubbleClient.login(email, password);
-      const user = await usersService.findOrCreateByBubbleId(user_id, email);
+      const { user_id, token } = await bubbleClient.login(email, password);
+      const profile = await bubbleClient.getProfile(token);
+      const user = await usersService.findOrCreateByBubbleId(user_id, email, profile.first_name, profile.last_name);
       return issueTokens(user);
     },
 
     async signup(firstName: string, lastName: string, email: string, password: string) {
       const { user_id } = await bubbleClient.signup(firstName, lastName, email, password);
-      const user = await usersService.findOrCreateByBubbleId(user_id, email, `${firstName} ${lastName}`);
+      const user = await usersService.findOrCreateByBubbleId(user_id, email, firstName, lastName);
       return issueTokens(user);
     },
 
@@ -57,7 +58,7 @@ export function createAuthService(deps: AuthDeps) {
       const existing = await authRepo.findValidRefreshToken(await hashRefreshToken(refreshToken));
       if (!existing) throw new UnauthorizedError('Invalid refresh token');
       await authRepo.revokeRefreshToken(existing.id);
-      const user = await usersService.getMe(existing.userId);
+      const user = await usersService.getMe(existing.user_id);
       return issueTokens(user);
     },
 

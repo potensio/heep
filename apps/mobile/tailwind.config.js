@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: "class",
   content: [
     "./App.tsx",
     "./app/**/*.{js,jsx,ts,tsx}",
@@ -100,23 +101,28 @@ module.exports = {
           900: "rgb(var(--color-info-900) / <alpha-value>)",
           950: "rgb(var(--color-info-950) / <alpha-value>)",
         },
-        // Typography colors
-        typography: {
-          0: "rgb(var(--color-typography-0) / <alpha-value>)",
-          50: "rgb(var(--color-typography-50) / <alpha-value>)",
-          100: "rgb(var(--color-typography-100) / <alpha-value>)",
-          200: "rgb(var(--color-typography-200) / <alpha-value>)",
-          300: "rgb(var(--color-typography-300) / <alpha-value>)",
-          400: "rgb(var(--color-typography-400) / <alpha-value>)",
-          500: "rgb(var(--color-typography-500) / <alpha-value>)",
-          600: "rgb(var(--color-typography-600) / <alpha-value>)",
-          700: "rgb(var(--color-typography-700) / <alpha-value>)",
-          800: "rgb(var(--color-typography-800) / <alpha-value>)",
-          900: "rgb(var(--color-typography-900) / <alpha-value>)",
-          950: "rgb(var(--color-typography-950) / <alpha-value>)",
+        // Teal - brand accent
+        teal: {
+          50: "rgb(var(--color-teal-50) / <alpha-value>)",
+          100: "rgb(var(--color-teal-100) / <alpha-value>)",
+          200: "rgb(var(--color-teal-200) / <alpha-value>)",
+          300: "rgb(var(--color-teal-300) / <alpha-value>)",
+          400: "rgb(var(--color-teal-400) / <alpha-value>)",
+          500: "rgb(var(--color-teal-500) / <alpha-value>)",
+          600: "rgb(var(--color-teal-600) / <alpha-value>)",
+          700: "rgb(var(--color-teal-700) / <alpha-value>)",
+          800: "rgb(var(--color-teal-800) / <alpha-value>)",
+          900: "rgb(var(--color-teal-900) / <alpha-value>)",
+          950: "rgb(var(--color-teal-950) / <alpha-value>)",
         },
+        // Typography colors
+        foreground: "rgb(var(--color-foreground) / <alpha-value>)",
+        subtle: "rgb(var(--color-subtle) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
         // Background colors
         background: {
+          DEFAULT: "rgb(var(--color-background) / <alpha-value>)",
+          secondary: "rgb(var(--color-background-secondary) / <alpha-value>)",
           0: "rgb(var(--color-background-0) / <alpha-value>)",
           50: "rgb(var(--color-background-50) / <alpha-value>)",
           100: "rgb(var(--color-background-100) / <alpha-value>)",
@@ -157,12 +163,13 @@ module.exports = {
           error: "rgb(var(--color-indicator-error) / <alpha-value>)",
         },
         // Legacy aliases for backward compatibility
+        border: "rgb(var(--color-border) / <alpha-value>)",
         danger: "rgb(var(--color-error-500) / <alpha-value>)",
         cream: "rgb(var(--color-background-50) / <alpha-value>)",
       },
       fontFamily: {
-        sans: ["Plus-Jakarta", "system-ui"],
-        heading: ["Fjalla-One", "system-ui"],
+        sans: ["DM-Sans", "system-ui"],
+        heading: ["DM-Sans-Bold", "system-ui"],
       },
       fontSize: {
         "2xs": ["10px", { lineHeight: "12px" }],

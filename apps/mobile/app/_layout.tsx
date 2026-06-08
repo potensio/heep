@@ -6,8 +6,7 @@ import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
 import { enableScreens } from "react-native-screens";
-import { useMMKVString } from "react-native-mmkv";
-import { AUTH_STORAGE_KEYS } from "@/features/auth/store/auth.store";
+import { useAuthStatus } from "@/features/auth/hooks/use-auth";
 import {
   DMSans_200ExtraLight,
   DMSans_300Light,
@@ -19,24 +18,27 @@ import {
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
 import "../global.css";
 
 enableScreens();
 SplashScreen.preventAutoHideAsync();
 
 function AuthGuard() {
-  const [accessToken] = useMMKVString(AUTH_STORAGE_KEYS.ACCESS_TOKEN);
+  const { user, isPending } = useAuthStatus();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
+    if (isPending) return;
     const inAuthGroup = segments[0] === 'auth';
-    if (!accessToken && !inAuthGroup) {
+    if (!user && !inAuthGroup) {
       router.replace('/auth');
-    } else if (accessToken && inAuthGroup) {
+    } else if (user && inAuthGroup) {
       router.replace('/(tabs)');
     }
-  }, [accessToken, segments]);
+  }, [user, isPending, segments]);
 
   return null;
 }
@@ -58,27 +60,29 @@ export default function RootLayout() {
   }, [fontsLoaded]);
 
   return (
-    <GestureHandlerRootView style={styles.container}>
-      <SafeAreaProvider>
-        <ThemeProvider>
-          <GluestackUIProvider>
-            <BottomSheetModalProvider>
-              <AuthGuard />
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: "transparent" },
-                }}
-              >
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen name="auth" />
-                <Stack.Screen name="conversation/[id]" />
-              </Stack>
-            </BottomSheetModalProvider>
-          </GluestackUIProvider>
-        </ThemeProvider>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={styles.container}>
+        <SafeAreaProvider>
+          <ThemeProvider>
+            <GluestackUIProvider>
+              <BottomSheetModalProvider>
+                <AuthGuard />
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: "transparent" },
+                  }}
+                >
+                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen name="auth" />
+                  <Stack.Screen name="conversation/[id]" />
+                </Stack>
+              </BottomSheetModalProvider>
+            </GluestackUIProvider>
+          </ThemeProvider>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }
 

@@ -1,91 +1,146 @@
-import { View } from 'react-native';
-import { Controller } from 'react-hook-form';
-import { AuthLayout } from '../components/auth-layout';
-import { PasswordInput } from '../components/password-input';
-import { Button, ButtonText } from '@/components/ui/button';
-import { Input, InputField } from '@/components/ui/input';
-import { Text } from '@/components/ui/text';
-import { VStack } from '@/components/ui/vstack';
-import { useAuthForm } from '../hooks/use-auth-form';
-import { useAuthTranslation } from '../i18n';
-import { loginSchema } from '../schemas/auth-schemas';
-import type { LoginScreenProps } from '../types';
+import { useRef } from "react";
+import { View, ScrollView } from "react-native";
+import { Controller } from "react-hook-form";
+import { PasswordInput } from "../components/password-input";
+import { Input, InputField } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
+import { AuthButton } from "../components/auth-button";
+import { useAuthForm } from "../hooks/use-auth-form";
+import { useKeyboardAwareScroll } from "../hooks/use-keyboard-aware-scroll";
+import { loginSchema } from "../schemas/auth-schemas";
+import type { LoginScreenProps } from "../types";
 
-export function LoginScreen({ onSubmit, onNavigateToSignup, isLoading }: LoginScreenProps) {
-  const { t } = useAuthTranslation();
-  const { control, handleSubmit, formState: { isValid } } = useAuthForm(loginSchema);
+export function LoginScreen({
+  onSubmit,
+  onNavigateToSignup,
+  isLoading,
+  error,
+}: LoginScreenProps) {
+  const {
+    control,
+    handleSubmit,
+    formState: { isValid },
+  } = useAuthForm(loginSchema);
+
+  const { scrollRef, keyboardHeight, scrollToInput } = useKeyboardAwareScroll();
+  const emailContainerRef = useRef<View>(null);
+  const passwordContainerRef = useRef<View>(null);
 
   return (
-    <AuthLayout
-      title={t('login.title')}
-      subtitle={t('login.subtitle')}
+    <ScrollView
+      ref={scrollRef}
+      className="flex-1"
+      contentContainerStyle={{
+        flexGrow: 1,
+        paddingHorizontal: 32,
+        paddingBottom: keyboardHeight,
+      }}
+      keyboardShouldPersistTaps="handled"
+      showsVerticalScrollIndicator={false}
+      automaticallyAdjustKeyboardInsets
     >
-      <Controller
-        control={control}
-        name="email"
-        render={({ field: { onChange, value }, fieldState: { error } }) => (
-          <VStack space="1">
-            <Text className="text-sm text-typography-600 font-medium">
-              {t('login.emailLabel')}
-            </Text>
-            <Input variant="outline" size="lg">
-              <InputField
-                value={value}
-                onChangeText={onChange}
-                placeholder="email@example.com"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                editable={!isLoading}
-              />
-            </Input>
-            {error && (
-              <Text className="text-error-500 text-sm">{error.message}</Text>
+      <View className="max-w-md mx-auto w-full py-12">
+        <Text className="text-[28px] font-medium text-white tracking-[-1] mt-5 mb-5">
+          Heep.ai
+        </Text>
+
+        <Text className="text-[46px] text-white font-medium tracking-[-4] mb-4">
+          Welcome back
+        </Text>
+
+        <Text className="text-[16px] font-light text-white tracking-tight mb-8">
+          Please enter your details to sign in
+        </Text>
+
+        <View className="flex flex-col p-8 bg-black/30 rounded-[30] h-fit">
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <View ref={emailContainerRef} className="mb-4">
+                <Text className="text-white text-[16px] font-light tracking-tighter mb-3">
+                  Email Address
+                </Text>
+                <Input
+                  variant="outline"
+                  size="lg"
+                  isInvalid={!!error}
+                  className="bg-white"
+                >
+                  <InputField
+                    value={value}
+                    onChangeText={onChange}
+                    placeholder="Enter your email"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    autoCorrect={false}
+                    editable={!isLoading}
+                    onFocus={() => scrollToInput(emailContainerRef)}
+                  />
+                </Input>
+                {error && (
+                  <Text className="text-error-500 text-sm tracking-tighter mt-1">
+                    {error.message}
+                  </Text>
+                )}
+              </View>
             )}
-          </VStack>
-        )}
-      />
+          />
 
-      <Controller
-        control={control}
-        name="password"
-        render={({ field: { onChange, value }, fieldState: { error } }) => (
-          <VStack space="1">
-            <Text className="text-sm text-typography-600 font-medium">
-              {t('login.passwordLabel')}
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <View ref={passwordContainerRef} className="mb-3">
+                <Text className="text-white text-[16px] font-light tracking-tighter mb-3">
+                  Password
+                </Text>
+                <PasswordInput
+                  value={value}
+                  onChangeText={onChange}
+                  placeholder="• • • • • • • • • • • • "
+                  error={error?.message}
+                  isDisabled={isLoading}
+                  onFocus={() => scrollToInput(passwordContainerRef)}
+                />
+              </View>
+            )}
+          />
+
+          <Button variant="link" className="self-start" onPress={() => {}}>
+            <Text className="font-light text-white text-[16px] underline">
+              Forgot Password?
             </Text>
-            <PasswordInput
-              value={value}
-              onChangeText={onChange}
-              error={error?.message}
-              isDisabled={isLoading}
-            />
-          </VStack>
-        )}
-      />
+          </Button>
 
-      <Button
-        size="lg"
-        onPress={handleSubmit(onSubmit)}
-        isDisabled={!isValid || isLoading}
-        className="mt-4"
-      >
-        <ButtonText>
-          {isLoading ? 'Loading...' : t('login.submitButton')}
-        </ButtonText>
-      </Button>
+          {error && (
+            <Text className="text-error-500 text-sm tracking-tighter mb-3">
+              {error}
+            </Text>
+          )}
 
-      <View className="flex-row items-center justify-center mt-6">
-        <Text className="text-sm text-typography-500">
-          {t('login.noAccount')}{' '}
-        </Text>
-        <Text
-          className="text-sm text-primary-500 font-medium"
-          onPress={onNavigateToSignup}
-        >
-          {t('login.signUpLink')}
-        </Text>
+          <AuthButton
+            label="Sign In"
+            onPress={handleSubmit(onSubmit)}
+            isLoading={isLoading}
+            isDisabled={!isValid || isLoading}
+            style={{ marginTop: 4, marginBottom: 12 }}
+          />
+
+          <View className="flex-row items-center justify-start gap-0">
+            <Text className="text-white text-xs leading-tight tracking-tighter mr-0.5">
+              Don&apos;t have an account yet?{" "}
+            </Text>
+            <Button variant="link" onPress={onNavigateToSignup}>
+              <Text className="font-light text-white text-xs leading-tight tracking-tighter underline">
+                Sign up
+              </Text>
+            </Button>
+          </View>
+        </View>
       </View>
-    </AuthLayout>
+    </ScrollView>
   );
 }

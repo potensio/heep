@@ -6,10 +6,12 @@ export interface LoginScreenProps {
   onSubmit: (data: LoginFormData) => void;
   onNavigateToSignup: () => void;
   isLoading?: boolean;
+  error?: string | null;
 }
 
 export interface SignupScreenProps {
   onSubmit: (data: SignupFormData) => void;
   onNavigateToLogin: () => void;
   isLoading?: boolean;
+  error?: string | null;
 }
