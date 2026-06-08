@@ -45,6 +45,7 @@ export function createAuthService(deps: AuthDeps) {
       const { user_id, token } = await bubbleClient.login(email, password);
       const profile = await bubbleClient.getProfile(token);
       const user = await usersService.findOrCreateByBubbleId(user_id, email, profile.first_name, profile.last_name);
+      await usersService.updateProfile(user.id, { bubble_token: token });
       return issueTokens(user);
     },
 

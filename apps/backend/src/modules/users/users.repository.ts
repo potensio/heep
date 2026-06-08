@@ -3,6 +3,7 @@ import type { SupabaseClient } from '../../core/supabase/client';
 export interface User {
   id: string;
   bubble_id: string | null;
+  bubble_token: string | null;
   email: string;
   first_name: string | null;
   last_name: string | null;
@@ -29,6 +30,7 @@ export interface UpdateUserInput {
   profile_completed?: boolean;
   phone?: string;
   bubble_id?: string;
+  bubble_token?: string;
 }
 
 export interface UsersRepository {

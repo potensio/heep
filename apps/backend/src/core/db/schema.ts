@@ -8,6 +8,7 @@ export const genderEnum = pgEnum('gender', ['male', 'female']);
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   bubbleId: text('bubble_id').unique(),
+  bubbleToken: text('bubble_token'),
   email: text('email').notNull().unique(),
   firstName: text('first_name'),
   lastName: text('last_name'),

@@ -8,12 +8,10 @@ import { listConversationsSchema, listMessagesSchema } from './conversations.val
 export const conversationsRoutes = new Hono<{ Bindings: Env; Variables: AppVariables }>();
 
 conversationsRoutes.get('/', requireAuth, zValidator('query', listConversationsSchema), async (c) => {
-  const { cursor, limit, property_id, q } = c.req.valid('query');
+  const { cursor, limit } = c.req.valid('query');
   const result = await c.get('conversationsService').getConversations(c.get('user').id, {
     cursor,
     limit,
-    propertyId: property_id,
-    q,
   });
   return c.json(result);
 });

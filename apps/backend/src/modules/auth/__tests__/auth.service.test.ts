@@ -27,7 +27,7 @@ function makeFakeAuthRepo() {
 }
 
 const fakeUser: User = {
-  id: 'user-1', bubble_id: 'bubble-1', email: 'u@example.com',
+  id: 'user-1', bubble_id: 'bubble-1', bubble_token: null, email: 'u@example.com',
   first_name: 'Test', last_name: 'User',
   avatar_url: null, gender: null, phone: null, profile_completed: false,
   created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
@@ -36,6 +36,7 @@ const fakeUser: User = {
 const fakeUsersService = {
   findOrCreateByBubbleId: vi.fn().mockResolvedValue(fakeUser),
   getMe: vi.fn().mockResolvedValue(fakeUser),
+  updateProfile: vi.fn().mockResolvedValue(fakeUser),
 } as any;
 
 const baseDeps = {

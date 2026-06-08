@@ -10,7 +10,7 @@ import type { AppVariables } from '../../../types/hono';
 import type { Env } from '../../../types/env';
 
 const mockPaginated = {
-  data: [{ id: 'conv-1', contact: { id: 'c-1', name: 'Test', phone: '', avatar_url: null }, channel: 'whatsapp', property_id: 'p-1', property_name: 'Villa', last_message_text: 'Hi', last_message_sent_at: '2025-01-01T00:00:00Z', unread_count: 0, updated_at: '2025-01-01T00:00:00Z' }],
+  data: [{ id: 'conv-1', contact: { name: 'Test', avatar_url: null }, channel: 'whatsapp', property: { id: 'p-1', name: 'Villa' }, last_message: { text: 'Hi', sent_at: '2025-01-01T00:00:00Z' } }],
   pagination: { cursor: null, has_more: false },
 };
 

@@ -7,10 +7,8 @@ export interface ConversationsServiceDeps {
 }
 
 export interface GetConversationsQuery {
-  cursor?: string;
+  cursor?: number;
   limit?: number;
-  propertyId?: string;
-  q?: string;
 }
 
 export function createConversationsService({ bubbleDataClient, usersService }: ConversationsServiceDeps) {
@@ -20,24 +18,23 @@ export function createConversationsService({ bubbleDataClient, usersService }: C
       query: GetConversationsQuery,
     ): Promise<PaginatedResult<BubbleConversation>> {
       const user = await usersService.getMe(userId);
-      if (!user.bubble_id) throw new Error('User has no Bubble account linked');
+      if (!user.bubble_token) throw new Error('User has no Bubble token — please log in again');
       return bubbleDataClient.getConversations({
-        bubbleUserId: user.bubble_id,
-        cursor: query.cursor,
+        bubbleToken: user.bubble_token,
+        cursor: query.cursor ? Number(query.cursor) : undefined,
         limit: query.limit ?? 20,
-        propertyId: query.propertyId,
-        q: query.q,
       });
     },
 
     async getMessages(
       userId: string,
       conversationId: string,
-      query: { cursor?: string; limit?: number },
+      query: { cursor?: number; limit?: number },
     ): Promise<PaginatedResult<BubbleMessage>> {
       const user = await usersService.getMe(userId);
-      if (!user.bubble_id) throw new Error('User has no Bubble account linked');
+      if (!user.bubble_token) throw new Error('User has no Bubble token — please log in again');
       return bubbleDataClient.getMessages(conversationId, {
+        bubbleToken: user.bubble_token,
         cursor: query.cursor,
         limit: query.limit ?? 30,
       });

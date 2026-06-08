@@ -5,7 +5,7 @@ import type { User, UsersRepository, CreateUserInput, UpdateUserInput } from '..
 const now = new Date().toISOString();
 
 const baseUser: User = {
-  id: 'u1', bubble_id: 'b1', email: 'a@example.com', first_name: null, last_name: null,
+  id: 'u1', bubble_id: 'b1', bubble_token: null, email: 'a@example.com', first_name: null, last_name: null,
   avatar_url: null, gender: null, phone: null, profile_completed: false,
   created_at: now, updated_at: now,
 };
@@ -17,7 +17,7 @@ function makeBubbleRepo(initial: User[] = []): UsersRepository {
     findByEmail: async (email) => store.find((u) => u.email === email) ?? null,
     findByBubbleId: async (bubbleId) => store.find((u) => u.bubble_id === bubbleId) ?? null,
     create: async (input: CreateUserInput) => {
-      const u: User = { ...baseUser, id: `new-${store.length}`, email: input.email, bubble_id: input.bubble_id ?? null, first_name: input.first_name ?? null, last_name: input.last_name ?? null };
+      const u: User = { ...baseUser, id: `new-${store.length}`, email: input.email, bubble_id: input.bubble_id ?? null, bubble_token: null, first_name: input.first_name ?? null, last_name: input.last_name ?? null };
       store.push(u); return u;
     },
     update: async (id, patch) => {
@@ -41,7 +41,7 @@ function makeFakeRepo(): UsersRepository {
     async create(input: CreateUserInput) {
       const user: User = {
         id: `id-${++seq}`, email: input.email, first_name: null, last_name: null,
-        avatar_url: null, bubble_id: null, gender: null, phone: null,
+        avatar_url: null, bubble_id: null, bubble_token: null, gender: null, phone: null,
         profile_completed: false, created_at: now, updated_at: now,
       };
       rows.set(user.id, user);
@@ -95,7 +95,7 @@ describe('findOrCreateByBubbleId', () => {
   });
 
   it('links bubbleId to existing user found by email', async () => {
-    const existing: User = { ...baseUser, id: 'u2', bubble_id: null, email: 'b@example.com' };
+    const existing: User = { ...baseUser, id: 'u2', bubble_id: null, bubble_token: null, email: 'b@example.com' };
     const repo = makeBubbleRepo([existing]);
     const svc = createUsersService({ repo });
     const user = await svc.findOrCreateByBubbleId('new-bubble', 'b@example.com');

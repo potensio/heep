@@ -6,6 +6,7 @@ import type { UsersService } from '../../users/users.service';
 const mockUser = {
   id: 'user-1',
   bubble_id: 'bubble-abc',
+  bubble_token: 'tok-xyz',
   email: 'test@test.com',
   first_name: 'Test',
   last_name: 'User',
@@ -19,14 +20,10 @@ const mockUser = {
 
 const mockConversation = {
   id: 'conv-1',
-  contact: { id: 'c-1', name: 'Mathis Vella', phone: '+33778566100', avatar_url: null },
+  contact: { name: 'Mathis Vella', avatar_url: null },
   channel: 'whatsapp' as const,
-  property_id: 'prop-1',
-  property_name: 'Villa Sunset',
-  last_message_text: 'Hey there',
-  last_message_sent_at: '2025-07-07T10:00:00Z',
-  unread_count: 2,
-  updated_at: '2025-07-07T10:00:00Z',
+  property: { id: 'prop-1', name: 'Villa Sunset' },
+  last_message: { text: 'Hey there', sent_at: '2025-07-07T10:00:00Z' },
 };
 
 const mockPaginatedConversations = {
@@ -58,26 +55,26 @@ describe('conversationsService', () => {
     return { service: createConversationsService({ bubbleDataClient, usersService }), bubbleDataClient, usersService };
   };
 
-  it('getConversations calls Bubble with users bubble_id', async () => {
+  it('getConversations calls Bubble with users bubble_token', async () => {
     const { service, bubbleDataClient } = makeService();
     const result = await service.getConversations('user-1', { limit: 20 });
     expect(bubbleDataClient.getConversations).toHaveBeenCalledWith(
-      expect.objectContaining({ bubbleUserId: 'bubble-abc', limit: 20 }),
+      expect.objectContaining({ bubbleToken: 'tok-xyz', limit: 20 }),
     );
     expect(result.data).toHaveLength(1);
     expect(result.data[0].id).toBe('conv-1');
   });
 
-  it('getConversations throws if user has no bubble_id', async () => {
+  it('getConversations throws if user has no bubble_token', async () => {
     const { service, usersService } = makeService();
-    (usersService.getMe as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ...mockUser, bubble_id: null });
-    await expect(service.getConversations('user-1', { limit: 20 })).rejects.toThrow('User has no Bubble account linked');
+    (usersService.getMe as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ ...mockUser, bubble_token: null });
+    await expect(service.getConversations('user-1', { limit: 20 })).rejects.toThrow('User has no Bubble token — please log in again');
   });
 
-  it('getMessages calls Bubble with conversationId', async () => {
+  it('getMessages calls Bubble with conversationId and bubble_token', async () => {
     const { service, bubbleDataClient } = makeService();
     const result = await service.getMessages('user-1', 'conv-1', { limit: 20 });
-    expect(bubbleDataClient.getMessages).toHaveBeenCalledWith('conv-1', expect.objectContaining({ limit: 20 }));
+    expect(bubbleDataClient.getMessages).toHaveBeenCalledWith('conv-1', expect.objectContaining({ bubbleToken: 'tok-xyz', limit: 20 }));
     expect(result.data[0].id).toBe('msg-1');
   });
 });
