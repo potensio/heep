@@ -21,7 +21,7 @@ const variantStyles: Record<InputVariant, string> = {
 const sizeStyles: Record<InputSize, string> = {
   sm: "h-9",
   md: "h-10",
-  lg: "h-[44px]",
+  lg: "h-14",
   xl: "h-12",
 };
 
@@ -55,16 +55,16 @@ type InputFieldProps = TextInputProps & { className?: string };
 export function InputField({ className, style, ...props }: InputFieldProps) {
   return (
     <TextInput
-      className={`flex-1 text-foreground text-base bg-transparent ${className || ""}`}
-      placeholderTextColor="rgb(var(--color-muted))"
+      placeholderTextColor="rgb(156, 163, 175)"
       style={[
-        Platform.select({
-          ios: { paddingVertical: 0 },
-          android: {
-            includeFontPadding: false,
-            textAlignVertical: "center" as const,
-          },
-        }),
+        {
+          flex: 1,
+          fontSize: 16,
+          color: "black",
+          height: 56,
+          paddingVertical: 0,
+          includeFontPadding: false,
+        },
         style,
       ]}
       {...props}

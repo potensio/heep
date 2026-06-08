@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { Pressable, TextInput } from "react-native";
 import { SignOutIcon, TrashIcon } from "phosphor-react-native";
 import { Text } from "@/components/ui/text";
@@ -53,10 +53,25 @@ export function AccountSection() {
   const logout = useLogout();
   const user = useCurrentUser();
 
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setFirstName(user.first_name ?? "");
+      setLastName(user.last_name ?? "");
+    }
+  }, [user]);
+
   const handleLogout = useCallback(async () => {
     queryClient.removeQueries({ queryKey: ['conversations'] });
     await logout();
   }, [logout]);
+
+  const handleSave = useCallback(() => {
+    // TODO: Implement save mutation
+    console.log("Save:", { firstName, lastName });
+  }, [firstName, lastName]);
 
   return (
     <VStack testID="account-section">
@@ -65,27 +80,63 @@ export function AccountSection() {
       <Box className="bg-white rounded-[32px] p-6 mt-4">
         <HStack style={{ gap: 12, marginBottom: 16 }}>
           <Box style={{ flex: 1 }}>
-            <ProfileField label="First Name" value={user?.first_name ?? ""} disabled />
+            <ProfileField
+              label="First Name"
+              value={firstName}
+              onChangeText={setFirstName}
+            />
           </Box>
           <Box style={{ flex: 1 }}>
-            <ProfileField label="Last Name" value={user?.last_name ?? ""} disabled />
+            <ProfileField
+              label="Last Name"
+              value={lastName}
+              onChangeText={setLastName}
+            />
           </Box>
         </HStack>
         <ProfileField label="Email" value={user?.email ?? ""} disabled />
 
         <Pressable
-          onPress={handleLogout}
-          className="flex-row items-center rounded-full self-start mt-5 bg-danger/10"
+          onPress={handleSave}
+          className="rounded-full self-start mt-4"
           style={{
-            paddingHorizontal: 20,
-            paddingVertical: 14,
-            gap: 8,
+            backgroundColor: "#1a1a1a",
+            paddingHorizontal: 24,
+            paddingVertical: 12,
           }}
         >
-          <Text className="text-base text-danger">Log out</Text>
-          <SignOutIcon size={18} color="#FB2C36" />
+          <Text className="text-base text-white font-medium">Save</Text>
         </Pressable>
       </Box>
+
+      {/* Logout */}
+      <VStack className="mt-6">
+        <Text className="text-xl tracking-tighter">Session</Text>
+
+        <Box className="bg-white rounded-[32px] p-6 mt-4">
+          <Text
+            className="text-sm mb-4"
+            style={{ color: "#666666", lineHeight: 20 }}
+          >
+            End your current session and sign out of your account.
+          </Text>
+
+          <Pressable
+            onPress={handleLogout}
+            className="flex-row items-center rounded-full self-start"
+            style={{
+              borderWidth: 1,
+              borderColor: "#d1d5db",
+              paddingHorizontal: 20,
+              paddingVertical: 14,
+              gap: 8,
+            }}
+          >
+            <Text className="text-base text-foreground">Log out</Text>
+            <SignOutIcon size={18} color="#1a1a1a" />
+          </Pressable>
+        </Box>
+      </VStack>
 
       {/* Danger Zone */}
       <VStack className="mt-6">

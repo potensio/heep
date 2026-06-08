@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { View, ScrollView } from "react-native";
 import { Controller } from "react-hook-form";
 import { PasswordInput } from "../components/password-input";
-import { Input, InputField } from "@/components/ui/input";
+import { Input, InputField, InputSlot } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { AuthButton } from "../components/auth-button";
