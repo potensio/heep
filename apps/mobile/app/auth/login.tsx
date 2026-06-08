@@ -11,7 +11,7 @@ export default function LoginRoute() {
       isLoading={mutation.isPending}
       error={mutation.error?.message}
       onSubmit={(data) => mutation.mutate({ email: data.email, password: data.password })}
-      onNavigateToSignup={() => router.push('/auth/signup')}
+      onNavigateToSignup={() => router.replace('/auth/signup')}
     />
   );
 }

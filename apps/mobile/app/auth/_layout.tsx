@@ -9,7 +9,7 @@ export default function AuthLayout() {
       resizeMode="cover"
     >
       <View className="absolute inset-0 bg-black/30" />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' }, animation: 'fade' }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: 'transparent' }, animation: 'none' }}>
         <Stack.Screen name="login" />
         <Stack.Screen name="signup" />
       </Stack>

@@ -109,7 +109,7 @@ export function LoginScreen({
             )}
           />
 
-          <Button variant="link" className="self-start" onPress={() => {}}>
+          <Button variant="link" className="self-start mb-4" onPress={() => {}}>
             <Text className="font-light text-white text-[16px] underline">
               Forgot Password?
             </Text>
@@ -130,11 +130,11 @@ export function LoginScreen({
           />
 
           <View className="flex-row items-center justify-start gap-0">
-            <Text className="text-white text-xs leading-tight tracking-tighter mr-0.5">
+            <Text className="text-white text-sm leading-tight tracking-tighter mr-0.5">
               Don&apos;t have an account yet?{" "}
             </Text>
             <Button variant="link" onPress={onNavigateToSignup}>
-              <Text className="font-light text-white text-xs leading-tight tracking-tighter underline">
+              <Text className="font-light text-white text-sm leading-tight tracking-tighter underline">
                 Sign up
               </Text>
             </Button>

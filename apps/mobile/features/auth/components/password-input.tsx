@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable } from "react-native";
 import { Input, InputField, InputSlot, InputIcon } from "@/components/ui/input";
-import { EyeLinear, EyeClosedLinear } from "@solar-icons/react-native";
+import { Eye, EyeClosed } from "phosphor-react-native";
 import { Text } from "@/components/ui/text";
 
 interface PasswordInputProps {
@@ -39,9 +39,9 @@ export function PasswordInput({
         <InputSlot>
           <Pressable onPress={() => setShowPassword(!showPassword)}>
             {showPassword ? (
-              <InputIcon as={EyeClosedLinear} className="text-muted" />
+              <InputIcon as={Eye} className="text-muted" weight="fill" />
             ) : (
-              <InputIcon as={EyeLinear} className="text-muted" />
+              <InputIcon as={EyeClosed} className="text-muted" />
             )}
           </Pressable>
         </InputSlot>

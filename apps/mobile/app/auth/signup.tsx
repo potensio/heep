@@ -18,7 +18,7 @@ export default function SignupRoute() {
           password: data.password,
         })
       }
-      onNavigateToLogin={() => router.push('/auth/login')}
+      onNavigateToLogin={() => router.replace('/auth/login')}
     />
   );
 }

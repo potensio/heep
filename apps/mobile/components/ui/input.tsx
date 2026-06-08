@@ -1,4 +1,4 @@
-import { View, TextInput, TextInputProps, ViewProps } from "react-native";
+import { Platform, View, TextInput, TextInputProps, ViewProps } from "react-native";
 
 type InputVariant = "outline" | "underlined" | "rounded";
 type InputSize = "sm" | "md" | "lg" | "xl";
@@ -52,11 +52,21 @@ Input.displayName = "Input";
 
 type InputFieldProps = TextInputProps & { className?: string };
 
-export function InputField({ className, ...props }: InputFieldProps) {
+export function InputField({ className, style, ...props }: InputFieldProps) {
   return (
     <TextInput
-      className={`flex-1 text-foreground text-base py-0 bg-transparent ${className || ""}`}
+      className={`flex-1 text-foreground text-base bg-transparent ${className || ""}`}
       placeholderTextColor="rgb(var(--color-muted))"
+      style={[
+        Platform.select({
+          ios: { paddingVertical: 0 },
+          android: {
+            includeFontPadding: false,
+            textAlignVertical: "center" as const,
+          },
+        }),
+        style,
+      ]}
       {...props}
     />
   );

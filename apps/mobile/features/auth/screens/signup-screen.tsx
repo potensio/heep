@@ -196,11 +196,11 @@ export function SignupScreen({
           />
 
           <View className="flex-row items-center justify-start gap-0">
-            <Text className="text-white text-xs leading-tight tracking-tighter mr-0.5">
+            <Text className="text-white text-sm leading-tight tracking-tighter mr-0.5">
               Already have an account?{" "}
             </Text>
             <Button variant="link" onPress={onNavigateToLogin}>
-              <Text className="font-light text-white text-xs leading-tight tracking-tighter underline">
+              <Text className="font-light text-white text-sm leading-tight tracking-tighter underline">
                 Sign in
               </Text>
             </Button>

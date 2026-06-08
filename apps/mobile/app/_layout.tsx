@@ -66,7 +66,6 @@ export default function RootLayout() {
           <ThemeProvider>
             <GluestackUIProvider>
               <BottomSheetModalProvider>
-                <AuthGuard />
                 <Stack
                   screenOptions={{
                     headerShown: false,
@@ -77,6 +76,7 @@ export default function RootLayout() {
                   <Stack.Screen name="auth" />
                   <Stack.Screen name="conversation/[id]" />
                 </Stack>
+                <AuthGuard />
               </BottomSheetModalProvider>
             </GluestackUIProvider>
           </ThemeProvider>

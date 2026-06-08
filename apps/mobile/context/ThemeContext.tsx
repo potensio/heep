@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { useColorScheme as useNativeColorScheme, Appearance } from "react-native";
+import { createContext, useContext, useEffect, ReactNode } from "react";
+import { Appearance } from "react-native";
 
 export type ThemeMode = "light" | "dark" | "system";
 
@@ -13,28 +13,16 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const systemColorScheme = useNativeColorScheme();
-  const [mode, setMode] = useState<ThemeMode>("system");
-
-  const resolvedTheme: "light" | "dark" = mode === "system" 
-    ? (systemColorScheme ?? "light") 
-    : mode;
+  // Force light mode - ignore system preference
+  const resolvedTheme: "light" | "dark" = "light";
 
   useEffect(() => {
-    // Update Appearance for NativeWind
-    Appearance.setColorScheme(resolvedTheme);
-  }, [resolvedTheme]);
-
-  const toggleTheme = () => {
-    setMode((prev) => {
-      if (prev === "light") return "dark";
-      if (prev === "dark") return "light";
-      return resolvedTheme === "dark" ? "light" : "dark";
-    });
-  };
+    // Force light mode for NativeWind
+    Appearance.setColorScheme("light");
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ mode, resolvedTheme, setMode, toggleTheme }}>
+    <ThemeContext.Provider value={{ mode: "light", resolvedTheme: "light", setMode: () => {}, toggleTheme: () => {} }}>
       {children}
     </ThemeContext.Provider>
   );

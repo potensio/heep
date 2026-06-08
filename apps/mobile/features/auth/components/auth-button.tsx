@@ -1,4 +1,10 @@
-import { ActivityIndicator, Pressable, StyleProp, View, ViewStyle } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleProp,
+  View,
+  ViewStyle,
+} from "react-native";
 import Animated, {
   interpolate,
   interpolateColor,
@@ -61,8 +67,12 @@ export function AuthButton({
 
   return (
     <Pressable
-      onPressIn={() => { pressed.value = timing(1, 100); }}
-      onPressOut={() => { pressed.value = timing(0, 150); }}
+      onPressIn={() => {
+        pressed.value = timing(1, 100);
+      }}
+      onPressOut={() => {
+        pressed.value = timing(0, 150);
+      }}
       onPress={disabled ? undefined : onPress}
       disabled={disabled}
       style={style}
@@ -92,7 +102,7 @@ export function AuthButton({
         >
           <Animated.Text
             style={[
-              { fontSize: 12, fontWeight: "400", fontFamily: "DM-Sans" },
+              { fontSize: 16, fontWeight: "400", fontFamily: "DM-Sans" },
               textStyle,
             ]}
           >
