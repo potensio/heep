@@ -145,17 +145,17 @@ function mapConversation(raw: Record<string, unknown>): BubbleConversation {
   return {
     id: raw._id as string,
     contact: {
-      id: (raw['Contact'] as Record<string, unknown>)?._id as string ?? '',
-      name: raw['Contact Name'] as string ?? '',
-      phone: raw['Contact Phone'] as string ?? '',
-      avatar_url: raw['Contact Avatar'] as string | null ?? null,
+      id: ((raw['Contact'] as Record<string, unknown>)?._id as string) ?? '',
+      name: (raw['Contact Name'] as string) ?? '',
+      phone: (raw['Contact Phone'] as string) ?? '',
+      avatar_url: (raw['Contact Avatar'] as string | null) ?? null,
     },
     channel: (raw['Channel'] as 'whatsapp' | 'sms' | 'email') ?? 'whatsapp',
-    property_id: (raw['Property'] as Record<string, unknown>)?._id as string ?? '',
-    property_name: raw['Property Name'] as string ?? '',
-    last_message_text: raw['Last Message Text'] as string ?? '',
-    last_message_sent_at: raw['Last Message Date'] as string ?? raw['Modified Date'] as string,
-    unread_count: raw['Unread Count'] as number ?? 0,
+    property_id: ((raw['Property'] as Record<string, unknown>)?._id as string) ?? '',
+    property_name: (raw['Property Name'] as string) ?? '',
+    last_message_text: (raw['Last Message Text'] as string) ?? '',
+    last_message_sent_at: (raw['Last Message Date'] as string) ?? (raw['Modified Date'] as string),
+    unread_count: Number((raw['Unread Count'] as number | undefined) ?? 0),
     updated_at: raw['Modified Date'] as string,
   };
 }
@@ -163,7 +163,7 @@ function mapConversation(raw: Record<string, unknown>): BubbleConversation {
 function mapMessage(raw: Record<string, unknown>): BubbleMessage {
   return {
     id: raw._id as string,
-    text: raw['Text'] as string ?? '',
+    text: (raw['Text'] as string) ?? '',
     sender: (raw['Direction'] as string) === 'outbound' ? 'me' : 'them',
     sent_at: raw['Created Date'] as string,
   };
