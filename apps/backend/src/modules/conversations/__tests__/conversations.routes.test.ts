@@ -1,4 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
+
+vi.mock('../../../core/middleware/auth', () => ({
+  requireAuth: async (_c: any, next: any) => next(),
+}));
+
 import { Hono } from 'hono';
 import { conversationsRoutes } from '../conversations.routes';
 import type { AppVariables } from '../../../types/hono';
