@@ -44,91 +44,88 @@ export default function SettingsScreen() {
 
   return (
     <Box className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <View style={{ paddingHorizontal: 16 }}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingBottom: 32,
+          flexGrow: 1,
+        }}
+      >
         <Text className="text-4xl font-extralight leading-tight tracking-tighter text-subtle mt-6">
           Settings
         </Text>
-      </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: 10, paddingHorizontal: 16 }}
-        style={{ marginTop: 24, marginBottom: 0, height: 80 }}
-      >
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.id;
-          return (
-            <Pressable
-              key={tab.id}
-              testID={`tab-${tab.id}`}
-              onPress={() => handleTabPress(tab.id)}
-              className="flex-row items-center rounded-full"
-              style={{
-                backgroundColor: isActive
-                  ? colors.foreground
-                  : colors.background,
-                paddingHorizontal: 12,
-                height: 56,
-                gap: 6,
-              }}
-            >
-              <Text
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ gap: 10 }}
+          style={{ marginTop: 24, marginBottom: 8, marginHorizontal: -16, height: 80 }}
+        >
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <Pressable
+                key={tab.id}
+                testID={`tab-${tab.id}`}
+                onPress={() => handleTabPress(tab.id)}
+                className="flex-row items-center rounded-full"
                 style={{
-                  color: isActive ? colors.background : colors.foreground,
-                  fontSize: 14,
+                  backgroundColor: isActive
+                    ? colors.foreground
+                    : colors.background,
+                  paddingHorizontal: 12,
+                  height: 56,
+                  gap: 6,
+                  marginLeft: tab.id === TABS[0].id ? 16 : 0,
+                  marginRight: tab.id === TABS[TABS.length - 1].id ? 16 : 0,
                 }}
               >
-                {tab.label}
-              </Text>
-              {isActive ? (
-                <CaretDownIcon
-                  size={14}
-                  color={colors.background}
-                  weight="regular"
-                />
-              ) : (
-                <CaretRightIcon
-                  size={14}
-                  color={colors.foreground}
-                  weight="regular"
-                />
-              )}
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+                <Text
+                  style={{
+                    color: isActive ? colors.background : colors.foreground,
+                    fontSize: 14,
+                  }}
+                >
+                  {tab.label}
+                </Text>
+                {isActive ? (
+                  <CaretDownIcon
+                    size={14}
+                    color={colors.background}
+                    weight="regular"
+                  />
+                ) : (
+                  <CaretRightIcon
+                    size={14}
+                    color={colors.foreground}
+                    weight="regular"
+                  />
+                )}
+              </Pressable>
+            );
+          })}
+        </ScrollView>
 
-      <ScrollView
-        ref={scrollViewRef}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-        contentContainerStyle={{ width: screenWidth * TABS.length }}
-      >
-        <View style={{ width: screenWidth }}>
-          <ScrollView
-            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}
-          >
+        <ScrollView
+          ref={scrollViewRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          contentContainerStyle={{ width: screenWidth * TABS.length }}
+          style={{ marginHorizontal: -16 }}
+        >
+          <View style={{ width: screenWidth, paddingHorizontal: 16 }}>
             <AccountSection />
-          </ScrollView>
-        </View>
-        <View style={{ width: screenWidth }}>
-          <ScrollView
-            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}
-          >
+          </View>
+          <View style={{ width: screenWidth, paddingHorizontal: 16 }}>
             <NotificationsSection />
-          </ScrollView>
-        </View>
-        <View style={{ width: screenWidth }}>
-          <ScrollView
-            contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 }}
-          >
+          </View>
+          <View style={{ width: screenWidth, paddingHorizontal: 16 }}>
             <ActivationSection />
-          </ScrollView>
-        </View>
+          </View>
+        </ScrollView>
       </ScrollView>
     </Box>
   );
