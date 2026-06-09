@@ -17,5 +17,9 @@ export function useConversations() {
     initialPageParam: undefined as number | undefined,
     getNextPageParam: (lastPage) => lastPage.pagination.cursor ?? undefined,
     enabled: ready,
+    retry: (failureCount, error) => {
+      if ((error as Error)?.message === 'UNAUTHORIZED') return false;
+      return failureCount < 2;
+    },
   });
 }

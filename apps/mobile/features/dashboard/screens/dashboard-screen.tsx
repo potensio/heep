@@ -51,15 +51,17 @@ export default function DashboardScreen() {
           {/* Location Buttons Row */}
           <HStack className="w-full mt-6 gap-3">
             {/* All Locations Button */}
-            <HStack
-              className="items-center px-6 py-4 rounded-full bg-white"
-              style={{ gap: 12 }}
-            >
-              <HouseIcon size={20} />
-              <Text className="text-xs text-foreground shrink">
-                All Locations
-              </Text>
-            </HStack>
+            <Pressable onPress={() => setSelectedLocation(null)}>
+              <HStack
+                className={`items-center px-6 py-4 rounded-full ${!selectedLocation ? "bg-foreground" : "bg-white"}`}
+                style={{ gap: 12 }}
+              >
+                <HouseIcon size={20} color={!selectedLocation ? "#fff" : "#000"} />
+                <Text className={`text-xs shrink ${!selectedLocation ? "text-background" : "text-foreground"}`}>
+                  All Locations
+                </Text>
+              </HStack>
+            </Pressable>
 
             {/* Select Location Button */}
             <Pressable onPress={() => locationSheetRef.current?.open()}>

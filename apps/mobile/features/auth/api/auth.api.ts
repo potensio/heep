@@ -29,6 +29,16 @@ export async function loginApi(email: string, password: string): Promise<AuthTok
   return res.json() as Promise<AuthTokens>;
 }
 
+export async function refreshTokensApi(refreshToken: string): Promise<AuthTokens> {
+  const res = await fetch(`${API_URL}/auth/refresh`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refreshToken }),
+  });
+  if (!res.ok) throw new Error('REFRESH_FAILED');
+  return res.json() as Promise<AuthTokens>;
+}
+
 export async function signupApi(
   firstName: string,
   lastName: string,

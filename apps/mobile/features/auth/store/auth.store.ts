@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { AuthUser } from '../api/auth.api';
+import { refreshTokensApi } from '../api/auth.api';
 
 const KEYS = {
   ACCESS_TOKEN: 'auth.access_token',
@@ -42,4 +43,16 @@ export async function getStoredUser(): Promise<AuthUser | null> {
 export async function getBubbleToken(): Promise<string | null> {
   const user = await getStoredUser();
   return user?.bubble_token ?? null;
+}
+
+export async function tryRefreshTokens(): Promise<string | null> {
+  const refreshToken = await getRefreshToken();
+  if (!refreshToken) return null;
+  try {
+    const tokens = await refreshTokensApi(refreshToken);
+    await Promise.all([saveTokens(tokens.accessToken, tokens.refreshToken), saveUser(tokens.user)]);
+    return tokens.accessToken;
+  } catch {
+    return null;
+  }
 }

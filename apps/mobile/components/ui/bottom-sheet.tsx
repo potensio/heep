@@ -12,6 +12,7 @@ import {
   useBottomSheet,
   useBottomSheetTimingConfigs,
 } from "@gorhom/bottom-sheet";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BlurView } from "expo-blur";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
@@ -56,6 +57,7 @@ function CustomBackdrop({ animatedIndex, style }: BottomSheetBackdropProps) {
 export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
   ({ children, snapPoints = ["40%"] }, ref) => {
     const modalRef = useRef<BottomSheetModal>(null);
+    const { bottom: bottomInset } = useSafeAreaInsets();
 
     const animConfig = useBottomSheetTimingConfigs({
       duration: 300,
@@ -80,6 +82,7 @@ export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
         backgroundStyle={{ backgroundColor: "#000" }}
         handleComponent={() => null}
         animationConfigs={animConfig}
+        bottomInset={bottomInset}
       >
         {children}
       </BottomSheetModal>

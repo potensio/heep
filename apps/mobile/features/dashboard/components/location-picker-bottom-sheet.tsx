@@ -1,15 +1,15 @@
 import React, {
   forwardRef,
-  startTransition,
   useCallback,
   useDeferredValue,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import { BottomSheetScrollView, BottomSheetTextInput } from "@gorhom/bottom-sheet";
-import { CheckIcon, MagnifyingGlassIcon } from "phosphor-react-native";
+import { CheckIcon, MagnifyingGlassIcon, XIcon } from "phosphor-react-native";
 import { BottomSheet, BottomSheetRef } from "@/components/ui/bottom-sheet";
 import { Text } from "@/components/ui/text";
 import type { Location } from "../types";
@@ -65,11 +65,12 @@ export const LocationPickerBottomSheet = forwardRef<
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
 
-  const filteredLocations = deferredQuery.trim()
-    ? locations.filter((l) =>
-        l.name.toLowerCase().includes(deferredQuery.toLowerCase().trim())
-      )
-    : locations;
+  const filteredLocations = useMemo(() => {
+    const trimmed = deferredQuery.trim().toLowerCase();
+    return trimmed
+      ? locations.filter((l) => l.name.toLowerCase().includes(trimmed))
+      : locations;
+  }, [locations, deferredQuery]);
 
   useImperativeHandle(ref, () => ({
     open: () => sheetRef.current?.open(),
@@ -79,7 +80,7 @@ export const LocationPickerBottomSheet = forwardRef<
   const handleClose = useCallback(() => sheetRef.current?.close(), []);
 
   const handleQueryChange = useCallback((text: string) => {
-    startTransition(() => setQuery(text));
+    setQuery(text);
   }, []);
 
   const handleClear = useCallback(() => {
@@ -102,6 +103,11 @@ export const LocationPickerBottomSheet = forwardRef<
             autoCorrect={false}
             autoCapitalize="none"
           />
+          {query.length > 0 && (
+            <Pressable onPress={() => setQuery("")} hitSlop={8}>
+              <XIcon size={16} color="rgba(255,255,255,0.4)" weight="bold" />
+            </Pressable>
+          )}
         </View>
         {filteredLocations.length === 0 ? (
           <Text style={styles.emptyText}>No results</Text>

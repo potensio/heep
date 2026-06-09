@@ -9,6 +9,7 @@ const LIGHT_COLORS = {
   foreground: "#1F1F1F", // foreground
   foregroundMuted: "#A3A3A3", // muted - for secondary/disabled icons
   background: "#FFFFFF",
+  subtle: "rgb(82, 82, 82)",
 
   // Brand colors (rarely used, for external services)
   whatsapp: "#25D366",
@@ -18,6 +19,7 @@ const DARK_COLORS = {
   foreground: "#FEFEFF", // typography-0
   foregroundMuted: "#A3A3A3", // muted
   background: "#1A1A1A",
+  subtle: "rgb(82, 82, 82)",
   whatsapp: "#25D366",
 } as const;
 
