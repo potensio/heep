@@ -1,4 +1,3 @@
-// src/types/hono.ts
 import type { Database } from '../core/db/client';
 import type { AuthService } from '../modules/auth/auth.service';
 import type { UsersService } from '../modules/users/users.service';
@@ -7,6 +6,7 @@ import type { ConversationsService } from '../modules/conversations/conversation
 export interface AuthUser {
   id: string;
   bubble_id: string | null;
+  team_id: string | null;
 }
 
 export interface AppVariables {

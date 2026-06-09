@@ -1,4 +1,3 @@
-// src/core/middleware/auth.ts
 import type { Context, Next } from 'hono';
 import type { Env } from '../../types/env';
 import type { AppVariables } from '../../types/hono';
@@ -14,6 +13,6 @@ export async function requireAuth(
   const token = header.slice('Bearer '.length);
   const secret = c.env.JWT_ACCESS_SECRET;
   const payload = await verifyAccessToken(token, secret);
-  c.set('user', { id: payload.sub, bubble_id: payload.bubble_id ?? null });
+  c.set('user', { id: payload.sub, bubble_id: payload.bubble_id ?? null, team_id: payload.team_id ?? null });
   await next();
 }
