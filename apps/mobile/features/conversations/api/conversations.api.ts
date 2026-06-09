@@ -10,7 +10,7 @@ export async function fetchConversations(cursor?: number): Promise<ConversationL
   if (cursor !== undefined) params.set('cursor', String(cursor));
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
+  const timeout = setTimeout(() => controller.abort(), 60000);
 
   try {
     let res = await fetch(`${API_URL}/conversations?${params}`, {
