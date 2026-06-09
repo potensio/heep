@@ -9,8 +9,8 @@ ip = "0.0.0.0"
 [vars]
 ACCESS_TOKEN_TTL = "900"
 REFRESH_TOKEN_TTL = "2592000"
-BUBBLE_API_URL = "https://app.heep.ai/version-13djz/api/1.1/wf"
-BUBBLE_DATA_URL = "https://app.heep.ai/version-13djz/api/1.1/obj"
+BUBBLE_API_URL = "https://app.heep.ai/api/1.1/wf"
+BUBBLE_DATA_URL = "https://app.heep.ai/api/1.1/obj"
 SUPABASE_URL = "https://hqzrhlybtjjgxepvzbuo.supabase.co"
 WEB_ORIGIN = "http://localhost:5173"
 
