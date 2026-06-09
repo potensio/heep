@@ -23,14 +23,18 @@ export function createAuthService(deps: AuthDeps) {
     return Math.floor(Date.now() / 1000);
   }
 
-  async function signAccessToken(userId: string, bubbleId: string | null): Promise<string> {
+  async function signAccessToken(userId: string, bubbleId: string | null, teamId: string | null): Promise<string> {
     const now = nowSeconds();
     const jti = Array.from(crypto.getRandomValues(new Uint8Array(8))).map(b => b.toString(16).padStart(2, '0')).join('');
-    return sign({ sub: userId, bubble_id: bubbleId, type: 'access', jti, iat: now, exp: now + accessTokenTtl }, jwtAccessSecret, 'HS256');
+    return sign(
+      { sub: userId, bubble_id: bubbleId, team_id: teamId, type: 'access', jti, iat: now, exp: now + accessTokenTtl },
+      jwtAccessSecret,
+      'HS256',
+    );
   }
 
   async function issueTokens(user: User) {
-    const accessToken = await signAccessToken(user.id, user.bubble_id);
+    const accessToken = await signAccessToken(user.id, user.bubble_id, user.team_id ?? null);
     const refreshToken = generateRefreshToken();
     await authRepo.createRefreshToken({
       userId: user.id,
@@ -45,7 +49,10 @@ export function createAuthService(deps: AuthDeps) {
       const { user_id, token } = await bubbleClient.login(email, password);
       const profile = await bubbleClient.getProfile(token);
       const user = await usersService.findOrCreateByBubbleId(user_id, email, profile.first_name, profile.last_name);
-      const updatedUser = await usersService.updateProfile(user.id, { bubble_token: token });
+      const updatedUser = await usersService.updateProfile(user.id, {
+        bubble_token: token,
+        team_id: profile.team_id ?? undefined,
+      });
       return issueTokens(updatedUser);
     },
 

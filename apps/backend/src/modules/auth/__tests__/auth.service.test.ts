@@ -27,7 +27,7 @@ function makeFakeAuthRepo() {
 }
 
 const fakeUser: User = {
-  id: 'user-1', bubble_id: 'bubble-1', bubble_token: null, email: 'u@example.com',
+  id: 'user-1', bubble_id: 'bubble-1', bubble_token: null, team_id: null, email: 'u@example.com',
   first_name: 'Test', last_name: 'User',
   avatar_url: null, gender: null, phone: null, profile_completed: false,
   created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
@@ -54,7 +54,8 @@ describe('authService.login', () => {
     const bubbleClient: BubbleClient = {
       login: vi.fn().mockResolvedValue({ user_id: 'bubble-1', token: 'bus|fake-token' }),
       signup: vi.fn(),
-      getProfile: vi.fn().mockResolvedValue({ first_name: 'Test', last_name: 'User', email: 'u@example.com' }),
+      getProfile: vi.fn().mockResolvedValue({ first_name: 'Test', last_name: 'User', email: 'u@example.com', team_id: null }),
+      sendMessage: vi.fn(),
     };
     const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, bubbleClient, ...baseDeps });
     const result = await svc.login('u@example.com', 'password');
@@ -70,9 +71,35 @@ describe('authService.login', () => {
       login: vi.fn().mockRejectedValue(new UnauthorizedError('Invalid email or password')),
       signup: vi.fn(),
       getProfile: vi.fn(),
+      sendMessage: vi.fn(),
     };
     const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, bubbleClient, ...baseDeps });
     await expect(svc.login('u@example.com', 'wrong')).rejects.toMatchObject({ status: 401 });
+  });
+
+  it('saves team_id from profile and embeds it in the access token', async () => {
+    const { repo } = makeFakeAuthRepo();
+    const updatedUser: User = { ...fakeUser, team_id: 'team-abc' };
+    const usersService = {
+      findOrCreateByBubbleId: vi.fn().mockResolvedValue(fakeUser),
+      getMe: vi.fn().mockResolvedValue(updatedUser),
+      updateProfile: vi.fn().mockResolvedValue(updatedUser),
+    } as any;
+    const bubbleClient: BubbleClient = {
+      login: vi.fn().mockResolvedValue({ user_id: 'bubble-1', token: 'bus|fake-token' }),
+      signup: vi.fn(),
+      getProfile: vi.fn().mockResolvedValue({ first_name: 'Test', last_name: 'User', email: 'u@example.com', team_id: 'team-abc' }),
+      sendMessage: vi.fn(),
+    };
+    const svc = createAuthService({ authRepo: repo, usersService, bubbleClient, ...baseDeps });
+    const result = await svc.login('u@example.com', 'password');
+    expect(usersService.updateProfile).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({ team_id: 'team-abc' }),
+    );
+    const [, payloadB64] = result.accessToken.split('.');
+    const payload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString());
+    expect(payload.team_id).toBe('team-abc');
   });
 });
 
@@ -83,6 +110,7 @@ describe('authService.signup', () => {
       login: vi.fn(),
       signup: vi.fn().mockResolvedValue({ user_id: 'bubble-new' }),
       getProfile: vi.fn(),
+      sendMessage: vi.fn(),
     };
     const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, bubbleClient, ...baseDeps });
     const result = await svc.signup('John', 'Doe', 'new@example.com', 'password123');
@@ -96,6 +124,7 @@ describe('authService.signup', () => {
       login: vi.fn(),
       signup: vi.fn().mockRejectedValue(new ConflictError('Email already registered')),
       getProfile: vi.fn(),
+      sendMessage: vi.fn(),
     };
     const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, bubbleClient, ...baseDeps });
     await expect(svc.signup('John', 'Doe', 'existing@example.com', 'password')).rejects.toMatchObject({ status: 409 });
@@ -108,7 +137,8 @@ describe('authService.refresh', () => {
     const bubbleClient: BubbleClient = {
       login: vi.fn().mockResolvedValue({ user_id: 'bubble-1', token: 'bus|fake-token' }),
       signup: vi.fn(),
-      getProfile: vi.fn().mockResolvedValue({ first_name: 'Test', last_name: 'User', email: 'u@example.com' }),
+      getProfile: vi.fn().mockResolvedValue({ first_name: 'Test', last_name: 'User', email: 'u@example.com', team_id: null }),
+      sendMessage: vi.fn(),
     };
     const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, bubbleClient, ...baseDeps });
     const { refreshToken } = await svc.login('u@example.com', 'password');
@@ -119,7 +149,7 @@ describe('authService.refresh', () => {
 
   it('throws 401 on invalid refresh token', async () => {
     const { repo } = makeFakeAuthRepo();
-    const bubbleClient: BubbleClient = { login: vi.fn(), signup: vi.fn(), getProfile: vi.fn() };
+    const bubbleClient: BubbleClient = { login: vi.fn(), signup: vi.fn(), getProfile: vi.fn(), sendMessage: vi.fn() };
     const svc = createAuthService({ authRepo: repo, usersService: fakeUsersService, bubbleClient, ...baseDeps });
     await expect(svc.refresh('invalid')).rejects.toMatchObject({ status: 401 });
   });
