@@ -1,12 +1,14 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createConversationsService } from '../conversations.service';
 import type { BubbleDataClient } from '../../../core/bubble/data-client';
+import type { BubbleClient } from '../../../core/bubble/client';
 import type { UsersService } from '../../users/users.service';
 
 const mockUser = {
   id: 'user-1',
   bubble_id: 'bubble-abc',
   bubble_token: 'tok-xyz',
+  team_id: 'team-abc',
   email: 'test@test.com',
   first_name: 'Test',
   last_name: 'User',
@@ -49,10 +51,18 @@ describe('conversationsService', () => {
       getConversations: vi.fn().mockResolvedValue(mockPaginatedConversations),
       getMessages: vi.fn().mockResolvedValue(mockPaginatedMessages),
     };
+    const bubbleClient = {
+      sendMessage: vi.fn().mockResolvedValue(undefined),
+    } as unknown as BubbleClient;
     const usersService = {
       getMe: vi.fn().mockResolvedValue(mockUser),
     } as unknown as UsersService;
-    return { service: createConversationsService({ bubbleDataClient, usersService }), bubbleDataClient, usersService };
+    return {
+      service: createConversationsService({ bubbleDataClient, bubbleClient, usersService }),
+      bubbleDataClient,
+      bubbleClient,
+      usersService,
+    };
   };
 
   it('getConversations calls Bubble with users bubble_token', async () => {
@@ -71,10 +81,9 @@ describe('conversationsService', () => {
     await expect(service.getConversations('user-1', { limit: 20 })).rejects.toThrow('User has no Bubble token — please log in again');
   });
 
-  it('getMessages calls Bubble with conversationId and bubble_token', async () => {
-    const { service, bubbleDataClient } = makeService();
-    const result = await service.getMessages('user-1', 'conv-1', { limit: 20 });
-    expect(bubbleDataClient.getMessages).toHaveBeenCalledWith('conv-1', expect.objectContaining({ bubbleToken: 'tok-xyz', limit: 20 }));
-    expect(result.data[0].id).toBe('msg-1');
+  it('sendMessage calls bubbleClient.sendMessage with conversationId and body', async () => {
+    const { service, bubbleClient } = makeService();
+    await service.sendMessage('conv-1', 'Hello!');
+    expect(bubbleClient.sendMessage).toHaveBeenCalledWith('conv-1', 'Hello!');
   });
 });

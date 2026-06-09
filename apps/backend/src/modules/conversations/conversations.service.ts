@@ -1,8 +1,10 @@
 import type { BubbleDataClient, PaginatedResult, BubbleConversation } from '../../core/bubble/data-client';
+import type { BubbleClient } from '../../core/bubble/client';
 import type { UsersService } from '../users/users.service';
 
 export interface ConversationsServiceDeps {
   bubbleDataClient: BubbleDataClient;
+  bubbleClient: BubbleClient;
   usersService: UsersService;
 }
 
@@ -12,7 +14,7 @@ export interface GetConversationsQuery {
   messagesLimit?: number;
 }
 
-export function createConversationsService({ bubbleDataClient, usersService }: ConversationsServiceDeps) {
+export function createConversationsService({ bubbleDataClient, bubbleClient, usersService }: ConversationsServiceDeps) {
   return {
     async getConversations(
       userId: string,
@@ -26,6 +28,10 @@ export function createConversationsService({ bubbleDataClient, usersService }: C
         limit: query.limit ?? 20,
         messagesLimit: query.messagesLimit ?? 20,
       });
+    },
+
+    async sendMessage(conversationId: string, body: string): Promise<void> {
+      await bubbleClient.sendMessage(conversationId, body);
     },
   };
 }
