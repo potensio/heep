@@ -34,9 +34,9 @@ export function createApp() {
     const raw = header?.startsWith('Bearer ') ? header.slice(7) : queryToken;
     if (!raw) throw new UnauthorizedError('Missing token');
     const payload = await verifyAccessToken(raw, c.env.JWT_ACCESS_SECRET);
-    c.set('user', { id: payload.sub, bubble_id: payload.bubble_id ?? null });
+    c.set('user', { id: payload.sub, bubble_id: payload.bubble_id ?? null, team_id: payload.team_id ?? null });
 
-    const doName = payload.bubble_id ?? payload.sub;
+    const doName = payload.team_id ?? payload.bubble_id ?? payload.sub;
     const id = c.env.CONNECTIONS.idFromName(doName);
     const stub = c.env.CONNECTIONS.get(id);
     return stub.fetch(new Request('https://do/connect', c.req.raw));

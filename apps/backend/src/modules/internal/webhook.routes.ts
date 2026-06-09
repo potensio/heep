@@ -14,16 +14,16 @@ webhookRoutes.post('/webhook', async (c) => {
   if (!valid) return c.json({ error: 'Unauthorized' }, 401);
 
   const body = await c.req.json() as {
-    bubble_user_id: string;
+    team_id: string;
     event: string;
     conversation_id?: string;
   };
 
-  if (!body.bubble_user_id || !body.event) {
-    return c.json({ error: 'Missing bubble_user_id or event' }, 400);
+  if (!body.team_id || !body.event) {
+    return c.json({ error: 'Missing team_id or event' }, 400);
   }
 
-  const doId = c.env.CONNECTIONS.idFromName(body.bubble_user_id);
+  const doId = c.env.CONNECTIONS.idFromName(body.team_id);
   const stub = c.env.CONNECTIONS.get(doId);
 
   await stub.fetch(
