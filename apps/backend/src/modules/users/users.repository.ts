@@ -4,6 +4,7 @@ export interface User {
   id: string;
   bubble_id: string | null;
   bubble_token: string | null;
+  team_id: string | null;
   email: string;
   first_name: string | null;
   last_name: string | null;
@@ -31,6 +32,7 @@ export interface UpdateUserInput {
   phone?: string;
   bubble_id?: string;
   bubble_token?: string;
+  team_id?: string;
 }
 
 export interface UsersRepository {
