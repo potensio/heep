@@ -32,7 +32,7 @@ export async function servicesMiddleware(
     refreshTokenTtl: Number(c.env.REFRESH_TOKEN_TTL),
   });
 
-  const conversationsService = createConversationsService({ bubbleDataClient, usersService });
+  const conversationsService = createConversationsService({ bubbleDataClient, bubbleClient, usersService });
 
   c.set('authService', authService);
   c.set('usersService', usersService);

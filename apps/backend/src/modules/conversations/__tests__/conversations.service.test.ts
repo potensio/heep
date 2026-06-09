@@ -33,23 +33,11 @@ const mockPaginatedConversations = {
   pagination: { cursor: null, has_more: false },
 };
 
-const mockMessage = {
-  id: 'msg-1',
-  text: 'Hello',
-  sender: 'them' as const,
-  sent_at: '2025-07-07T10:00:00Z',
-};
-
-const mockPaginatedMessages = {
-  data: [mockMessage],
-  pagination: { cursor: null, has_more: false },
-};
-
 describe('conversationsService', () => {
   const makeService = () => {
     const bubbleDataClient: BubbleDataClient = {
       getConversations: vi.fn().mockResolvedValue(mockPaginatedConversations),
-      getMessages: vi.fn().mockResolvedValue(mockPaginatedMessages),
+      getMessages: vi.fn().mockResolvedValue({ data: [], pagination: { cursor: null, has_more: false } }),
     };
     const bubbleClient = {
       sendMessage: vi.fn().mockResolvedValue(undefined),
