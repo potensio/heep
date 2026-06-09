@@ -64,6 +64,13 @@
       "when": 1780900000000,
       "tag": "0008_add_bubble_token",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1781021333569,
+      "tag": "0009_tense_daredevil",
+      "breakpoints": true
     }
   ]
 }
