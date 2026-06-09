@@ -13,12 +13,14 @@ export interface BubbleProfileResult {
   first_name: string;
   last_name: string;
   email: string;
+  team_id: string | null;
 }
 
 export interface BubbleClient {
   login(email: string, password: string): Promise<BubbleLoginResult>;
   signup(firstName: string, lastName: string, email: string, password: string): Promise<BubbleSignupResult>;
   getProfile(bubbleToken: string): Promise<BubbleProfileResult>;
+  sendMessage(conversationId: string, body: string): Promise<void>;
 }
 
 export function createBubbleClient(apiUrl: string, apiKey: string): BubbleClient {
@@ -61,7 +63,21 @@ export function createBubbleClient(apiUrl: string, apiKey: string): BubbleClient
       if (!res.ok) throw new Error(`Bubble getProfile failed: ${res.status}`);
       const data = await res.json() as { status: string; response: BubbleProfileResult };
       if (data.status !== 'success') throw new Error('getProfile failed');
-      return data.response;
+      return {
+        first_name: data.response.first_name,
+        last_name: data.response.last_name,
+        email: data.response.email,
+        team_id: data.response.team_id ?? null,
+      };
+    },
+
+    async sendMessage(conversationId, body) {
+      const res = await fetch(`${apiUrl}/hono-conversations-send`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ conversation_id: conversationId, body }),
+      });
+      if (!res.ok) throw new Error(`Bubble sendMessage failed: ${res.status}`);
     },
   };
 }
