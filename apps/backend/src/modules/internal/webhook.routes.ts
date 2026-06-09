@@ -24,6 +24,7 @@ webhookRoutes.post('/webhook', async (c) => {
     return c.json({ error: 'Missing team_id or event' }, 400);
   }
 
+  console.log(`[webhook] team_id="${body.team_id}" event="${body.event}"`);
   const doId = c.env.CONNECTIONS.idFromName(body.team_id);
   const stub = c.env.CONNECTIONS.get(doId);
 

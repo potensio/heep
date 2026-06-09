@@ -13,12 +13,14 @@ export class ConnectionManager {
       const pair = new WebSocketPair();
       const [client, server] = Object.values(pair);
       this.state.acceptWebSocket(server);
+      console.log(`[DO] client connected, total sockets: ${this.state.getWebSockets().length + 1}`);
       return new Response(null, { status: 101, webSocket: client });
     }
 
     if (url.pathname === '/notify') {
       const event = await request.json();
       const sockets = this.state.getWebSockets();
+      console.log(`[DO] notify: ${sockets.length} sockets connected, event:`, JSON.stringify(event));
       for (const ws of sockets) {
         ws.send(JSON.stringify(event));
       }

@@ -22,13 +22,20 @@ export function useConversationsSocket() {
       if (unmounted.current) return;
 
       const token = await getAccessToken();
+      console.log('[WS] token:', token ? 'ok' : 'null', '| url:', `${WS_URL}/ws`);
       if (!token) return;
 
       const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
       wsRef.current = ws;
 
       ws.onopen = () => {
+        console.log('[WS] connected');
         reconnectDelay.current = RECONNECT_DELAY_MS;
+      };
+
+      ws.onerror = (e) => {
+        console.log('[WS] error', e);
+        ws.close();
       };
 
       ws.onmessage = (e) => {
@@ -38,7 +45,7 @@ export function useConversationsSocket() {
           message: Message | null;
         };
 
-        if (event.type === 'new_message' && event.conversation_id && event.message) {
+        if (event.type === 'message.created' && event.conversation_id && event.message) {
           const { conversation_id, message } = event;
           queryClient.setQueryData<InfiniteData<ConversationListResponse>>(
             ['conversations'],
@@ -64,8 +71,6 @@ export function useConversationsSocket() {
               };
             },
           );
-        } else {
-          queryClient.invalidateQueries({ queryKey: ['conversations'] });
         }
       };
 
@@ -77,9 +82,6 @@ export function useConversationsSocket() {
         }, reconnectDelay.current);
       };
 
-      ws.onerror = () => {
-        ws.close();
-      };
     }
 
     connect();
