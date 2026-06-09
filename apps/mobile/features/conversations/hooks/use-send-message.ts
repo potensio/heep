@@ -29,7 +29,7 @@ export function useSendMessage(conversationId: string) {
               ...page,
               data: page.data.map((conv) =>
                 conv.id === conversationId
-                  ? { ...conv, messages: [...conv.messages, tempMessage] }
+                  ? { ...conv, messages: [tempMessage, ...conv.messages] }
                   : conv,
               ),
             })),

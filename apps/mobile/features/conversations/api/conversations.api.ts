@@ -54,6 +54,7 @@ export async function pauseAI(conversationId: string, isPaused: boolean): Promis
 
 export async function sendMessage(conversationId: string, body: string): Promise<void> {
   const token = await getAccessToken();
+  if (!token) throw new Error('UNAUTHORIZED');
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
 
@@ -69,7 +70,7 @@ export async function sendMessage(conversationId: string, body: string): Promise
     });
 
   try {
-    let res = await makeRequest(token!);
+    let res = await makeRequest(token);
 
     if (res.status === 401) {
       const newToken = await tryRefreshTokens();

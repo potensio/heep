@@ -3,7 +3,7 @@ import { Pressable, TextInput, KeyboardAvoidingView, Platform } from 'react-nati
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { CaretLeftIcon, UserIcon } from 'phosphor-react-native';
+import { CaretLeftIcon, UserIcon, PaperPlaneTiltIcon } from 'phosphor-react-native';
 import { useState } from 'react';
 import { Box } from '@/components/ui/box';
 import { HStack } from '@/components/ui/hstack';
@@ -11,6 +11,8 @@ import { VStack } from '@/components/ui/vstack';
 import { Text } from '@/components/ui/text';
 import { List } from '@/components/ui/list';
 import { ChannelIcon } from '../components/channel-icon';
+import { useSendMessage } from '../hooks/use-send-message';
+import { usePauseAI } from '../hooks/use-pause-ai';
 import type { Conversation, ConversationListResponse, Message } from '../types';
 
 type MessageBubbleProps = { message: Message };
@@ -48,12 +50,15 @@ export default function ConversationDetailScreen() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState('');
 
+  const { mutate: send, isPending } = useSendMessage(id);
+
   const cached = queryClient.getQueryData<InfiniteData<ConversationListResponse>>(['conversations']);
   const conversation: Conversation | undefined = cached?.pages
     .flatMap((p) => p.data)
     .find((c) => c.id === id);
 
   const messages = conversation?.messages ?? [];
+  const { toggle: toggleAI } = usePauseAI(conversation);
 
   const renderMessage = useCallback(
     ({ item }: { item: Message }) => <MessageBubble message={item} />,
@@ -61,6 +66,16 @@ export default function ConversationDetailScreen() {
   );
 
   const keyExtractor = useCallback((item: Message) => item.id, []);
+
+  const handleSend = useCallback(() => {
+    const trimmed = message.trim();
+    if (!trimmed || isPending) return;
+    send(trimmed, {
+      onSuccess: () => setMessage(''),
+    });
+  }, [message, isPending, send]);
+
+  const canSend = message.trim().length > 0 && !isPending;
 
   return (
     <KeyboardAvoidingView
@@ -105,7 +120,7 @@ export default function ConversationDetailScreen() {
         </HStack>
       </Box>
 
-      {/* Messages — inverted so newest is at bottom */}
+      {/* Messages */}
       <Box className="flex-1">
         <List
           data={messages}
@@ -149,6 +164,17 @@ export default function ConversationDetailScreen() {
                 multiline
                 style={{ fontFamily: 'DM-Sans' }}
               />
+              <Pressable
+                onPress={handleSend}
+                disabled={!canSend}
+                hitSlop={8}
+              >
+                <PaperPlaneTiltIcon
+                  size={22}
+                  color={canSend ? '#4A6660' : '#C8D1CE'}
+                  weight={canSend ? 'fill' : 'regular'}
+                />
+              </Pressable>
             </HStack>
           </Box>
         </Box>
