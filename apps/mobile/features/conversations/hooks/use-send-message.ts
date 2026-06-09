@@ -47,7 +47,25 @@ export function useSendMessage(conversationId: string) {
     },
 
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      // WebSocket event from Bubble DB trigger handles the real update.
+      // Just clean up any lingering temp messages in case WebSocket is delayed.
+      queryClient.setQueryData<InfiniteData<ConversationListResponse>>(
+        ['conversations'],
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              data: page.data.map((conv) =>
+                conv.id === conversationId
+                  ? { ...conv, messages: conv.messages.filter((m) => !m.id.startsWith('temp-')) }
+                  : conv,
+              ),
+            })),
+          };
+        },
+      );
     },
   });
 }

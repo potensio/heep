@@ -17,6 +17,7 @@ webhookRoutes.post('/webhook', async (c) => {
     team_id: string;
     event: string;
     conversation_id?: string;
+    message?: { id: string; text: string; is_from_agent: boolean; sent_at: string };
   };
 
   if (!body.team_id || !body.event) {
@@ -30,7 +31,11 @@ webhookRoutes.post('/webhook', async (c) => {
     new Request('https://do/notify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: body.event, conversation_id: body.conversation_id ?? null }),
+      body: JSON.stringify({
+        type: body.event,
+        conversation_id: body.conversation_id ?? null,
+        message: body.message ?? null,
+      }),
     }),
   );
 

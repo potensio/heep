@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { getAccessToken } from '@/features/auth/store/auth.store';
+import type { ConversationListResponse, Message } from '../types';
 
 const WS_URL = process.env.EXPO_PUBLIC_API_URL!.replace(/^http/, 'ws');
 const RECONNECT_DELAY_MS = 3000;
@@ -30,8 +31,42 @@ export function useConversationsSocket() {
         reconnectDelay.current = RECONNECT_DELAY_MS;
       };
 
-      ws.onmessage = () => {
-        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      ws.onmessage = (e) => {
+        const event = JSON.parse(e.data) as {
+          type: string;
+          conversation_id: string | null;
+          message: Message | null;
+        };
+
+        if (event.type === 'new_message' && event.conversation_id && event.message) {
+          const { conversation_id, message } = event;
+          queryClient.setQueryData<InfiniteData<ConversationListResponse>>(
+            ['conversations'],
+            (old) => {
+              if (!old) return old;
+              return {
+                ...old,
+                pages: old.pages.map((page) => ({
+                  ...page,
+                  data: page.data.map((conv) =>
+                    conv.id === conversation_id
+                      ? {
+                          ...conv,
+                          last_message: { text: message.text, sent_at: message.sent_at },
+                          messages: [
+                            message,
+                            ...conv.messages.filter((m) => !m.id.startsWith('temp-')),
+                          ],
+                        }
+                      : conv,
+                  ),
+                })),
+              };
+            },
+          );
+        } else {
+          queryClient.invalidateQueries({ queryKey: ['conversations'] });
+        }
       };
 
       ws.onclose = () => {
