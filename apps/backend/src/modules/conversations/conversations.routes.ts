@@ -3,7 +3,7 @@ import { zValidator } from '@hono/zod-validator';
 import { requireAuth } from '../../core/middleware/auth';
 import type { Env } from '../../types/env';
 import type { AppVariables } from '../../types/hono';
-import { listConversationsSchema } from './conversations.validation';
+import { listConversationsSchema, sendMessageSchema } from './conversations.validation';
 
 export const conversationsRoutes = new Hono<{ Bindings: Env; Variables: AppVariables }>();
 
@@ -15,4 +15,11 @@ conversationsRoutes.get('/', requireAuth, zValidator('query', listConversationsS
     messagesLimit: messages_limit,
   });
   return c.json(result);
+});
+
+conversationsRoutes.post('/:id/messages', requireAuth, zValidator('json', sendMessageSchema), async (c) => {
+  const conversationId = c.req.param('id');
+  const { body } = c.req.valid('json');
+  await c.get('conversationsService').sendMessage(conversationId, body);
+  return c.body(null, 204);
 });

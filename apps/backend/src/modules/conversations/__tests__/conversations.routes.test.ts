@@ -17,10 +17,10 @@ const mockPaginated = {
 const makeApp = () => {
   const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
   app.use('*', async (c, next) => {
-    c.set('user', { id: 'user-1', bubble_id: null });
+    c.set('user', { id: 'user-1', bubble_id: null, team_id: null });
     c.set('conversationsService', {
       getConversations: vi.fn().mockResolvedValue(mockPaginated),
-      getMessages: vi.fn().mockResolvedValue({ data: [], pagination: { cursor: null, has_more: false } }),
+      sendMessage: vi.fn().mockResolvedValue(undefined),
     } as any);
     await next();
   });
@@ -38,16 +38,36 @@ describe('GET /conversations', () => {
   });
 
   it('returns 200 with query params forwarded', async () => {
-    const res = await makeApp().request('/conversations?limit=10&property_id=p-1');
+    const res = await makeApp().request('/conversations?limit=10');
     expect(res.status).toBe(200);
   });
 });
 
-describe('GET /conversations/:id/messages', () => {
-  it('returns 200 with paginated messages', async () => {
-    const res = await makeApp().request('/conversations/conv-1/messages');
-    expect(res.status).toBe(200);
-    const body = await res.json() as { data: unknown[]; pagination: { cursor: string | null; has_more: boolean } };
-    expect(body.data).toHaveLength(0);
+describe('POST /conversations/:id/messages', () => {
+  it('returns 204 on valid body', async () => {
+    const res = await makeApp().request('/conversations/conv-1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body: 'Hello!' }),
+    });
+    expect(res.status).toBe(204);
+  });
+
+  it('returns 400 when body is missing', async () => {
+    const res = await makeApp().request('/conversations/conv-1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it('returns 400 when body is empty string', async () => {
+    const res = await makeApp().request('/conversations/conv-1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ body: '' }),
+    });
+    expect(res.status).toBe(400);
   });
 });
