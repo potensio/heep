@@ -1,7 +1,8 @@
 export interface BubbleMessage {
   id: string;
   text: string;
-  is_from_agent: boolean;
+  sent_by: 'bot' | 'user';
+  is_manual_response: boolean;
   sent_at: string;
 }
 
@@ -27,7 +28,7 @@ export interface BubbleConversation {
   messages: BubbleMessage[];
   messages_pagination: {
     cursor: number;
-    count: number;
+    has_more: boolean;
     remaining: number;
   };
 }

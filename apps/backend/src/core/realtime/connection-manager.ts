@@ -13,14 +13,12 @@ export class ConnectionManager {
       const pair = new WebSocketPair();
       const [client, server] = Object.values(pair);
       this.state.acceptWebSocket(server);
-      console.log(`[DO] client connected, total sockets: ${this.state.getWebSockets().length + 1}`);
       return new Response(null, { status: 101, webSocket: client });
     }
 
     if (url.pathname === '/notify') {
       const event = await request.json();
       const sockets = this.state.getWebSockets();
-      console.log(`[DO] notify: ${sockets.length} sockets connected, event:`, JSON.stringify(event));
       for (const ws of sockets) {
         ws.send(JSON.stringify(event));
       }
@@ -32,7 +30,12 @@ export class ConnectionManager {
     return new Response('Not found', { status: 404 });
   }
 
-  webSocketMessage(_ws: WebSocket, _message: string | ArrayBuffer): void {}
+  webSocketMessage(ws: WebSocket, message: string | ArrayBuffer): void {
+    try {
+      const data = JSON.parse(typeof message === 'string' ? message : new TextDecoder().decode(message));
+      if (data?.type === 'ping') ws.send(JSON.stringify({ type: 'pong' }));
+    } catch {}
+  }
 
   webSocketClose(_ws: WebSocket): void {}
 

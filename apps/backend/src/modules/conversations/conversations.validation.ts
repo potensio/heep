@@ -9,3 +9,8 @@ export const listConversationsSchema = z.object({
 export const sendMessageSchema = z.object({
   body: z.string().min(1).max(10000),
 });
+
+export const listMessagesSchema = z.object({
+  cursor: z.coerce.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).max(50).default(20),
+});

@@ -17,7 +17,8 @@ webhookRoutes.post('/webhook', async (c) => {
     team_id: string;
     event: string;
     conversation_id?: string;
-    message?: { id: string; text: string; is_from_agent: boolean; sent_at: string };
+    message?: { id: string; text: string; sent_by: 'bot' | 'user'; is_manual_response: boolean; sent_at: string };
+    is_ai_paused?: boolean;
   };
 
   if (!body.team_id || !body.event) {
@@ -36,6 +37,7 @@ webhookRoutes.post('/webhook', async (c) => {
         type: body.event,
         conversation_id: body.conversation_id ?? null,
         message: body.message ?? null,
+        is_ai_paused: body.is_ai_paused ?? null,
       }),
     }),
   );
