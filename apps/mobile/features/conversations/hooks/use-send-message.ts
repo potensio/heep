@@ -15,7 +15,8 @@ export function useSendMessage(conversationId: string) {
       const tempMessage: Message = {
         id: `temp-${Date.now()}`,
         text: body,
-        is_from_agent: false,
+        sent_by: 'bot',
+        is_manual_response: true,
         sent_at: new Date().toISOString(),
       };
 
@@ -40,15 +41,7 @@ export function useSendMessage(conversationId: string) {
       return { snapshot };
     },
 
-    onError: (_err, _body, context) => {
-      if (context?.snapshot) {
-        queryClient.setQueryData(['conversations'], context.snapshot);
-      }
-    },
-
-    onSettled: () => {
-      // WebSocket event from Bubble DB trigger handles the real update.
-      // Just clean up any lingering temp messages in case WebSocket is delayed.
+    onSuccess: (_data, body) => {
       queryClient.setQueryData<InfiniteData<ConversationListResponse>>(
         ['conversations'],
         (old) => {
@@ -57,15 +50,28 @@ export function useSendMessage(conversationId: string) {
             ...old,
             pages: old.pages.map((page) => ({
               ...page,
-              data: page.data.map((conv) =>
-                conv.id === conversationId
-                  ? { ...conv, messages: conv.messages.filter((m) => !m.id.startsWith('temp-')) }
-                  : conv,
-              ),
+              data: page.data.map((conv) => {
+                if (conv.id !== conversationId) return conv;
+                return {
+                  ...conv,
+                  messages: conv.messages.map((m) =>
+                    m.id.startsWith('temp-') && m.text === body
+                      ? { ...m, id: `local-${m.id.slice(5)}` }
+                      : m,
+                  ),
+                };
+              }),
             })),
           };
         },
       );
     },
+
+    onError: (_err, _body, context) => {
+      if (context?.snapshot) {
+        queryClient.setQueryData(['conversations'], context.snapshot);
+      }
+    },
+
   });
 }

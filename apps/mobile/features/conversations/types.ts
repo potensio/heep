@@ -14,7 +14,8 @@ export type Channel =
 export interface Message {
   id: string;
   text: string;
-  is_from_agent: boolean;
+  sent_by: 'bot' | 'user';
+  is_manual_response: boolean;
   sent_at: string;
 }
 
@@ -28,7 +29,7 @@ export interface Conversation {
   property: { id: string; name: string };
   last_message: { text: string; sent_at: string };
   messages: Message[];
-  messages_pagination: { cursor: number; has_more: boolean };
+  messages_pagination: { cursor: number; has_more: boolean; remaining: number };
 }
 
 export interface ConversationListResponse {

@@ -34,7 +34,6 @@ import { useLocations } from "@/features/dashboard/hooks/use-locations";
 import { clearTokens } from "@/features/auth/store/auth.store";
 import { queryClient } from "@/lib/query-client";
 import { useConversations } from "../hooks/use-conversations";
-import { useConversationsSocket } from "../hooks/use-conversations-socket";
 import { ConversationCard } from "../components/conversation-card";
 import type { Conversation } from "../types";
 import type { Location } from "@/features/dashboard/types";
@@ -97,10 +96,10 @@ export default function ConversationsScreen() {
   const [search, setSearch] = useState("");
 
   const [headerHeight, setHeaderHeight] = useState(164);
+  const listRef = useRef<Animated.FlatList<Conversation>>(null);
+  const prevTopIdRef = useRef<string | null>(null);
 
   const scrollY = useSharedValue(0);
-
-  useConversationsSocket();
 
   const {
     data,
@@ -127,6 +126,12 @@ export default function ConversationsScreen() {
       (data?.pages.flatMap((p) => p.data) ?? []).map((c) => [c.id, c]),
     ).values(),
   );
+
+  const topId = allConversations[0]?.id ?? null;
+  if (topId && prevTopIdRef.current && topId !== prevTopIdRef.current) {
+    listRef.current?.scrollToOffset({ offset: 0, animated: true });
+  }
+  prevTopIdRef.current = topId;
 
   const handlePress = useCallback(
     (id: string) => router.push(`/conversation/${id}`),
@@ -354,6 +359,7 @@ export default function ConversationsScreen() {
       </Animated.View>
 
       <Animated.FlatList<Conversation>
+        ref={listRef}
         data={allConversations}
         renderItem={renderItem}
         keyExtractor={keyExtractor}

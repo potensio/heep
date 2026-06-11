@@ -7,10 +7,12 @@ import {
 } from "phosphor-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useConversationsSocket } from "@/features/conversations/hooks/use-conversations-socket";
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
+  useConversationsSocket();
 
   return (
     <Tabs

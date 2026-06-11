@@ -13,7 +13,7 @@ export async function fetchConversations(cursor?: number): Promise<ConversationL
   const timeout = setTimeout(() => controller.abort(), 60000);
 
   try {
-    let res = await fetch(`${API_URL}/conversations?${params}`, {
+    let res = await fetch(`${API_URL}/conversations-v2?${params}`, {
       headers: { Authorization: `Bearer ${token}` },
       signal: controller.signal,
     });
@@ -21,7 +21,7 @@ export async function fetchConversations(cursor?: number): Promise<ConversationL
     if (res.status === 401) {
       const newToken = await tryRefreshTokens();
       if (!newToken) throw new Error('UNAUTHORIZED');
-      res = await fetch(`${API_URL}/conversations?${params}`, {
+      res = await fetch(`${API_URL}/conversations-v2?${params}`, {
         headers: { Authorization: `Bearer ${newToken}` },
         signal: controller.signal,
       });
@@ -34,6 +34,19 @@ export async function fetchConversations(cursor?: number): Promise<ConversationL
   } finally {
     clearTimeout(timeout);
   }
+}
+
+export async function fetchConversationMessages(
+  conversationId: string,
+  cursor: number,
+): Promise<{ data: import('../types').Message[]; pagination: { cursor: number | null; has_more: boolean } }> {
+  const token = await getAccessToken();
+  const params = new URLSearchParams({ cursor: String(cursor), limit: '20' });
+  const res = await fetch(`${API_URL}/conversations-v2/${conversationId}/messages?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Failed to load messages');
+  return res.json();
 }
 
 export async function pauseAI(conversationId: string, isPaused: boolean): Promise<void> {
