@@ -3,7 +3,7 @@ import { InteractionManager } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { fetchHomepageStats } from '../api/homepage.api';
 
-export function useHomepage() {
+export function useHomepage(restaurantId?: string) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -12,8 +12,8 @@ export function useHomepage() {
   }, []);
 
   return useQuery({
-    queryKey: ['homepage'],
-    queryFn: fetchHomepageStats,
+    queryKey: ['homepage', restaurantId],
+    queryFn: () => fetchHomepageStats(restaurantId),
     enabled: ready,
     staleTime: 1000 * 60 * 5,
   });

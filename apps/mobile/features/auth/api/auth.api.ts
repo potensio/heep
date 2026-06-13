@@ -29,6 +29,18 @@ export async function loginApi(email: string, password: string): Promise<AuthTok
   return res.json() as Promise<AuthTokens>;
 }
 
+export async function patchProfileApi(accessToken: string, firstName: string, lastName: string): Promise<void> {
+  const res = await fetch(`${API_URL}/users/me`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({ first_name: firstName, last_name: lastName }),
+  });
+  if (!res.ok) throw new Error('Failed to update profile');
+}
+
 export async function refreshTokensApi(refreshToken: string): Promise<AuthTokens> {
   const res = await fetch(`${API_URL}/auth/refresh`, {
     method: 'POST',

@@ -33,7 +33,7 @@ export default function DashboardScreen() {
   );
   const locationSheetRef = useRef<LocationPickerBottomSheetRef>(null);
   const { data: locations = [] } = useLocations();
-  const { data: stats } = useHomepage();
+  const { data: stats } = useHomepage(selectedLocation?.id);
 
   return (
     <Box className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
@@ -153,10 +153,10 @@ export default function DashboardScreen() {
                       </Text>
                     </HStack>
                     <HStack className="mt-5 mx-3 items-end" style={{ gap: 10 }}>
-                      <Text className="text-7xl font-normal leading-tighter tracking-tight">
+                      <Text className="text-7xl font-normal leading-tight tracking-tight">
                         {stats?.booking_confirmed ?? 0}
                       </Text>
-                      <Text className="text-xs mb-2 shrink">
+                      <Text className="text-xs mb-4 shrink">
                         Bookings confirmed
                       </Text>
                     </HStack>
@@ -171,10 +171,10 @@ export default function DashboardScreen() {
                       </Text>
                     </HStack>
                     <HStack className="mt-5 mx-3 items-end" style={{ gap: 10 }}>
-                      <Text className="text-7xl font-normal leading-tighter tracking-tight">
+                      <Text className="text-7xl font-normal leading-tight tracking-tight">
                         {stats?.chat_responded ?? 0}
                       </Text>
-                      <Text className="text-xs mb-2 shrink">
+                      <Text className="text-xs mb-4 shrink">
                         Chats responded
                       </Text>
                     </HStack>
@@ -192,7 +192,7 @@ export default function DashboardScreen() {
                       <Text className="text-[44px] font-normal tracking-tight">
                         {stats?.revenue_with_heep ?? 0}€
                       </Text>
-                      <Text className="text-xs mb-2 shrink">Last 30 days</Text>
+                      <Text className="text-xs mb-1 shrink">Last 30 days</Text>
                     </HStack>
                   </VStack>
                 </VStack>
@@ -215,10 +215,10 @@ export default function DashboardScreen() {
 
                 {/* Credits */}
                 <HStack className="mt-5 items-end" style={{ gap: 10 }}>
-                  <Text className="text-7xl font-normal leading-tighter tracking-tight">
+                  <Text className="text-7xl font-normal leading-tight tracking-tight">
                     {stats?.credit ?? 0}
                   </Text>
-                  <Text className="text-xs mb-2 shrink">Credits remaining</Text>
+                  <Text className="text-xs mb-4 shrink">Credits remaining</Text>
                 </HStack>
 
                 {/* Daily Usage */}
@@ -230,10 +230,10 @@ export default function DashboardScreen() {
                     </Text>
                   </HStack>
                   <HStack className="mt-5 items-end" style={{ gap: 10 }}>
-                    <Text className="text-5xl font-normal tracking-tight">
+                    <Text className="text-5xl font-normal leading-tight tracking-tight">
                       {stats?.avg_daily_usage ?? 0}
                     </Text>
-                    <Text className="text-xs mb-2 shrink">messages/day</Text>
+                    <Text className="text-xs mb-3 shrink">messages/day</Text>
                   </HStack>
                 </VStack>
               </VStack>
@@ -266,7 +266,9 @@ export default function DashboardScreen() {
                       backgroundColor: "rgba(118, 118, 128, 0.12)",
                     }}
                   >
-                    <Text className="text-xs font-semibold shrink">{stats?.unfulfilled_request ?? 0}</Text>
+                    <Text className="text-xs font-semibold shrink">
+                      {stats?.unfulfilled_request ?? 0}
+                    </Text>
                     <Text className="text-xs shrink">Unfulfilled Requests</Text>
                   </HStack>
                   <HStack
@@ -276,7 +278,9 @@ export default function DashboardScreen() {
                       backgroundColor: "rgba(118, 118, 128, 0.12)",
                     }}
                   >
-                    <Text className="text-xs font-semibold shrink">{stats?.most_requested_time ?? '-'}</Text>
+                    <Text className="text-xs font-semibold shrink">
+                      {stats?.most_requested_time ?? "-"}
+                    </Text>
                     <Text className="text-xs shrink">Most Requested Time</Text>
                   </HStack>
                 </VStack>

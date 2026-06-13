@@ -28,9 +28,12 @@ function getTodayWithDeviceTimezone(): string {
   return `${yyyy}-${mo}-${dd}T00:00:00.000${sign}${hh}:${mm}`;
 }
 
-export async function fetchHomepageStats(): Promise<HomepageStats | null> {
+export async function fetchHomepageStats(restaurantId?: string): Promise<HomepageStats | null> {
   const token = await getBubbleToken();
   if (!token) return null;
+
+  const body: Record<string, string> = { date: getTodayWithDeviceTimezone() };
+  if (restaurantId) body.restaurant_id = restaurantId;
 
   const res = await fetch(`${BUBBLE_API_URL}/hono-homepage`, {
     method: 'POST',
@@ -38,7 +41,7 @@ export async function fetchHomepageStats(): Promise<HomepageStats | null> {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ date: getTodayWithDeviceTimezone() }),
+    body: JSON.stringify(body),
   });
 
   if (!res.ok) throw new Error('Failed to load homepage stats');

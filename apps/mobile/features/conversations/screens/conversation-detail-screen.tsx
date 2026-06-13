@@ -82,6 +82,9 @@ export default function ConversationDetailScreen() {
       );
       msgCursorRef.current = result.pagination.cursor;
       hasMoreRef.current = result.pagination.has_more;
+    } catch {
+      // silently stop further pagination attempts on error
+      hasMoreRef.current = false;
     } finally {
       setLoadingMore(false);
     }

@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { View, Pressable } from "react-native";
+import Toast from "react-native-toast-message";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { Box } from "@/components/ui/box";
+import { useActivation, useUpdateActivation } from "../hooks/use-settings";
+import type { RestaurantSetting } from "../api/settings.api";
 
 type AiState = "on" | "off";
 
@@ -14,29 +16,20 @@ function AiToggle({
   value: AiState;
   onChange: (v: AiState) => void;
 }) {
-  const activeStyle = { backgroundColor: "#3d6b61" };
-  const inactiveStyle = { backgroundColor: "#fcd5cf" };
-  const activeTextColor = "#ffffff";
-  const inactiveTextColor = "#c0392b";
-
   return (
-    <HStack style={{ gap: 4 }}>
+    <HStack style={{ gap: 8 }}>
       <Pressable
         onPress={() => onChange("on")}
-        style={[
-          {
-            paddingHorizontal: 18,
-            paddingVertical: 8,
-            borderRadius: 999,
-          },
-          value === "on" ? activeStyle : inactiveStyle,
-        ]}
+        style={{
+          paddingHorizontal: 20,
+          paddingVertical: 10,
+          borderRadius: 999,
+          backgroundColor: value === "on" ? "#3d6b61" : "#fcd5cf",
+        }}
       >
         <Text
           className="text-sm font-semibold"
-          style={{
-            color: value === "on" ? activeTextColor : inactiveTextColor,
-          }}
+          style={{ color: value === "on" ? "#ffffff" : "#e8928c" }}
         >
           ON
         </Text>
@@ -44,20 +37,16 @@ function AiToggle({
 
       <Pressable
         onPress={() => onChange("off")}
-        style={[
-          {
-            paddingHorizontal: 18,
-            paddingVertical: 8,
-            borderRadius: 999,
-          },
-          value === "off" ? activeStyle : inactiveStyle,
-        ]}
+        style={{
+          paddingHorizontal: 20,
+          paddingVertical: 10,
+          borderRadius: 999,
+          backgroundColor: value === "off" ? "#3d6b61" : "#fcd5cf",
+        }}
       >
         <Text
           className="text-sm font-semibold"
-          style={{
-            color: value === "off" ? activeTextColor : inactiveTextColor,
-          }}
+          style={{ color: value === "off" ? "#ffffff" : "#e8928c" }}
         >
           OFF
         </Text>
@@ -66,8 +55,29 @@ function AiToggle({
   );
 }
 
+function RestaurantRow({ restaurant }: { restaurant: RestaurantSetting }) {
+  const { mutate } = useUpdateActivation();
+
+  const handleChange = (v: AiState) => {
+    mutate(
+      { restaurantId: restaurant.restaurant_id, isActivated: v === "on" },
+      {
+        onSuccess: () => Toast.show({ type: "success", text1: `${restaurant.restaurant_name} updated` }),
+        onError: () => Toast.show({ type: "error", text1: "Failed to update. Try again." }),
+      }
+    );
+  };
+
+  return (
+    <HStack className="justify-between items-center">
+      <Text className="text-base font-bold">{restaurant.restaurant_name}</Text>
+      <AiToggle value={restaurant.is_active ? "on" : "off"} onChange={handleChange} />
+    </HStack>
+  );
+}
+
 export function ActivationSection() {
-  const [aiState, setAiState] = useState<AiState>("on");
+  const { data: restaurants = [] } = useActivation();
 
   return (
     <VStack testID="activation-section">
@@ -76,7 +86,6 @@ export function ActivationSection() {
       </Text>
 
       <Box className="bg-white rounded-[32px] p-6">
-        {/* Description */}
         <Text className="text-sm mb-5">
           If something is wrong or you just want to take back control for a
           moment, you can pause the AI for any restaurant below. While paused,
@@ -84,29 +93,18 @@ export function ActivationSection() {
           anytime.
         </Text>
 
-        {/* Column header row */}
-        <HStack
-          className="justify-between items-center"
-          style={{ marginBottom: 10 }}
-        >
-          <Text className="text-xs" style={{ color: "#888888" }}>
-            Name
-          </Text>
-          <Text className="text-xs" style={{ color: "#888888" }}>
-            Status
-          </Text>
+        <HStack className="justify-between items-center" style={{ marginBottom: 10 }}>
+          <Text className="text-xs" style={{ color: "#888888" }}>Name</Text>
+          <Text className="text-xs" style={{ color: "#888888" }}>Status</Text>
         </HStack>
 
-        {/* Divider */}
-        <View
-          style={{ height: 1, backgroundColor: "#e5e5e5", marginBottom: 12 }}
-        />
+        <View style={{ height: 1, backgroundColor: "#e5e5e5", marginBottom: 12 }} />
 
-        {/* Data row */}
-        <HStack className="justify-between items-center">
-          <Text className="text-base font-bold">Le Restaurante</Text>
-          <AiToggle value={aiState} onChange={setAiState} />
-        </HStack>
+        <VStack style={{ gap: 16 }}>
+          {restaurants.map((restaurant) => (
+            <RestaurantRow key={restaurant.restaurant_id} restaurant={restaurant} />
+          ))}
+        </VStack>
       </Box>
     </VStack>
   );

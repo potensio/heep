@@ -27,30 +27,19 @@ export default function SettingsScreen() {
   const handleTabPress = (tab: Tab) => {
     setActiveTab(tab);
     const index = TABS.findIndex((t) => t.id === tab);
-    scrollViewRef.current?.scrollTo({
-      x: index * screenWidth,
-      animated: true,
-    });
+    scrollViewRef.current?.scrollTo({ x: index * screenWidth, animated: true });
   };
 
-  const handleScroll = (event: any) => {
-    const offsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(offsetX / screenWidth);
+  const handleMomentumScrollEnd = (event: any) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / screenWidth);
     const tab = TABS[index];
-    if (tab && tab.id !== activeTab) {
-      setActiveTab(tab.id);
-    }
+    if (tab && tab.id !== activeTab) setActiveTab(tab.id);
   };
 
   return (
     <Box className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
-      <ScrollView
-        contentContainerStyle={{
-          paddingHorizontal: 16,
-          paddingBottom: 32,
-          flexGrow: 1,
-        }}
-      >
+      {/* Fixed header */}
+      <View style={{ paddingHorizontal: 16 }}>
         <Text className="text-4xl font-extralight leading-tight tracking-tighter text-subtle mt-6">
           Settings
         </Text>
@@ -70,9 +59,7 @@ export default function SettingsScreen() {
                 onPress={() => handleTabPress(tab.id)}
                 className="flex-row items-center rounded-full"
                 style={{
-                  backgroundColor: isActive
-                    ? colors.foreground
-                    : colors.background,
+                  backgroundColor: isActive ? colors.foreground : colors.background,
                   paddingHorizontal: 12,
                   height: 56,
                   gap: 6,
@@ -80,52 +67,41 @@ export default function SettingsScreen() {
                   marginRight: tab.id === TABS[TABS.length - 1].id ? 16 : 0,
                 }}
               >
-                <Text
-                  style={{
-                    color: isActive ? colors.background : colors.foreground,
-                    fontSize: 14,
-                  }}
-                >
+                <Text style={{ color: isActive ? colors.background : colors.foreground, fontSize: 14 }}>
                   {tab.label}
                 </Text>
                 {isActive ? (
-                  <CaretDownIcon
-                    size={14}
-                    color={colors.background}
-                    weight="regular"
-                  />
+                  <CaretDownIcon size={14} color={colors.background} weight="regular" />
                 ) : (
-                  <CaretRightIcon
-                    size={14}
-                    color={colors.foreground}
-                    weight="regular"
-                  />
+                  <CaretRightIcon size={14} color={colors.foreground} weight="regular" />
                 )}
               </Pressable>
             );
           })}
         </ScrollView>
+      </View>
 
-        <ScrollView
-          ref={scrollViewRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          contentContainerStyle={{ width: screenWidth * TABS.length }}
-          style={{ marginHorizontal: -16 }}
-        >
-          <View style={{ width: screenWidth, paddingHorizontal: 16 }}>
-            <AccountSection />
-          </View>
-          <View style={{ width: screenWidth, paddingHorizontal: 16 }}>
-            <NotificationsSection />
-          </View>
-          <View style={{ width: screenWidth, paddingHorizontal: 16 }}>
-            <ActivationSection />
-          </View>
-        </ScrollView>
+      {/* Paging ScrollView — each page owns its own vertical scroll */}
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
+        style={{ flex: 1 }}
+      >
+        {TABS.map((tab) => (
+          <ScrollView
+            key={tab.id}
+            style={{ width: screenWidth }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
+            showsVerticalScrollIndicator={false}
+          >
+            {tab.id === "account" && <AccountSection />}
+            {tab.id === "notifications" && <NotificationsSection />}
+            {tab.id === "activation" && <ActivationSection />}
+          </ScrollView>
+        ))}
       </ScrollView>
     </Box>
   );

@@ -20,6 +20,8 @@ import { ThemeProvider } from "@/context/ThemeContext";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/query-client";
+import Toast from "react-native-toast-message";
+import { toastConfig } from "@/components/ui/toast-config";
 import "../global.css";
 
 enableScreens();
@@ -77,6 +79,7 @@ export default function RootLayout() {
                   <Stack.Screen name="conversation/[id]" />
                 </Stack>
                 <AuthGuard />
+                <Toast config={toastConfig} position="top" topOffset={60} visibilityTime={2500} />
               </BottomSheetModalProvider>
             </GluestackUIProvider>
           </ThemeProvider>

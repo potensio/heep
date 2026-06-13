@@ -1,12 +1,14 @@
 import { useCallback, useState, useEffect } from "react";
-import { Pressable, TextInput } from "react-native";
+import { Pressable, TextInput, View } from "react-native";
 import { SignOutIcon, TrashIcon } from "phosphor-react-native";
+import Toast from "react-native-toast-message";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
 import { Box } from "@/components/ui/box";
 import { useLogout, useCurrentUser } from "@/features/auth/hooks/use-auth";
 import { queryClient } from "@/lib/query-client";
+import { useUpdateAccount } from "../hooks/use-settings";
 
 function ProfileField({
   label,
@@ -52,6 +54,7 @@ function ProfileField({
 export function AccountSection() {
   const logout = useLogout();
   const user = useCurrentUser();
+  const updateAccount = useUpdateAccount();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -69,105 +72,116 @@ export function AccountSection() {
   }, [logout]);
 
   const handleSave = useCallback(() => {
-    // TODO: Implement save mutation
-    console.log("Save:", { firstName, lastName });
-  }, [firstName, lastName]);
+    updateAccount.mutate(
+      { firstName, lastName },
+      {
+        onSuccess: () => Toast.show({ type: "success", text1: "Profile saved" }),
+        onError: () => Toast.show({ type: "error", text1: "Failed to save. Try again." }),
+      }
+    );
+  }, [firstName, lastName, updateAccount]);
 
   return (
-    <VStack testID="account-section">
-      <Text className="text-xl tracking-tighter">Account</Text>
-
-      <Box className="bg-white rounded-[32px] p-6 mt-4">
-        <HStack style={{ gap: 12, marginBottom: 16 }}>
-          <Box style={{ flex: 1 }}>
-            <ProfileField
-              label="First Name"
-              value={firstName}
-              onChangeText={setFirstName}
-            />
-          </Box>
-          <Box style={{ flex: 1 }}>
-            <ProfileField
-              label="Last Name"
-              value={lastName}
-              onChangeText={setLastName}
-            />
-          </Box>
-        </HStack>
-        <ProfileField label="Email" value={user?.email ?? ""} disabled />
-
-        <Pressable
-          onPress={handleSave}
-          className="rounded-full self-start mt-4"
-          style={{
-            backgroundColor: "#1a1a1a",
-            paddingHorizontal: 24,
-            paddingVertical: 12,
-          }}
-        >
-          <Text className="text-base text-white font-medium">Save</Text>
-        </Pressable>
-      </Box>
-
-      {/* Logout */}
-      <VStack className="mt-6">
-        <Text className="text-xl tracking-tighter">Session</Text>
+    <View style={{ flex: 1 }}>
+      <VStack testID="account-section">
+        <Text className="text-xl tracking-tighter">Account</Text>
 
         <Box className="bg-white rounded-[32px] p-6 mt-4">
-          <Text
-            className="text-sm mb-4"
-            style={{ color: "#666666", lineHeight: 20 }}
-          >
-            End your current session and sign out of your account.
-          </Text>
+          <HStack style={{ gap: 12, marginBottom: 16 }}>
+            <Box style={{ flex: 1 }}>
+              <ProfileField
+                label="First Name"
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+            </Box>
+            <Box style={{ flex: 1 }}>
+              <ProfileField
+                label="Last Name"
+                value={lastName}
+                onChangeText={setLastName}
+              />
+            </Box>
+          </HStack>
+          <ProfileField label="Email" value={user?.email ?? ""} disabled />
 
           <Pressable
-            onPress={handleLogout}
-            className="flex-row items-center rounded-full self-start"
+            onPress={handleSave}
+            disabled={updateAccount.isPending}
+            className="rounded-full self-start mt-4"
             style={{
-              borderWidth: 1,
-              borderColor: "#d1d5db",
-              paddingHorizontal: 20,
-              paddingVertical: 14,
-              gap: 8,
+              backgroundColor: "#1a1a1a",
+              paddingHorizontal: 24,
+              paddingVertical: 12,
+              opacity: updateAccount.isPending ? 0.6 : 1,
             }}
           >
-            <Text className="text-base text-foreground">Log out</Text>
-            <SignOutIcon size={18} color="#1a1a1a" />
+            <Text className="text-base text-white font-medium">
+              {updateAccount.isPending ? "Saving..." : "Save"}
+            </Text>
           </Pressable>
         </Box>
-      </VStack>
 
-      {/* Danger Zone */}
-      <VStack className="mt-6">
-        <Text className="text-xl tracking-tighter">Danger Zone</Text>
+        {/* Logout */}
+        <VStack className="mt-6">
+          <Text className="text-xl tracking-tighter">Session</Text>
 
-        <Box
-          className="bg-white rounded-[32px] p-6 mt-4"
-          style={{ borderWidth: 1, borderColor: "#fecaca" }}
-        >
-          <Text
-            className="text-sm mb-4"
-            style={{ color: "#666666", lineHeight: 20 }}
+          <Box className="bg-white rounded-[32px] p-6 mt-4">
+            <Text
+              className="text-sm mb-4"
+              style={{ color: "#666666", lineHeight: 20 }}
+            >
+              End your current session and sign out of your account.
+            </Text>
+
+            <Pressable
+              onPress={handleLogout}
+              className="flex-row items-center rounded-full self-start"
+              style={{
+                borderWidth: 1,
+                borderColor: "#d1d5db",
+                paddingHorizontal: 20,
+                paddingVertical: 14,
+                gap: 8,
+              }}
+            >
+              <Text className="text-base text-foreground">Log out</Text>
+              <SignOutIcon size={18} color="#1a1a1a" />
+            </Pressable>
+          </Box>
+        </VStack>
+
+        {/* Danger Zone */}
+        <VStack className="mt-6">
+          <Text className="text-xl tracking-tighter">Danger Zone</Text>
+
+          <Box
+            className="bg-white rounded-[32px] p-6 mt-4"
+            style={{ borderWidth: 1, borderColor: "#fecaca" }}
           >
-            Once you delete your account, there is no going back. Please be
-            certain.
-          </Text>
+            <Text
+              className="text-sm mb-4"
+              style={{ color: "#666666", lineHeight: 20 }}
+            >
+              Once you delete your account, there is no going back. Please be
+              certain.
+            </Text>
 
-          <Pressable
-            className="flex-row items-center rounded-full self-start"
-            style={{
-              backgroundColor: "#fef2f2",
-              paddingHorizontal: 20,
-              paddingVertical: 14,
-              gap: 8,
-            }}
-          >
-            <Text className="text-base text-danger">Delete my account</Text>
-            <TrashIcon size={18} color="#FB2C36" />
-          </Pressable>
-        </Box>
+            <Pressable
+              className="flex-row items-center rounded-full self-start"
+              style={{
+                backgroundColor: "#fef2f2",
+                paddingHorizontal: 20,
+                paddingVertical: 14,
+                gap: 8,
+              }}
+            >
+              <Text className="text-base text-danger">Delete my account</Text>
+              <TrashIcon size={18} color="#FB2C36" />
+            </Pressable>
+          </Box>
+        </VStack>
       </VStack>
-    </VStack>
+    </View>
   );
 }
