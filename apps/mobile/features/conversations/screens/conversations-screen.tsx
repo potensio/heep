@@ -330,11 +330,30 @@ export default function ConversationsScreen() {
 
             <Pressable>
               <HStack
-                className="items-center px-6 py-4 rounded-full bg-white"
-                style={{ gap: 12 }}
+                className="items-center rounded-full bg-foreground/5"
+                style={{ gap: 8, padding: 6 }}
               >
-                <FunnelSimpleIcon size={20} color="#FB2C36" />
-                <Text className="text-xs text-foreground">Filters</Text>
+                <Box
+                  className="rounded-full items-center justify-center"
+                  style={{
+                    width: 52,
+                    height: 52,
+                    backgroundColor: "rgba(251, 44, 54, 0.18)",
+                  }}
+                >
+                  <FunnelSimpleIcon size={22} color="#FB2C36" />
+                </Box>
+                <HStack
+                  className="items-center justify-center rounded-full bg-white"
+                  style={{ paddingHorizontal: 28, paddingVertical: 14 }}
+                >
+                  <Text
+                    className="text-sm"
+                    style={{ color: colors.foregroundMuted }}
+                  >
+                    Filters
+                  </Text>
+                </HStack>
               </HStack>
             </Pressable>
           </HStack>

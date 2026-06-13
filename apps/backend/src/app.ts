@@ -17,7 +17,11 @@ import { UnauthorizedError } from './core/errors';
 export function createApp() {
   const app = new Hono<{ Bindings: Env; Variables: AppVariables }>();
 
-  app.use('*', logger());
+  // Request logging — skip /ws because the access token is passed as a query
+  // param there (browsers can't set headers on a WS handshake), and Hono's
+  // logger prints the full path incl. query string. Skipping keeps tokens out of logs.
+  const requestLogger = logger();
+  app.use('*', (c, next) => (c.req.path === '/ws' ? next() : requestLogger(c, next)));
   app.use('*', corsMiddleware);
 
   app.get('/health', (c) => c.json({ status: 'ok' }));
@@ -36,10 +40,16 @@ export function createApp() {
     const raw = header?.startsWith('Bearer ') ? header.slice(7) : queryToken;
     if (!raw) throw new UnauthorizedError('Missing token');
     const payload = await verifyAccessToken(raw, c.env.JWT_ACCESS_SECRET);
-    c.set('user', { id: payload.sub, bubble_id: payload.bubble_id ?? null, team_id: payload.team_id ?? null });
 
-    const doName = payload.team_id ?? payload.bubble_id ?? payload.sub;
-    const id = c.env.CONNECTIONS.idFromName(doName);
+    // Realtime is scoped per team. The connection DO and the webhook fan-out
+    // (webhook.routes.ts) must resolve to the SAME object, and both key off
+    // team_id — so a token without one can never receive events. Reject it
+    // instead of handing out a silently-dead connection.
+    if (!payload.team_id) throw new UnauthorizedError('Missing team');
+    c.set('user', { id: payload.sub, bubble_id: payload.bubble_id ?? null, team_id: payload.team_id });
+
+    console.log(`[ws] connect team_id="${payload.team_id}" user="${payload.sub}"`);
+    const id = c.env.CONNECTIONS.idFromName(payload.team_id);
     const stub = c.env.CONNECTIONS.get(id);
     return stub.fetch(new Request('https://do/connect', c.req.raw));
   });

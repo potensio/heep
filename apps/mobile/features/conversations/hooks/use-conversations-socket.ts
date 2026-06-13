@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { AppState } from 'react-native';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
-import { getAccessToken, tryRefreshTokens } from '@/features/auth/store/auth.store';
+import { getFreshAccessToken, getRefreshToken } from '@/features/auth/store/auth.store';
 import type { ConversationListResponse, Message } from '../types';
 
 const WS_URL = process.env.EXPO_PUBLIC_API_URL!.replace(/^http/, 'ws');
@@ -9,6 +9,7 @@ const RECONNECT_DELAY_MS = 3000;
 const MAX_RECONNECT_DELAY_MS = 30000;
 const PING_INTERVAL_MS = 25000;
 const PONG_TIMEOUT_MS = 10000;
+const INVALIDATE_DEBOUNCE_MS = 300;
 
 export function useConversationsSocket() {
   const queryClient = useQueryClient();
@@ -20,13 +21,34 @@ export function useConversationsSocket() {
   const unmounted = useRef(false);
   const isFirstConnect = useRef(true);
   const isConnecting = useRef(false);
+  const failedBeforeOpen = useRef(0);
+  const invalidateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     unmounted.current = false;
 
+    // Coalesce list refetches: a burst of messages for not-yet-loaded
+    // conversations triggers a single refetch instead of one per message.
+    function scheduleListInvalidate() {
+      if (invalidateTimer.current) return;
+      invalidateTimer.current = setTimeout(() => {
+        invalidateTimer.current = null;
+        queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      }, INVALIDATE_DEBOUNCE_MS);
+    }
+
     function clearPing() {
       if (pingTimer.current) { clearInterval(pingTimer.current); pingTimer.current = null; }
       if (pongTimer.current) { clearTimeout(pongTimer.current); pongTimer.current = null; }
+    }
+
+    function scheduleReconnect() {
+      if (unmounted.current || reconnectTimer.current) return;
+      reconnectTimer.current = setTimeout(() => {
+        reconnectTimer.current = null;
+        reconnectDelay.current = Math.min(reconnectDelay.current * 2, MAX_RECONNECT_DELAY_MS);
+        connect();
+      }, reconnectDelay.current);
     }
 
     function startPing(ws: WebSocket) {
@@ -46,17 +68,27 @@ export function useConversationsSocket() {
       isConnecting.current = true;
 
       try {
-        let token = await getAccessToken();
+        // If the previous attempt failed before the socket ever opened, the
+        // stored token is likely expired/invalid — force a refresh rather than
+        // reconnecting forever with the same dead token.
+        const token = await getFreshAccessToken(failedBeforeOpen.current > 0);
         if (!token) {
-          token = await tryRefreshTokens();
-          if (!token) return;
+          isConnecting.current = false;
+          // Couldn't get a token. If a refresh token still exists this was a
+          // transient failure — retry later. Otherwise the user is logged out;
+          // stop trying.
+          if (!unmounted.current && (await getRefreshToken())) scheduleReconnect();
+          return;
         }
 
         const ws = new WebSocket(`${WS_URL}/ws?token=${token}`);
         wsRef.current = ws;
+        let opened = false;
 
         ws.onopen = () => {
+          opened = true;
           isConnecting.current = false;
+          failedBeforeOpen.current = 0;
           reconnectDelay.current = RECONNECT_DELAY_MS;
           startPing(ws);
           if (!isFirstConnect.current) {
@@ -84,6 +116,7 @@ export function useConversationsSocket() {
 
           if (event.type === 'message.created' && event.conversation_id && event.message) {
             const { conversation_id, message } = event;
+            let found = false;
             queryClient.setQueryData<InfiniteData<ConversationListResponse>>(
               ['conversations'],
               (old) => {
@@ -102,6 +135,7 @@ export function useConversationsSocket() {
                   }),
                 }));
                 if (!updated) return old;
+                found = true;
                 return {
                   ...old,
                   pages: [
@@ -111,6 +145,9 @@ export function useConversationsSocket() {
                 };
               },
             );
+            // Message for a conversation we haven't loaded (brand-new thread, or
+            // one beyond the loaded pages) — refetch so it shows up live.
+            if (!found) scheduleListInvalidate();
           }
 
           if (event.type === 'conversation.updated' && event.conversation_id && event.is_ai_paused !== null) {
@@ -136,14 +173,15 @@ export function useConversationsSocket() {
         ws.onclose = () => {
           isConnecting.current = false;
           clearPing();
+          // Track upgrades that never opened so the next attempt forces a token
+          // refresh (covers the "stored token expired" case).
+          if (!opened) failedBeforeOpen.current += 1;
           if (unmounted.current) return;
-          reconnectTimer.current = setTimeout(() => {
-            reconnectDelay.current = Math.min(reconnectDelay.current * 2, MAX_RECONNECT_DELAY_MS);
-            connect();
-          }, reconnectDelay.current);
+          scheduleReconnect();
         };
       } catch {
         isConnecting.current = false;
+        if (!unmounted.current) scheduleReconnect();
       }
     }
 
@@ -153,6 +191,7 @@ export function useConversationsSocket() {
       if (state === 'active') {
         queryClient.invalidateQueries({ queryKey: ['conversations'] });
         if (wsRef.current?.readyState !== WebSocket.OPEN) {
+          if (reconnectTimer.current) { clearTimeout(reconnectTimer.current); reconnectTimer.current = null; }
           reconnectDelay.current = RECONNECT_DELAY_MS;
           connect();
         }
@@ -164,6 +203,7 @@ export function useConversationsSocket() {
       clearPing();
       sub.remove();
       if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      if (invalidateTimer.current) clearTimeout(invalidateTimer.current);
       wsRef.current?.close();
     };
   }, []);

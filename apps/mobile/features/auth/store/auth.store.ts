@@ -56,3 +56,40 @@ export async function tryRefreshTokens(): Promise<string | null> {
     return null;
   }
 }
+
+const TOKEN_EXPIRY_SKEW_MS = 30_000;
+
+/** Reads the `exp` claim from a JWT without verifying it. Returns null if unreadable. */
+function decodeJwtExp(token: string): number | null {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const json = typeof atob === 'function' ? atob(normalized) : null;
+    if (!json) return null;
+    const exp = (JSON.parse(json) as { exp?: unknown }).exp;
+    return typeof exp === 'number' ? exp : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Returns a usable access token, refreshing first if the stored one is missing
+ * or about to expire. Pass `forceRefresh` to skip the cached token entirely —
+ * use this after a connection was rejected with a token that looked valid.
+ *
+ * Unknown expiry (e.g. `atob` unavailable) is treated as still-valid so we
+ * don't refresh on every call; the caller's reactive `forceRefresh` path
+ * recovers if the server actually rejects it.
+ */
+export async function getFreshAccessToken(forceRefresh = false): Promise<string | null> {
+  if (!forceRefresh) {
+    const token = await getAccessToken();
+    if (token) {
+      const exp = decodeJwtExp(token);
+      if (exp === null || exp * 1000 - Date.now() > TOKEN_EXPIRY_SKEW_MS) return token;
+    }
+  }
+  return tryRefreshTokens();
+}
