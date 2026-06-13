@@ -22,14 +22,18 @@ import {
   LocationPickerBottomSheetRef,
 } from "@/features/dashboard/components/location-picker-bottom-sheet";
 import { useLocations } from "@/features/dashboard/hooks/use-locations";
+import { useHomepage } from "@/features/dashboard/hooks/use-homepage";
 import type { Location } from "@/features/dashboard/types";
 
 export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
 
-  const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+    null,
+  );
   const locationSheetRef = useRef<LocationPickerBottomSheetRef>(null);
   const { data: locations = [] } = useLocations();
+  const { data: stats } = useHomepage();
 
   return (
     <Box className="flex-1 bg-background" style={{ paddingTop: insets.top }}>
@@ -56,8 +60,13 @@ export default function DashboardScreen() {
                 className={`items-center px-6 py-4 rounded-full ${!selectedLocation ? "bg-foreground" : "bg-white"}`}
                 style={{ gap: 12 }}
               >
-                <HouseIcon size={20} color={!selectedLocation ? "#fff" : "#000"} />
-                <Text className={`text-xs shrink ${!selectedLocation ? "text-background" : "text-foreground"}`}>
+                <HouseIcon
+                  size={20}
+                  color={!selectedLocation ? "#fff" : "#000"}
+                />
+                <Text
+                  className={`text-xs shrink ${!selectedLocation ? "text-background" : "text-foreground"}`}
+                >
                   All Locations
                 </Text>
               </HStack>
@@ -84,26 +93,37 @@ export default function DashboardScreen() {
 
           {/* Greeting Text */}
           <Text className="mt-6 max-w-xs text-2xl self-start tracking-[-1] font-light">
-            Hi — Heep has handled 461 messages for you.
+            Hi — Heep has handled {stats?.messages_count ?? 0} messages for you.
           </Text>
 
           {/* Limited Features Toast */}
-          <HStack
-            className="mt-6 px-4 py-3 w-full bg-[#3c454a] rounded-[32px]"
-            style={{ gap: 16 }}
+          <ImageBackground
+            source={require("@/public/banner-bg.webp")}
+            style={{
+              width: "100%",
+              marginTop: 24,
+              borderRadius: 32,
+              overflow: "hidden",
+            }}
+            resizeMode="cover"
           >
-            <Box className="self-center">
-              <InfoIcon size={24} color="#F54802" weight="regular" />
-            </Box>
-            <VStack className="flex-1">
-              <Text className="text-[17px] text-white tracking-tight">
-                Limited features on mobile
-              </Text>
-              <Text className="text-[13px] opacity-70 mt-1 text-white/90">
-                To access all features and options, open the web version
-              </Text>
-            </VStack>
-          </HStack>
+            <HStack
+              className="px-4 py-3 w-full rounded-[32px]"
+              style={{ gap: 16 }}
+            >
+              <Box className="self-center">
+                <InfoIcon size={24} color="#eeff8c" weight="regular" />
+              </Box>
+              <VStack className="flex-1">
+                <Text className="text-[17px] text-white tracking-tight">
+                  Limited features on mobile
+                </Text>
+                <Text className="text-[13px] opacity-70 mt-1 text-white/90">
+                  To access all features and options, open the web version
+                </Text>
+              </VStack>
+            </HStack>
+          </ImageBackground>
 
           {/* Main Content Cards Row */}
           <HStack className="mt-6 mb-6 w-full flex-wrap" style={{ gap: 12 }}>
@@ -134,7 +154,7 @@ export default function DashboardScreen() {
                     </HStack>
                     <HStack className="mt-5 mx-3 items-end" style={{ gap: 10 }}>
                       <Text className="text-7xl font-normal leading-tighter tracking-tight">
-                        12
+                        {stats?.booking_confirmed ?? 0}
                       </Text>
                       <Text className="text-xs mb-2 shrink">
                         Bookings confirmed
@@ -152,7 +172,7 @@ export default function DashboardScreen() {
                     </HStack>
                     <HStack className="mt-5 mx-3 items-end" style={{ gap: 10 }}>
                       <Text className="text-7xl font-normal leading-tighter tracking-tight">
-                        12
+                        {stats?.chat_responded ?? 0}
                       </Text>
                       <Text className="text-xs mb-2 shrink">
                         Chats responded
@@ -170,11 +190,9 @@ export default function DashboardScreen() {
                     </HStack>
                     <HStack className="mt-5 mx-3 items-end" style={{ gap: 10 }}>
                       <Text className="text-[44px] font-normal tracking-tight">
-                        23.000€
+                        {stats?.revenue_with_heep ?? 0}€
                       </Text>
-                      <Text className="text-xs mb-2 shrink">
-                        Last 30 days
-                      </Text>
+                      <Text className="text-xs mb-2 shrink">Last 30 days</Text>
                     </HStack>
                   </VStack>
                 </VStack>
@@ -198,11 +216,9 @@ export default function DashboardScreen() {
                 {/* Credits */}
                 <HStack className="mt-5 items-end" style={{ gap: 10 }}>
                   <Text className="text-7xl font-normal leading-tighter tracking-tight">
-                    1000
+                    {stats?.credit ?? 0}
                   </Text>
-                  <Text className="text-xs mb-2 shrink">
-                    Credits remaining
-                  </Text>
+                  <Text className="text-xs mb-2 shrink">Credits remaining</Text>
                 </HStack>
 
                 {/* Daily Usage */}
@@ -215,11 +231,9 @@ export default function DashboardScreen() {
                   </HStack>
                   <HStack className="mt-5 items-end" style={{ gap: 10 }}>
                     <Text className="text-5xl font-normal tracking-tight">
-                      24
+                      {stats?.avg_daily_usage ?? 0}
                     </Text>
-                    <Text className="text-xs mb-2 shrink">
-                      messages/day
-                    </Text>
+                    <Text className="text-xs mb-2 shrink">messages/day</Text>
                   </HStack>
                 </VStack>
               </VStack>
@@ -234,9 +248,7 @@ export default function DashboardScreen() {
                   >
                     <ClipboardTextIcon size={20} />
                   </HStack>
-                  <Text className="text-xl shrink">
-                    Requests
-                  </Text>
+                  <Text className="text-xl shrink">Requests</Text>
                 </HStack>
 
                 {/* Description */}
@@ -254,7 +266,7 @@ export default function DashboardScreen() {
                       backgroundColor: "rgba(118, 118, 128, 0.12)",
                     }}
                   >
-                    <Text className="text-xs font-semibold shrink">22</Text>
+                    <Text className="text-xs font-semibold shrink">{stats?.unfulfilled_request ?? 0}</Text>
                     <Text className="text-xs shrink">Unfulfilled Requests</Text>
                   </HStack>
                   <HStack
@@ -264,7 +276,7 @@ export default function DashboardScreen() {
                       backgroundColor: "rgba(118, 118, 128, 0.12)",
                     }}
                   >
-                    <Text className="text-xs font-semibold shrink">-</Text>
+                    <Text className="text-xs font-semibold shrink">{stats?.most_requested_time ?? '-'}</Text>
                     <Text className="text-xs shrink">Most Requested Time</Text>
                   </HStack>
                 </VStack>
