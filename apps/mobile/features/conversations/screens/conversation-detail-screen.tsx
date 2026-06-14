@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useRef, useMemo } from 'react';
-import { Pressable, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { Pressable, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { fetchConversationMessages } from '../api/conversations.api';
@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CaretLeftIcon, UserIcon, PaperPlaneTiltIcon } from 'phosphor-react-native';
 import type { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
 import { Box } from '@/components/ui/box';
+import { Spinner } from '@/components/ui/spinner';
 import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 import { Text } from '@/components/ui/text';
@@ -47,6 +48,7 @@ export default function ConversationDetailScreen() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isLoading: isLoadingMessages,
   } = useInfiniteQuery({
     queryKey: ['conversation-messages', id],
     queryFn: ({ pageParam }) => fetchConversationMessages(id, pageParam as number),
@@ -144,18 +146,30 @@ export default function ConversationDetailScreen() {
 
       {/* Messages */}
       <Box className="flex-1">
-        <List
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={keyExtractor}
-          estimatedItemSize={72}
-          inverted
-          onEndReached={loadMoreMessages}
-          onEndReachedThreshold={0.3}
-          ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" className="py-4" /> : null}
-          contentContainerStyle={{ paddingTop: 8, paddingBottom: 8 }}
-          showsVerticalScrollIndicator={false}
-        />
+        {isLoadingMessages ? (
+          <Box className="flex-1 items-center justify-center">
+            <Spinner size={32} />
+          </Box>
+        ) : (
+          <List
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={keyExtractor}
+            estimatedItemSize={72}
+            inverted
+            onEndReached={loadMoreMessages}
+            onEndReachedThreshold={0.3}
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <Box className="items-center py-4">
+                  <Spinner size={20} />
+                </Box>
+              ) : null
+            }
+            contentContainerStyle={{ paddingTop: 8, paddingBottom: 8 }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
       </Box>
 
       {/* Bottom */}

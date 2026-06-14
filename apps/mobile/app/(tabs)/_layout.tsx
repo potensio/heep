@@ -2,6 +2,7 @@ import { Tabs } from "expo-router";
 import {
   SquaresFourIcon,
   ChatCircleIcon,
+  LifebuoyIcon,
   BrainIcon,
   GearIcon,
 } from "phosphor-react-native";
@@ -59,6 +60,19 @@ export default function TabsLayout() {
           title: "Conversations",
           tabBarIcon: ({ focused, color }) => (
             <ChatCircleIcon
+              size={20}
+              color={color}
+              weight={focused ? "fill" : "regular"}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="support"
+        options={{
+          title: "Support",
+          tabBarIcon: ({ focused, color }) => (
+            <LifebuoyIcon
               size={20}
               color={color}
               weight={focused ? "fill" : "regular"}

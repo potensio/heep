@@ -8,13 +8,14 @@ interface MemoryResult {
   metadata_text: string;
   pinecone_id: string;
   is_activated: boolean;
+  restaurant_id: string;
 }
 
 export async function fetchMemories(
-  restaurantId: string,
+  restaurantId?: string,
 ): Promise<KnowledgeEntry[]> {
   const token = await getBubbleToken();
-  if (!token || !restaurantId) return [];
+  if (!token) return [];
 
   const res = await fetch(`${BUBBLE_API_URL}/hono-memory`, {
     method: "POST",
@@ -22,7 +23,8 @@ export async function fetchMemories(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ restaurant_id: restaurantId }),
+    // restaurant_id is optional here — omitting it returns every memory.
+    body: JSON.stringify(restaurantId ? { restaurant_id: restaurantId } : {}),
   });
 
   if (!res.ok) throw new Error("Failed to load knowledge");
@@ -32,6 +34,8 @@ export async function fetchMemories(
     id: String(r.id),
     text: r.metadata_text ?? "",
     isActivated: r.is_activated,
+    pineconeId: r.pinecone_id ?? "",
+    restaurantId: String(r.restaurant_id ?? ""),
   }));
 }
 

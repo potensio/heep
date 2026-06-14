@@ -15,6 +15,7 @@ import {
   MagnifyingGlassIcon,
   FunnelSimpleIcon,
   CaretRightIcon,
+  XIcon,
 } from "phosphor-react-native";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
@@ -106,6 +107,11 @@ export default function ConversationsScreen() {
   const handleSearchChange = useCallback((text: string) => {
     setSearch(text);
     if (text.trim() === "") setCommittedSearch("");
+  }, []);
+
+  const clearSearch = useCallback(() => {
+    setSearch("");
+    setCommittedSearch("");
   }, []);
 
   const conversationQuery = {
@@ -412,13 +418,18 @@ export default function ConversationsScreen() {
             <MagnifyingGlassIcon size={18} color={colors.foregroundMuted} />
             <InputField
               placeholder="Search messages"
-              className="pl-3 text-base flex-1"
+              className="pl-5 text-base flex-1"
               style={{ height: "100%" }}
               value={search}
               onChangeText={handleSearchChange}
               returnKeyType="search"
               onSubmitEditing={() => setCommittedSearch(search.trim())}
             />
+            {search.length > 0 && (
+              <Pressable onPress={clearSearch} hitSlop={10}>
+                <XIcon size={18} color={colors.foregroundMuted} weight="bold" />
+              </Pressable>
+            )}
           </Box>
         </Animated.View>
       </Animated.View>

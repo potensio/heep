@@ -1,5 +1,5 @@
-import { useCallback, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, Alert, Pressable } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { Pressable } from "react-native";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,103 +10,62 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PlusIcon } from "phosphor-react-native";
-import Toast from "react-native-toast-message";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import { useLocations } from "@/features/dashboard/hooks/use-locations";
+import { SupportTicketCard } from "../components/support-ticket-card";
+import {
+  CreateTicketBottomSheet,
+  CreateTicketBottomSheetRef,
+} from "../components/create-ticket-bottom-sheet";
+import { MOCK_TICKETS } from "../data/mock-tickets";
+import type { SupportTicket } from "../types";
 import type { Location } from "@/features/dashboard/types";
-import { KnowledgeCard } from "../components/knowledge-card";
-import {
-  CreateKnowledgeBottomSheet,
-  CreateKnowledgeBottomSheetRef,
-} from "../components/create-knowledge-bottom-sheet";
-import {
-  useCreateMemory,
-  useDeleteMemory,
-  useKnowledge,
-} from "../hooks/use-knowledge";
-import type { KnowledgeEntry } from "../types";
 
 const COLLAPSE_THRESHOLD = 80;
 
-export default function KnowledgeScreen() {
+export default function SupportScreen() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
 
-  const { data: entries = [], isLoading } = useKnowledge();
-  const { data: locations = [] } = useLocations();
-  const createMemory = useCreateMemory();
-  const deleteMemory = useDeleteMemory();
-
-  // Memories now carry a restaurant_id; map it to a readable name for the card.
-  const restaurantNames = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const l of locations) if (l.name) map.set(l.id, l.name);
-    return map;
-  }, [locations]);
-
-  const createSheetRef = useRef<CreateKnowledgeBottomSheetRef>(null);
+  // Mock state — replaced by a backend-backed query hook later.
+  const [tickets, setTickets] = useState<SupportTicket[]>(MOCK_TICKETS);
+  const createSheetRef = useRef<CreateTicketBottomSheetRef>(null);
 
   const [headerHeight, setHeaderHeight] = useState(60);
   const scrollY = useSharedValue(0);
 
-  const handleDelete = useCallback(
-    (id: string) => {
-      Alert.alert(
-        "Delete knowledge?",
-        "This removes it from the AI's memory. This can't be undone.",
-        [
-          { text: "Cancel", style: "cancel" },
-          {
-            text: "Delete",
-            style: "destructive",
-            onPress: () =>
-              deleteMemory.mutate(id, {
-                onError: () =>
-                  Toast.show({
-                    type: "error",
-                    text1: "Failed to delete. Try again.",
-                  }),
-              }),
-          },
-        ],
-      );
-    },
-    [deleteMemory],
-  );
+  const handlePress = useCallback((_id: string) => {
+    // TODO: navigate to ticket detail once backend is wired.
+  }, []);
 
   const handleAdd = useCallback(() => {
     createSheetRef.current?.open();
   }, []);
 
   const handleCreate = useCallback(
-    ({ location, text }: { location: Location; text: string }) => {
-      createMemory.mutate(
-        { restaurantId: location.id, text },
-        {
-          onSuccess: () => Toast.show({ type: "success", text1: "Added" }),
-          onError: () =>
-            Toast.show({ type: "error", text1: "Failed to save. Try again." }),
-        },
-      );
+    ({ location, description }: { location: Location; description: string }) => {
+      const now = new Date().toISOString();
+      const newTicket: SupportTicket = {
+        id: now,
+        contact: { name: location.name },
+        status: "open",
+        last_message: { text: description, sent_at: now },
+      };
+      setTickets((prev) => [newTicket, ...prev]);
     },
-    [createMemory],
+    [],
   );
 
   const renderItem = useCallback(
-    ({ item }: { item: KnowledgeEntry }) => (
-      <KnowledgeCard
-        item={item}
-        restaurantName={restaurantNames.get(item.restaurantId)}
-        onDelete={handleDelete}
-      />
+    ({ item }: { item: SupportTicket }) => (
+      <SupportTicketCard item={item} onPress={handlePress} />
     ),
-    [handleDelete, restaurantNames],
+    [handlePress],
   );
 
-  const keyExtractor = useCallback((item: KnowledgeEntry) => item.id, []);
+  const keyExtractor = useCallback((item: SupportTicket) => item.id, []);
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
@@ -174,7 +133,7 @@ export default function KnowledgeScreen() {
             className="font-extralight text-foreground tracking-tighter"
             style={titleAnimatedStyle}
           >
-            Knowledge
+            Support Tickets
           </Animated.Text>
 
           <Pressable onPress={handleAdd}>
@@ -185,8 +144,8 @@ export default function KnowledgeScreen() {
         </HStack>
       </Animated.View>
 
-      <Animated.FlatList<KnowledgeEntry>
-        data={entries}
+      <Animated.FlatList<SupportTicket>
+        data={tickets}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         showsVerticalScrollIndicator={false}
@@ -198,21 +157,15 @@ export default function KnowledgeScreen() {
         scrollEventThrottle={16}
         onScroll={scrollHandler}
         ListEmptyComponent={
-          isLoading ? (
-            <Box className="items-center py-12">
-              <ActivityIndicator color={colors.foregroundMuted} />
-            </Box>
-          ) : (
-            <Box className="items-center py-12">
-              <Text style={{ color: colors.foregroundMuted, fontSize: 14 }}>
-                No knowledge added yet
-              </Text>
-            </Box>
-          )
+          <Box className="items-center py-12">
+            <Text style={{ color: colors.foregroundMuted, fontSize: 14 }}>
+              No support tickets found
+            </Text>
+          </Box>
         }
       />
 
-      <CreateKnowledgeBottomSheet ref={createSheetRef} onSubmit={handleCreate} />
+      <CreateTicketBottomSheet ref={createSheetRef} onSubmit={handleCreate} />
     </Box>
   );
 }

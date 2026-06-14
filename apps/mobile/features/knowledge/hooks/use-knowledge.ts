@@ -5,9 +5,9 @@ import { queryClient } from "@/lib/query-client";
 import { createMemory, deleteMemory, fetchMemories } from "../api/knowledge.api";
 import type { KnowledgeEntry } from "../types";
 
-const keyFor = (restaurantId?: string) => ["knowledge", restaurantId] as const;
+const KNOWLEDGE_KEY = ["knowledge"] as const;
 
-export function useKnowledge(restaurantId?: string) {
+export function useKnowledge() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -16,43 +16,41 @@ export function useKnowledge(restaurantId?: string) {
   }, []);
 
   return useQuery({
-    queryKey: keyFor(restaurantId),
-    queryFn: () => fetchMemories(restaurantId!),
-    enabled: ready && !!restaurantId,
+    queryKey: KNOWLEDGE_KEY,
+    queryFn: () => fetchMemories(),
+    enabled: ready,
     staleTime: 1000 * 60 * 5,
   });
 }
 
-export function useCreateMemory(restaurantId?: string) {
+export function useCreateMemory() {
   return useMutation({
-    mutationFn: (text: string) => createMemory(restaurantId!, text),
+    mutationFn: ({ restaurantId, text }: { restaurantId: string; text: string }) =>
+      createMemory(restaurantId, text),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: keyFor(restaurantId) });
+      queryClient.invalidateQueries({ queryKey: KNOWLEDGE_KEY });
     },
   });
 }
 
-export function useDeleteMemory(restaurantId?: string) {
+export function useDeleteMemory() {
   return useMutation({
     mutationFn: (memoryId: string) => deleteMemory(memoryId),
     onMutate: async (memoryId) => {
-      await queryClient.cancelQueries({ queryKey: keyFor(restaurantId) });
-      const previous = queryClient.getQueryData<KnowledgeEntry[]>(
-        keyFor(restaurantId),
-      );
-      queryClient.setQueryData<KnowledgeEntry[]>(
-        keyFor(restaurantId),
-        (old = []) => old.filter((e) => e.id !== memoryId),
+      await queryClient.cancelQueries({ queryKey: KNOWLEDGE_KEY });
+      const previous = queryClient.getQueryData<KnowledgeEntry[]>(KNOWLEDGE_KEY);
+      queryClient.setQueryData<KnowledgeEntry[]>(KNOWLEDGE_KEY, (old = []) =>
+        old.filter((e) => e.id !== memoryId),
       );
       return { previous };
     },
     onError: (_e, _v, context) => {
       if (context?.previous) {
-        queryClient.setQueryData(keyFor(restaurantId), context.previous);
+        queryClient.setQueryData(KNOWLEDGE_KEY, context.previous);
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: keyFor(restaurantId) });
+      queryClient.invalidateQueries({ queryKey: KNOWLEDGE_KEY });
     },
   });
 }
