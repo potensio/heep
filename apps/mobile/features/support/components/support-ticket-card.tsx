@@ -1,6 +1,5 @@
 import React, { memo, useCallback } from "react";
 import { Pressable } from "react-native";
-import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
 import { Text } from "@/components/ui/text";
@@ -20,38 +19,12 @@ function formatDate(iso: string): string {
 
 type Props = {
   item: SupportTicket;
+  /** Resolved restaurant name; falls back to the raw id when unknown. */
+  restaurantName: string;
   onPress: (id: string) => void;
 };
 
-function StatusPill({ status }: { status: SupportTicket["status"] }) {
-  const open = status === "open";
-  return (
-    <HStack
-      className="items-center rounded-full px-3 py-1"
-      style={{ gap: 6, backgroundColor: open ? "#FEF3C7" : "#F0FDF4" }}
-    >
-      <Box
-        className="rounded-full"
-        style={{
-          width: 6,
-          height: 6,
-          backgroundColor: open ? "#D97706" : "#16A34A",
-        }}
-      />
-      <Text
-        style={{
-          fontSize: 11,
-          color: open ? "#D97706" : "#16A34A",
-          fontFamily: "DM-Sans-Medium",
-        }}
-      >
-        {open ? "Open" : "Resolved"}
-      </Text>
-    </HStack>
-  );
-}
-
-export const SupportTicketCard = memo(({ item, onPress }: Props) => {
+export const SupportTicketCard = memo(({ item, restaurantName, onPress }: Props) => {
   const handlePress = useCallback(() => onPress(item.id), [item.id, onPress]);
 
   return (
@@ -62,16 +35,12 @@ export const SupportTicketCard = memo(({ item, onPress }: Props) => {
             className="text-foreground text-2xl font-normal flex-1 tracking-tighter"
             numberOfLines={1}
           >
-            {item.contact.name.trim() || "—"}
+            {restaurantName || "—"}
           </Text>
 
           <Text className="text-subtle text-lg font-normal tracking-tighter">
-            {formatDate(item.last_message.sent_at)}
+            {formatDate(item.last_updated)}
           </Text>
-        </HStack>
-
-        <HStack style={{ gap: 6 }}>
-          <StatusPill status={item.status} />
         </HStack>
 
         {item.last_message.text ? (

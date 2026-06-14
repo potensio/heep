@@ -12,10 +12,17 @@ import { HStack } from '@/components/ui/hstack';
 import { VStack } from '@/components/ui/vstack';
 import { Text } from '@/components/ui/text';
 import { List } from '@/components/ui/list';
+import Toast from 'react-native-toast-message';
 import { ChannelIcon } from '../components/channel-icon';
 import { SwipeableMessageBubble } from '../components/swipeable-message-bubble';
 import { useSendMessage } from '../hooks/use-send-message';
 import { usePauseAI } from '../hooks/use-pause-ai';
+import {
+  CreateKnowledgeBottomSheet,
+  CreateKnowledgeBottomSheetRef,
+} from '@/features/knowledge/components/create-knowledge-bottom-sheet';
+import { useCreateMemory } from '@/features/knowledge/hooks/use-knowledge';
+import type { Location } from '@/features/dashboard/types';
 import type { Conversation, ConversationListResponse, Message } from '../types';
 
 export default function ConversationDetailScreen() {
@@ -82,11 +89,44 @@ export default function ConversationDetailScreen() {
     openSwipeableRef.current = methods;
   }, []);
 
+  // "Add a new FAQ" swipe action: open the knowledge sheet prefilled with the
+  // tapped message and this conversation's restaurant (property).
+  const createSheetRef = useRef<CreateKnowledgeBottomSheetRef>(null);
+  const createMemory = useCreateMemory();
+
+  const handleAddFAQ = useCallback(
+    (item: Message) => {
+      createSheetRef.current?.open({
+        text: item.text,
+        location: conversation?.property,
+      });
+    },
+    [conversation],
+  );
+
+  const handleCreateMemory = useCallback(
+    ({ location, text }: { location: Location; text: string }) => {
+      createMemory.mutate(
+        { restaurantId: location.id, text },
+        {
+          onSuccess: () => Toast.show({ type: 'success', text1: 'Added to memory' }),
+          onError: () =>
+            Toast.show({ type: 'error', text1: 'Failed to save. Try again.' }),
+        },
+      );
+    },
+    [createMemory],
+  );
+
   const renderMessage = useCallback(
     ({ item }: { item: Message }) => (
-      <SwipeableMessageBubble message={item} onSwipeOpen={handleSwipeOpen} />
+      <SwipeableMessageBubble
+        message={item}
+        onSwipeOpen={handleSwipeOpen}
+        onAddFAQ={handleAddFAQ}
+      />
     ),
-    [handleSwipeOpen],
+    [handleSwipeOpen, handleAddFAQ],
   );
 
   const keyExtractor = useCallback((item: Message) => item.id, []);
@@ -220,6 +260,8 @@ export default function ConversationDetailScreen() {
           </Box>
         </Box>
       </VStack>
+
+      <CreateKnowledgeBottomSheet ref={createSheetRef} onSubmit={handleCreateMemory} />
     </KeyboardAvoidingView>
   );
 }

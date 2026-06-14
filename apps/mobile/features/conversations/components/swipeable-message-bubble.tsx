@@ -51,9 +51,10 @@ type RightActionsProps = {
   progress: SharedValue<number>;
   translation: SharedValue<number>;
   onClose: () => void;
+  onAddFAQ: () => void;
 };
 
-function RightActions({ progress, translation, onClose }: RightActionsProps) {
+function RightActions({ progress, translation, onClose, onAddFAQ }: RightActionsProps) {
   const panelStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translation.value + PANEL_WIDTH }],
     opacity: interpolate(progress.value, [0, 0.35, 1], [0, 0.6, 1]),
@@ -67,7 +68,7 @@ function RightActions({ progress, translation, onClose }: RightActionsProps) {
         label="Add a new FAQ"
         icon={<QuestionIcon size={24} color="#FFFFFF" weight="regular" />}
         bgClass="bg-[#4A6660]"
-        onPress={onClose}
+        onPress={onAddFAQ}
       />
       <ActionButton
         label="Report"
@@ -86,10 +87,11 @@ function RightActions({ progress, translation, onClose }: RightActionsProps) {
 type SwipeableMessageBubbleProps = {
   message: Message;
   onSwipeOpen: (methods: SwipeableMethods) => void;
+  onAddFAQ: (message: Message) => void;
 };
 
 export const SwipeableMessageBubble = memo(
-  ({ message, onSwipeOpen }: SwipeableMessageBubbleProps) => {
+  ({ message, onSwipeOpen, onAddFAQ }: SwipeableMessageBubbleProps) => {
     const swipeableRef = useRef<SwipeableMethods>(null);
 
     const isBot = message.sent_by === 'bot';
@@ -104,11 +106,21 @@ export const SwipeableMessageBubble = memo(
       swipeableRef.current?.close();
     }, []);
 
+    const handleAddFAQ = useCallback(() => {
+      swipeableRef.current?.close();
+      onAddFAQ(message);
+    }, [onAddFAQ, message]);
+
     const renderRightActions = useCallback(
       (progress: SharedValue<number>, translation: SharedValue<number>) => (
-        <RightActions progress={progress} translation={translation} onClose={closeSwipeable} />
+        <RightActions
+          progress={progress}
+          translation={translation}
+          onClose={closeSwipeable}
+          onAddFAQ={handleAddFAQ}
+        />
       ),
-      [closeSwipeable],
+      [closeSwipeable, handleAddFAQ],
     );
 
     const handleWillOpen = useCallback(() => {

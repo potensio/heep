@@ -9,6 +9,7 @@ import { usersRoutes } from './modules/users/users.routes';
 import { authRoutes } from './modules/auth/auth.routes';
 import { conversationsRoutes } from './modules/conversations/conversations.routes';
 import { conversationsV2Routes } from './modules/conversations/conversations-v2.routes';
+import { supportRoutes } from './modules/support/support.routes';
 import { webhookRoutes } from './modules/internal/webhook.routes';
 import { requireAuth } from './core/middleware/auth';
 import { verifyAccessToken } from './core/jwt';
@@ -32,6 +33,7 @@ export function createApp() {
   app.route('/users', usersRoutes);
   app.route('/conversations', conversationsRoutes);
   app.route('/conversations-v2', conversationsV2Routes);
+  app.route('/support', supportRoutes);
   app.route('/internal', webhookRoutes);
 
   app.get('/ws', async (c) => {

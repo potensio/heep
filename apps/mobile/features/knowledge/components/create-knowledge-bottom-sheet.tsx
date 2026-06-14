@@ -18,7 +18,11 @@ import { Text } from "@/components/ui/text";
 import { useLocations } from "@/features/dashboard/hooks/use-locations";
 import type { Location } from "@/features/dashboard/types";
 
-export type CreateKnowledgeBottomSheetRef = BottomSheetRef;
+export interface CreateKnowledgeBottomSheetRef {
+  /** Open the sheet, optionally prefilling the restaurant and/or text. */
+  open: (prefill?: { text?: string; location?: Location }) => void;
+  close: () => void;
+}
 
 /** Above this count we surface a search box to filter the pills. */
 const SEARCH_THRESHOLD = 6;
@@ -41,7 +45,11 @@ export const CreateKnowledgeBottomSheet = forwardRef<
   const [text, setText] = useState("");
 
   useImperativeHandle(ref, () => ({
-    open: () => sheetRef.current?.open(),
+    open: (prefill) => {
+      if (prefill?.location) setSelectedLocation(prefill.location);
+      if (prefill?.text !== undefined) setText(prefill.text);
+      sheetRef.current?.open();
+    },
     close: () => sheetRef.current?.close(),
   }));
 

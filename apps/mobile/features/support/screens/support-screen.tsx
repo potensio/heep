@@ -1,5 +1,6 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Pressable } from "react-native";
+import { useRouter } from "expo-router";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -10,16 +11,20 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PlusIcon } from "phosphor-react-native";
+import Toast from "react-native-toast-message";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
+import { Spinner } from "@/components/ui/spinner";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useLocations } from "@/features/dashboard/hooks/use-locations";
 import { SupportTicketCard } from "../components/support-ticket-card";
 import {
   CreateTicketBottomSheet,
   CreateTicketBottomSheetRef,
 } from "../components/create-ticket-bottom-sheet";
-import { MOCK_TICKETS } from "../data/mock-tickets";
+import { useTickets } from "../hooks/use-tickets";
+import { useCreateTicket } from "../hooks/use-create-ticket";
 import type { SupportTicket } from "../types";
 import type { Location } from "@/features/dashboard/types";
 
@@ -28,17 +33,40 @@ const COLLAPSE_THRESHOLD = 80;
 export default function SupportScreen() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColor();
+  const router = useRouter();
 
-  // Mock state — replaced by a backend-backed query hook later.
-  const [tickets, setTickets] = useState<SupportTicket[]>(MOCK_TICKETS);
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useTickets();
+  const tickets = useMemo(
+    () => data?.pages.flatMap((p) => p.data) ?? [],
+    [data],
+  );
+
+  // Resolve restaurant_id -> name for the card title.
+  const { data: locations = [] } = useLocations();
+  const nameById = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const l of locations) m.set(l.id, l.name);
+    return m;
+  }, [locations]);
+
   const createSheetRef = useRef<CreateTicketBottomSheetRef>(null);
+  const { mutate: createTicket } = useCreateTicket();
 
   const [headerHeight, setHeaderHeight] = useState(60);
   const scrollY = useSharedValue(0);
 
-  const handlePress = useCallback((_id: string) => {
-    // TODO: navigate to ticket detail once backend is wired.
-  }, []);
+  const handlePress = useCallback(
+    (id: string) => {
+      router.push(`/support/${id}`);
+    },
+    [router],
+  );
 
   const handleAdd = useCallback(() => {
     createSheetRef.current?.open();
@@ -46,23 +74,31 @@ export default function SupportScreen() {
 
   const handleCreate = useCallback(
     ({ location, description }: { location: Location; description: string }) => {
-      const now = new Date().toISOString();
-      const newTicket: SupportTicket = {
-        id: now,
-        contact: { name: location.name },
-        status: "open",
-        last_message: { text: description, sent_at: now },
-      };
-      setTickets((prev) => [newTicket, ...prev]);
+      createTicket(
+        { restaurantId: location.id, body: description },
+        {
+          onSuccess: () => Toast.show({ type: "success", text1: "Ticket created" }),
+          onError: () =>
+            Toast.show({ type: "error", text1: "Failed to create ticket. Try again." }),
+        },
+      );
     },
-    [],
+    [createTicket],
   );
+
+  const loadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const renderItem = useCallback(
     ({ item }: { item: SupportTicket }) => (
-      <SupportTicketCard item={item} onPress={handlePress} />
+      <SupportTicketCard
+        item={item}
+        restaurantName={nameById.get(item.restaurant_id) ?? item.restaurant_id}
+        onPress={handlePress}
+      />
     ),
-    [handlePress],
+    [handlePress, nameById],
   );
 
   const keyExtractor = useCallback((item: SupportTicket) => item.id, []);
@@ -156,12 +192,27 @@ export default function SupportScreen() {
         }}
         scrollEventThrottle={16}
         onScroll={scrollHandler}
+        onEndReached={loadMore}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <Box className="items-center py-4">
+              <Spinner size={20} />
+            </Box>
+          ) : null
+        }
         ListEmptyComponent={
-          <Box className="items-center py-12">
-            <Text style={{ color: colors.foregroundMuted, fontSize: 14 }}>
-              No support tickets found
-            </Text>
-          </Box>
+          isLoading ? (
+            <Box className="items-center py-12">
+              <Spinner size={28} />
+            </Box>
+          ) : (
+            <Box className="items-center py-12">
+              <Text style={{ color: colors.foregroundMuted, fontSize: 14 }}>
+                No support tickets found
+              </Text>
+            </Box>
+          )
         }
       />
 

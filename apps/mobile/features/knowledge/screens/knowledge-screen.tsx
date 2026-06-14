@@ -23,6 +23,10 @@ import {
   CreateKnowledgeBottomSheetRef,
 } from "../components/create-knowledge-bottom-sheet";
 import {
+  KnowledgeDetailBottomSheet,
+  KnowledgeDetailBottomSheetRef,
+} from "../components/knowledge-detail-bottom-sheet";
+import {
   useCreateMemory,
   useDeleteMemory,
   useKnowledge,
@@ -48,12 +52,22 @@ export default function KnowledgeScreen() {
   }, [locations]);
 
   const createSheetRef = useRef<CreateKnowledgeBottomSheetRef>(null);
+  const detailSheetRef = useRef<KnowledgeDetailBottomSheetRef>(null);
+  const [selectedEntry, setSelectedEntry] = useState<KnowledgeEntry | null>(
+    null,
+  );
 
   const [headerHeight, setHeaderHeight] = useState(60);
   const scrollY = useSharedValue(0);
 
+  const handlePress = useCallback((item: KnowledgeEntry) => {
+    setSelectedEntry(item);
+    detailSheetRef.current?.open();
+  }, []);
+
   const handleDelete = useCallback(
     (id: string) => {
+      detailSheetRef.current?.close();
       Alert.alert(
         "Delete knowledge?",
         "This removes it from the AI's memory. This can't be undone.",
@@ -100,10 +114,10 @@ export default function KnowledgeScreen() {
       <KnowledgeCard
         item={item}
         restaurantName={restaurantNames.get(item.restaurantId)}
-        onDelete={handleDelete}
+        onPress={handlePress}
       />
     ),
-    [handleDelete, restaurantNames],
+    [handlePress, restaurantNames],
   );
 
   const keyExtractor = useCallback((item: KnowledgeEntry) => item.id, []);
@@ -213,6 +227,17 @@ export default function KnowledgeScreen() {
       />
 
       <CreateKnowledgeBottomSheet ref={createSheetRef} onSubmit={handleCreate} />
+
+      <KnowledgeDetailBottomSheet
+        ref={detailSheetRef}
+        entry={selectedEntry}
+        restaurantName={
+          selectedEntry
+            ? restaurantNames.get(selectedEntry.restaurantId)
+            : undefined
+        }
+        onDelete={handleDelete}
+      />
     </Box>
   );
 }
