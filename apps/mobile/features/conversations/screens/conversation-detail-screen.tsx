@@ -1,8 +1,8 @@
-import React, { useCallback, useState, useRef } from 'react';
+import React, { useCallback, useState, useRef, useMemo } from 'react';
 import { Pressable, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
-import { fetchConversations, fetchConversationMessages } from '../api/conversations.api';
+import { fetchConversationMessages } from '../api/conversations.api';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CaretLeftIcon, UserIcon, PaperPlaneTiltIcon } from 'phosphor-react-native';
 import type { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable';
@@ -25,70 +25,51 @@ export default function ConversationDetailScreen() {
 
   const queryClient = useQueryClient();
   const { mutate: send, isPending } = useSendMessage(id);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const hasMoreRef = useRef(true);
-  const msgCursorRef = useRef<number | null>(null);
 
-  const { data: cached } = useInfiniteQuery({
-    queryKey: ['conversations'],
-    queryFn: ({ pageParam }) => fetchConversations(pageParam as number | undefined),
-    initialPageParam: undefined as number | undefined,
-    getNextPageParam: (lastPage) => lastPage.pagination.cursor ?? undefined,
-    enabled: false,
-  });
-  const conversation: Conversation | undefined = cached?.pages
-    .flatMap((p) => p.data)
-    .find((c) => c.id === id);
-
-  if (msgCursorRef.current === null && conversation) {
-    msgCursorRef.current = conversation.messages_pagination.cursor;
-    hasMoreRef.current = conversation.messages_pagination.remaining > 0;
-  }
-
-  const messages = conversation?.messages ?? [];
-  const { toggle: toggleAI } = usePauseAI(conversation);
-
-  const loadMoreMessages = useCallback(async () => {
-    if (loadingMore || !hasMoreRef.current || msgCursorRef.current === null) return;
-    setLoadingMore(true);
-    try {
-      const result = await fetchConversationMessages(id, msgCursorRef.current);
-      queryClient.setQueryData<InfiniteData<ConversationListResponse>>(
-        ['conversations'],
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              data: page.data.map((conv) => {
-                if (conv.id !== id) return conv;
-                const newMessages = result.data.filter(
-                  (m) => !conv.messages.some((existing) => existing.id === m.id),
-                );
-                return {
-                  ...conv,
-                  messages: [...conv.messages, ...newMessages],
-                  messages_pagination: {
-                    ...conv.messages_pagination,
-                    cursor: conv.messages_pagination.cursor + newMessages.length,
-                    remaining: conv.messages_pagination.remaining - newMessages.length,
-                  },
-                };
-              }),
-            })),
-          };
-        },
-      );
-      msgCursorRef.current = result.pagination.cursor;
-      hasMoreRef.current = result.pagination.has_more;
-    } catch {
-      // silently stop further pagination attempts on error
-      hasMoreRef.current = false;
-    } finally {
-      setLoadingMore(false);
+  // Conversation metadata (contact, channel, AI state) from whichever
+  // conversations-list cache loaded it — the list key now includes filters,
+  // so we search across all variants instead of one fixed key.
+  const conversation = useMemo<Conversation | undefined>(() => {
+    const entries = queryClient.getQueriesData<InfiniteData<ConversationListResponse>>({
+      queryKey: ['conversations'],
+    });
+    for (const [, data] of entries) {
+      const found = data?.pages.flatMap((p) => p.data).find((c) => c.id === id);
+      if (found) return found;
     }
-  }, [id, loadingMore, queryClient]);
+    return undefined;
+  }, [queryClient, id]);
+
+  // Messages are fetched independently of the list, so they always load even
+  // when the conversation isn't on the currently-loaded list page.
+  const {
+    data: msgData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['conversation-messages', id],
+    queryFn: ({ pageParam }) => fetchConversationMessages(id, pageParam as number),
+    initialPageParam: 0,
+    getNextPageParam: (last) => last.pagination.cursor ?? undefined,
+  });
+  const messages = useMemo(
+    () => msgData?.pages.flatMap((p) => p.data) ?? [],
+    [msgData],
+  );
+
+  // AI pause: keep a local optimistic override so the toggle flips instantly.
+  const [aiPausedOverride, setAiPausedOverride] = useState<boolean | null>(null);
+  const aiPaused = aiPausedOverride ?? conversation?.is_ai_paused;
+  const { toggle: togglePauseAI } = usePauseAI(conversation);
+  const toggleAI = useCallback(() => {
+    setAiPausedOverride((prev) => !(prev ?? conversation?.is_ai_paused));
+    togglePauseAI();
+  }, [conversation, togglePauseAI]);
+
+  const loadMoreMessages = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const openSwipeableRef = useRef<SwipeableMethods | null>(null);
 
@@ -171,7 +152,7 @@ export default function ConversationDetailScreen() {
           inverted
           onEndReached={loadMoreMessages}
           onEndReachedThreshold={0.3}
-          ListFooterComponent={loadingMore ? <ActivityIndicator size="small" className="py-4" /> : null}
+          ListFooterComponent={isFetchingNextPage ? <ActivityIndicator size="small" className="py-4" /> : null}
           contentContainerStyle={{ paddingTop: 8, paddingBottom: 8 }}
           showsVerticalScrollIndicator={false}
         />
@@ -182,13 +163,13 @@ export default function ConversationDetailScreen() {
         className="rounded-t-2xl"
         style={{ paddingBottom: insets.bottom + 8 }}
       >
-        {conversation?.is_ai_paused !== undefined && (
+        {conversation !== undefined && (
           <Box className="mx-4">
             <Pressable onPress={toggleAI}>
               <HStack className="items-center justify-between bg-teal-100 rounded-t-2xl px-4 py-2">
                 <Text className="text-xs tracking-tighter">AI on this conversation</Text>
-                <Text className={`text-xs font-medium ${conversation.is_ai_paused ? 'text-teal-600' : 'text-red-500'}`}>
-                  {conversation.is_ai_paused ? 'Resume AI' : 'Pause AI'}
+                <Text className={`text-xs font-medium ${aiPaused ? 'text-teal-600' : 'text-red-500'}`}>
+                  {aiPaused ? 'Resume AI' : 'Pause AI'}
                 </Text>
               </HStack>
             </Pressable>

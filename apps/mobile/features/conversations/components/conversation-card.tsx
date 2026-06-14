@@ -23,9 +23,32 @@ function formatDate(iso: string): string {
 type Props = {
   item: Conversation;
   onPress: (id: string) => void;
+  /** Active search term — highlighted inside the matched snippet. */
+  highlight?: string;
 };
 
-export const ConversationCard = memo(({ item, onPress }: Props) => {
+/** Splits text into parts, marking case-insensitive matches of `term`. */
+function highlightParts(text: string, term: string): { text: string; match: boolean }[] {
+  const q = term.trim();
+  if (!q) return [{ text, match: false }];
+  const parts: { text: string; match: boolean }[] = [];
+  const lower = text.toLowerCase();
+  const lowerQ = q.toLowerCase();
+  let i = 0;
+  while (i < text.length) {
+    const found = lower.indexOf(lowerQ, i);
+    if (found === -1) {
+      parts.push({ text: text.slice(i), match: false });
+      break;
+    }
+    if (found > i) parts.push({ text: text.slice(i, found), match: false });
+    parts.push({ text: text.slice(found, found + q.length), match: true });
+    i = found + q.length;
+  }
+  return parts;
+}
+
+export const ConversationCard = memo(({ item, onPress, highlight }: Props) => {
   const handlePress = useCallback(() => onPress(item.id), [item.id, onPress]);
 
   return (
@@ -90,7 +113,23 @@ export const ConversationCard = memo(({ item, onPress }: Props) => {
           </HStack>
         )}
 
-        {item.last_message.text ? (
+        {item.search_match ? (
+          <Text className="text-subtle text-base font-normal" numberOfLines={3}>
+            {highlightParts(item.search_match, highlight ?? "").map((p, i) =>
+              p.match ? (
+                <Text
+                  key={i}
+                  className="text-foreground"
+                  style={{ fontFamily: "DM-Sans-Bold", backgroundColor: "#E1EAE8" }}
+                >
+                  {p.text}
+                </Text>
+              ) : (
+                p.text
+              ),
+            )}
+          </Text>
+        ) : item.last_message.text ? (
           <Text className="text-subtle text-base font-normal" numberOfLines={3}>
             {item.last_message.text}
           </Text>

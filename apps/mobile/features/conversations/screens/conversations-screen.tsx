@@ -1,9 +1,4 @@
-import {
-  useRef,
-  useState,
-  useCallback,
-  useEffect,
-} from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { Pressable } from "react-native";
 import Animated, {
   useSharedValue,
@@ -35,6 +30,12 @@ import { clearTokens } from "@/features/auth/store/auth.store";
 import { queryClient } from "@/lib/query-client";
 import { useConversations } from "../hooks/use-conversations";
 import { ConversationCard } from "../components/conversation-card";
+import { FilterOverlay } from "../components/filters";
+import {
+  type ActiveFilters,
+  EMPTY_FILTERS,
+  countActiveFilters,
+} from "../components/filters/filter-config";
 import type { Conversation } from "../types";
 import type { Location } from "@/features/dashboard/types";
 
@@ -93,7 +94,31 @@ export default function ConversationsScreen() {
   const locationSheetRef = useRef<LocationPickerBottomSheetRef>(null);
   const { data: locations = [] } = useLocations();
 
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState<ActiveFilters>(EMPTY_FILTERS);
+
+  // `search` = text in the box; `committedSearch` = what actually queries.
+  // Searching message content is expensive, so we only fire on submit
+  // (keyboard "search"); clearing the box resets instantly.
   const [search, setSearch] = useState("");
+  const [committedSearch, setCommittedSearch] = useState("");
+
+  const handleSearchChange = useCallback((text: string) => {
+    setSearch(text);
+    if (text.trim() === "") setCommittedSearch("");
+  }, []);
+
+  const conversationQuery = {
+    platform: filters.platform,
+    priority: filters.priority,
+    tags: filters.tags,
+    isSpam: filters.isSpam,
+    isArchived: filters.isArchived,
+    search: committedSearch || undefined,
+    restaurantId: selectedLocation?.id,
+  };
+
+  const activeFilterCount = countActiveFilters(filters);
 
   const [headerHeight, setHeaderHeight] = useState(164);
   const listRef = useRef<Animated.FlatList<Conversation>>(null);
@@ -110,13 +135,13 @@ export default function ConversationsScreen() {
     isError,
     error,
     refetch,
-  } = useConversations();
+  } = useConversations(conversationQuery);
 
   useEffect(() => {
-    if (isError && (error as Error)?.message === 'UNAUTHORIZED') {
+    if (isError && (error as Error)?.message === "UNAUTHORIZED") {
       clearTokens().then(() => {
         queryClient.clear();
-        router.replace('/auth');
+        router.replace("/auth");
       });
     }
   }, [isError, error]);
@@ -140,9 +165,13 @@ export default function ConversationsScreen() {
 
   const renderItem = useCallback(
     ({ item }: { item: Conversation }) => (
-      <ConversationCard item={item} onPress={handlePress} />
+      <ConversationCard
+        item={item}
+        onPress={handlePress}
+        highlight={committedSearch}
+      />
     ),
-    [handlePress],
+    [handlePress, committedSearch],
   );
 
   const keyExtractor = useCallback((item: Conversation) => item.id, []);
@@ -177,7 +206,7 @@ export default function ConversationsScreen() {
     const height = interpolate(
       scrollY.value,
       [0, COLLAPSE_THRESHOLD * 0.6],
-      [56, 0],
+      [64, 0],
       Extrapolation.CLAMP,
     );
     const opacity = interpolate(
@@ -265,45 +294,55 @@ export default function ConversationsScreen() {
       >
         {/* Title row with compact controls */}
         <Animated.View style={titleSpacingStyle}>
-        <HStack
-          className="items-center justify-between"
-        >
-          <Animated.Text
-            className="font-extralight text-foreground tracking-tighter"
-            style={titleAnimatedStyle}
-          >
-            View conversations
-          </Animated.Text>
+          <HStack className="items-center justify-between">
+            <Animated.Text
+              className="font-extralight text-foreground tracking-tighter"
+              style={titleAnimatedStyle}
+            >
+              View conversations
+            </Animated.Text>
 
-          {/* Compact controls - appear on scroll */}
-          <Animated.View style={compactControlsAnimatedStyle}>
-            <HStack className="items-center" style={{ gap: 8 }}>
-              <Pressable onPress={() => locationSheetRef.current?.open()}>
-                <HStack
-                  className={`items-center px-3 py-1.5 rounded-full ${selectedLocation ? "bg-foreground" : "bg-white"}`}
-                  style={{ gap: 4 }}
-                >
-                  <Text
-                    className={`text-xs ${selectedLocation ? "text-background" : "text-foreground"}`}
+            {/* Compact controls - appear on scroll */}
+            <Animated.View style={compactControlsAnimatedStyle}>
+              <HStack className="items-center" style={{ gap: 8 }}>
+                <Pressable onPress={() => locationSheetRef.current?.open()}>
+                  <HStack
+                    className={`items-center px-3 py-1.5 rounded-full ${selectedLocation ? "bg-foreground" : "bg-white"}`}
+                    style={{ gap: 4 }}
                   >
-                    {selectedLocation?.name ?? "Location"}
-                  </Text>
-                  <CaretRightIcon
-                    size={12}
-                    color={
-                      selectedLocation ? colors.background : colors.foreground
-                    }
-                  />
-                </HStack>
-              </Pressable>
-              <Pressable>
-                <Box className="w-8 h-8 rounded-full bg-white items-center justify-center">
-                  <FunnelSimpleIcon size={16} color={colors.foreground} />
-                </Box>
-              </Pressable>
-            </HStack>
-          </Animated.View>
-        </HStack>
+                    <Text
+                      className={`text-xs ${selectedLocation ? "text-background" : "text-foreground"}`}
+                    >
+                      {selectedLocation?.name ?? "Location"}
+                    </Text>
+                    <CaretRightIcon
+                      size={12}
+                      color={
+                        selectedLocation ? colors.background : colors.foreground
+                      }
+                    />
+                  </HStack>
+                </Pressable>
+                <Pressable onPress={() => setFiltersOpen(true)}>
+                  <Box className="w-8 h-8 rounded-full bg-white items-center justify-center">
+                    <FunnelSimpleIcon size={16} color={colors.foreground} />
+                    {activeFilterCount > 0 && (
+                      <Box
+                        className="rounded-full bg-foreground"
+                        style={{
+                          position: "absolute",
+                          top: -2,
+                          right: -2,
+                          width: 10,
+                          height: 10,
+                        }}
+                      />
+                    )}
+                  </Box>
+                </Pressable>
+              </HStack>
+            </Animated.View>
+          </HStack>
         </Animated.View>
 
         {/* Expanded Filter Row - collapses on scroll */}
@@ -311,8 +350,8 @@ export default function ConversationsScreen() {
           <HStack className="items-center justify-between" style={{ gap: 16 }}>
             <Pressable onPress={() => locationSheetRef.current?.open()}>
               <HStack
-                className={`items-center px-6 py-4 rounded-full ${selectedLocation ? "bg-foreground" : "bg-white"}`}
-                style={{ gap: 12 }}
+                className={`items-center px-6 rounded-full ${selectedLocation ? "bg-foreground" : "bg-white"}`}
+                style={{ gap: 12, height: 64 }}
               >
                 <Text
                   className={`text-xs ${selectedLocation ? "text-background" : "text-foreground"}`}
@@ -328,9 +367,9 @@ export default function ConversationsScreen() {
               </HStack>
             </Pressable>
 
-            <Pressable>
+            <Pressable onPress={() => setFiltersOpen(true)}>
               <HStack
-                className="items-center rounded-full bg-foreground/5"
+                className="items-center rounded-full bg-white/75"
                 style={{ gap: 8, padding: 6 }}
               >
                 <Box
@@ -345,14 +384,19 @@ export default function ConversationsScreen() {
                 </Box>
                 <HStack
                   className="items-center justify-center rounded-full bg-white"
-                  style={{ paddingHorizontal: 28, paddingVertical: 14 }}
+                  style={{ paddingHorizontal: 28, paddingVertical: 16, gap: 6 }}
                 >
-                  <Text
-                    className="text-sm"
-                    style={{ color: colors.foregroundMuted }}
-                  >
-                    Filters
-                  </Text>
+                  <Text className="text-xs">Filters</Text>
+                  {activeFilterCount > 0 && (
+                    <Box
+                      className="rounded-full bg-foreground items-center justify-center"
+                      style={{ minWidth: 18, height: 18, paddingHorizontal: 5 }}
+                    >
+                      <Text className="text-2xs text-background">
+                        {activeFilterCount}
+                      </Text>
+                    </Box>
+                  )}
                 </HStack>
               </HStack>
             </Pressable>
@@ -367,11 +411,13 @@ export default function ConversationsScreen() {
           >
             <MagnifyingGlassIcon size={18} color={colors.foregroundMuted} />
             <InputField
-              placeholder="Search"
+              placeholder="Search messages"
               className="pl-3 text-base flex-1"
               style={{ height: "100%" }}
               value={search}
-              onChangeText={setSearch}
+              onChangeText={handleSearchChange}
+              returnKeyType="search"
+              onSubmitEditing={() => setCommittedSearch(search.trim())}
             />
           </Box>
         </Animated.View>
@@ -393,10 +439,23 @@ export default function ConversationsScreen() {
         scrollEventThrottle={16}
         onScroll={scrollHandler}
         ListHeaderComponent={
-          <ConversationListHeader isLoading={isLoading} isError={isError} onRetry={refetch} />
+          <ConversationListHeader
+            isLoading={isLoading}
+            isError={isError}
+            onRetry={refetch}
+          />
         }
         ListFooterComponent={
           <ConversationListFooter isFetchingNextPage={isFetchingNextPage} />
+        }
+        ListEmptyComponent={
+          !isLoading && !isError ? (
+            <Box className="items-center py-12">
+              <Text style={{ color: colors.foregroundMuted, fontSize: 14 }}>
+                No conversations found
+              </Text>
+            </Box>
+          ) : null
         }
       />
 
@@ -406,6 +465,12 @@ export default function ConversationsScreen() {
         selectedLocation={selectedLocation}
         onSelect={setSelectedLocation}
         onClear={() => setSelectedLocation(null)}
+      />
+
+      <FilterOverlay
+        visible={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onApply={setFilters}
       />
     </Box>
   );

@@ -45,6 +45,11 @@ export async function getBubbleToken(): Promise<string | null> {
   return user?.bubble_token ?? null;
 }
 
+export async function getTeamId(): Promise<string | null> {
+  const user = await getStoredUser();
+  return user?.team_id ?? null;
+}
+
 export async function tryRefreshTokens(): Promise<string | null> {
   const refreshToken = await getRefreshToken();
   if (!refreshToken) return null;

@@ -9,7 +9,18 @@ import { getConversationsV2, getConversationMessages } from '../../core/bubble/d
 export const conversationsV2Routes = new Hono<{ Bindings: Env; Variables: AppVariables }>();
 
 conversationsV2Routes.get('/', requireAuth, zValidator('query', listConversationsSchema), async (c) => {
-  const { cursor, limit, messages_limit } = c.req.valid('query');
+  const {
+    cursor,
+    limit,
+    messages_limit,
+    restaurant_id,
+    platform,
+    priority,
+    tags,
+    is_spam,
+    is_archived,
+    search,
+  } = c.req.valid('query');
 
   const user = await c.get('usersService').getMe(c.get('user').id);
   if (!user.bubble_token) return c.json({ error: 'User has no Bubble token' }, 400);
@@ -20,6 +31,15 @@ conversationsV2Routes.get('/', requireAuth, zValidator('query', listConversation
     cursor,
     limit: limit ?? 20,
     messagesLimit: messages_limit ?? 20,
+    filters: {
+      restaurantId: restaurant_id,
+      platform,
+      priority,
+      tags,
+      isSpam: is_spam,
+      isArchived: is_archived,
+      search,
+    },
   });
 
   return c.json(result);

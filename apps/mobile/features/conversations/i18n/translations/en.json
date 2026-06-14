@@ -1,0 +1,32 @@
+{
+  "filters.apply": "Apply",
+  "filters.reset": "Reset filters",
+  "filters.search": "Search...",
+  "filters.noResults": "No results",
+
+  "filters.pill.priority": "Priority",
+  "filters.pill.tag": "Tag",
+  "filters.pill.conversations": "Conversations",
+  "filters.pill.whatsapp": "WhatsApp",
+  "filters.pill.instagram": "Instagram",
+  "filters.pill.messenger": "Messenger",
+  "filters.pill.email": "Email",
+  "filters.pill.archived": "Archived conversations",
+  "filters.pill.spam": "Spam",
+
+  "filters.priority.title": "Filter by priority",
+  "filters.priority.high": "High",
+  "filters.priority.medium": "Medium",
+  "filters.priority.low": "Low",
+
+  "filters.tag.title": "Filter by tag",
+
+  "filters.conversations.title": "Filter by conversation",
+  "filters.conversations.open": "Open",
+  "filters.conversations.pending": "Pending",
+  "filters.conversations.resolved": "Resolved",
+  "filters.conversations.snoozed": "Snoozed",
+  "filters.conversations.unassigned": "Unassigned",
+  "filters.conversations.assignedToMe": "Assigned to me",
+  "filters.conversations.mentioned": "Mentioned"
+}

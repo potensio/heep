@@ -8,6 +8,7 @@ export interface AuthUser {
   avatar_url: string | null;
   profile_completed: boolean;
   bubble_token: string | null;
+  team_id: string | null;
 }
 
 export interface AuthTokens {

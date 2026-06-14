@@ -2,26 +2,26 @@ import type { BubbleConversation, PaginatedResult } from './data-client';
 
 interface BubbleObjConversation {
   _id: string;
-  'AI desactivated'?: boolean;
-  'Social media'?: string;
-  'First name'?: string;
-  Last_name?: string;
-  'WhatsApp number formatted'?: string;
-  'Profile picture'?: string;
-  'Email (client)'?: string;
-  'Subject (email)'?: string;
-  Last_message_date?: string;
-  Restaurant?: string;
-  Messages?: string[];
+  is_ai_disabled?: boolean;
+  social_media?: string;
+  first_name?: string;
+  last_name?: string;
+  whatsapp_number_formatted?: string;
+  profile_picture?: string;
+  email_client?: string;
+  email_subject?: string;
+  last_message_date?: string;
+  restaurant?: string;
+  messages?: string[];
 }
 
 interface BubbleObjMessage {
   _id: string;
-  Content?: string;
-  'Type de message'?: string;
+  content?: string;
+  message_type?: string;
   'Created Date': string;
   Conversation?: string;
-  'réponse manuelle?'?: boolean;
+  is_manual_response?: boolean;
 }
 
 interface BubbleObjResponse<T> {
@@ -78,7 +78,7 @@ export async function getConversationMessages({
 }: GetConversationMessagesOptions): Promise<MessagePage> {
   const constraints = encodeURIComponent(JSON.stringify([
     { key: 'Conversation', constraint_type: 'equals', value: conversationId },
-    { key: 'Type de message', constraint_type: 'not equal', value: 'System' },
+    { key: 'message_type', constraint_type: 'not equal', value: 'System' },
   ]));
   const res = await fetch(
     `${dataUrl}/Messages?constraints=${constraints}&sort_field=Created+Date&descending=true&cursor=${cursor}&limit=${limit}`,
@@ -90,9 +90,9 @@ export async function getConversationMessages({
   return {
     data: data.response.results.map((m) => ({
       id: m._id,
-      text: m.Content ?? '',
-      sent_by: m['Type de message'] === 'Bot' ? 'bot' : 'user',
-      is_manual_response: m['réponse manuelle?'] ?? false,
+      text: m.content ?? '',
+      sent_by: m.message_type === 'Bot' ? 'bot' : 'user',
+      is_manual_response: m.is_manual_response ?? false,
       sent_at: m['Created Date'],
     })),
     pagination: {
@@ -102,12 +102,107 @@ export async function getConversationMessages({
   };
 }
 
+export interface ConversationFilters {
+  /** Scope to one restaurant (selected location). */
+  restaurantId?: string;
+  /** social_media values (match any). */
+  platform?: string[];
+  /** priority_status values (match any). */
+  priority?: string[];
+  /** conversation_tags ids (must have all). */
+  tags?: string[];
+  isSpam?: boolean;
+  isArchived?: boolean;
+  /** Free-text search over message content (last 90 days, non-System). */
+  search?: string;
+}
+
+/** Window for message-content search, in days. */
+const SEARCH_WINDOW_DAYS = 90;
+/** Max matching messages scanned to collect conversation ids per search. */
+const SEARCH_MESSAGE_LIMIT = 100;
+
+/**
+ * Finds conversation ids whose recent (<=90d), non-System messages contain the
+ * query. Scoped by restaurant when provided. Returns at most ~SEARCH_MESSAGE_LIMIT
+ * conversations (the most recent matches) — keeps the Data API query fast.
+ */
+async function searchConversationIdsByMessage(opts: {
+  bubbleToken: string;
+  dataUrl: string;
+  query: string;
+  restaurantId?: string;
+  now: number;
+}): Promise<Map<string, string>> {
+  const since = new Date(opts.now - SEARCH_WINDOW_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const constraints: BubbleConstraint[] = [];
+  if (opts.restaurantId) {
+    constraints.push({ key: 'Restaurant', constraint_type: 'equals', value: opts.restaurantId });
+  }
+  constraints.push(
+    { key: 'message_type', constraint_type: 'not equal', value: 'System' },
+    { key: 'Created Date', constraint_type: 'greater than', value: since },
+    { key: 'content', constraint_type: 'text contains', value: opts.query },
+  );
+
+  const enc = encodeURIComponent(JSON.stringify(constraints));
+  const res = await fetch(
+    `${opts.dataUrl}/Messages?constraints=${enc}&sort_field=Created+Date&descending=true&limit=${SEARCH_MESSAGE_LIMIT}`,
+    { headers: { Authorization: `Bearer ${opts.bubbleToken}` } },
+  );
+  if (!res.ok) throw new Error(`Bubble message search failed: ${res.status}`);
+  const data = await res.json() as BubbleObjResponse<BubbleObjMessage>;
+
+  // Insertion order = most-recent first (sorted desc). Keep the first
+  // (newest) matching message per conversation as the snippet.
+  const matches = new Map<string, string>();
+  for (const m of data.response.results) {
+    if (m.Conversation && !matches.has(m.Conversation)) {
+      matches.set(m.Conversation, m.content ?? '');
+    }
+  }
+  return matches;
+}
+
+type BubbleConstraint = {
+  key: string;
+  constraint_type: string;
+  value?: unknown;
+};
+
+/** Builds Bubble Data API constraints for the Conversations query from filters. */
+function buildConversationConstraints(f: ConversationFilters): BubbleConstraint[] {
+  const constraints: BubbleConstraint[] = [];
+  if (f.restaurantId) {
+    constraints.push({ key: 'restaurant', constraint_type: 'equals', value: f.restaurantId });
+  }
+  if (f.platform?.length) {
+    constraints.push({ key: 'social_media', constraint_type: 'in', value: f.platform });
+  }
+  if (f.priority?.length) {
+    constraints.push({ key: 'priority_status', constraint_type: 'in', value: f.priority });
+  }
+  if (f.isSpam) {
+    constraints.push({ key: 'is_spam', constraint_type: 'equals', value: true });
+  }
+  if (f.isArchived) {
+    constraints.push({ key: 'is_archived', constraint_type: 'equals', value: true });
+  }
+  // conversation_tags is a list; `contains` takes a single id. Multiple tags ->
+  // multiple contains = conversation must have ALL selected tags (AND).
+  for (const tagId of f.tags ?? []) {
+    constraints.push({ key: 'conversation_tags', constraint_type: 'contains', value: tagId });
+  }
+  return constraints;
+}
+
 export interface GetConversationsV2Options {
   bubbleToken: string;
   dataUrl: string;
   cursor?: number;
   limit: number;
   messagesLimit: number;
+  filters?: ConversationFilters;
 }
 
 export async function getConversationsV2({
@@ -116,14 +211,39 @@ export async function getConversationsV2({
   cursor = 0,
   limit,
   messagesLimit,
+  filters = {},
 }: GetConversationsV2Options): Promise<PaginatedResult<BubbleConversation>> {
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${bubbleToken}`,
   };
 
+  const convConstraints = buildConversationConstraints(filters);
+
+  // Free-text search: resolve matching conversation ids from message content,
+  // then constrain the list to those ids (combined with any active filters).
+  let searchMatches: Map<string, string> | null = null;
+  if (filters.search) {
+    searchMatches = await searchConversationIdsByMessage({
+      bubbleToken,
+      dataUrl,
+      query: filters.search,
+      restaurantId: filters.restaurantId,
+      now: Date.now(),
+    });
+    const ids = [...searchMatches.keys()];
+    if (ids.length === 0) {
+      return { data: [], pagination: { cursor: null, has_more: false } };
+    }
+    convConstraints.push({ key: '_id', constraint_type: 'in', value: ids });
+  }
+
+  const constraintsParam = convConstraints.length
+    ? `&constraints=${encodeURIComponent(JSON.stringify(convConstraints))}`
+    : '';
+
   const convRes = await fetch(
-    `${dataUrl}/Conversations?sort_field=Last_message_date&descending=true&limit=${limit}&cursor=${cursor}`,
+    `${dataUrl}/Conversations?sort_field=last_message_date&descending=true&limit=${limit}&cursor=${cursor}${constraintsParam}`,
     { headers },
   );
   if (!convRes.ok) throw new Error(`Bubble Conversations fetch failed: ${convRes.status}`);
@@ -136,7 +256,7 @@ export async function getConversationsV2({
 
   const msgConstraints = encodeURIComponent(JSON.stringify([
     { key: 'Conversation', constraint_type: 'in', value: convIds },
-    { key: 'Type de message', constraint_type: 'not equal', value: 'System' },
+    { key: 'message_type', constraint_type: 'not equal', value: 'System' },
   ]));
   const msgRes = await fetch(
     `${dataUrl}/Messages?constraints=${msgConstraints}&sort_field=Created+Date&descending=true&limit=${convIds.length * messagesLimit}`,
@@ -161,40 +281,41 @@ export async function getConversationsV2({
     return {
       id: conv._id,
       is_heep_member: false,
-      is_ai_paused: conv['AI desactivated'] ?? false,
-      email_subject: conv['Subject (email)'] ?? '',
-      channel: normalizeChannel(conv['Social media']),
+      is_ai_paused: conv.is_ai_disabled ?? false,
+      email_subject: conv.email_subject ?? '',
+      channel: normalizeChannel(conv.social_media),
       contact: {
-        name: [conv['First name'], conv.Last_name].filter(Boolean).join(' ')
-          || conv['Email (client)']
-          || conv['WhatsApp number formatted']
+        name: [conv.first_name, conv.last_name].filter(Boolean).join(' ')
+          || conv.email_client
+          || conv.whatsapp_number_formatted
           || '—',
-        avatar_url: conv['Profile picture']
-          ? conv['Profile picture'].startsWith('//')
-            ? `https:${conv['Profile picture']}`
-            : conv['Profile picture']
+        avatar_url: conv.profile_picture
+          ? conv.profile_picture.startsWith('//')
+            ? `https:${conv.profile_picture}`
+            : conv.profile_picture
           : null,
-        phone: conv['WhatsApp number formatted'] ?? null,
+        phone: conv.whatsapp_number_formatted ?? null,
       },
       property: {
-        id: conv.Restaurant ?? '',
+        id: conv.restaurant ?? '',
         name: '',
       },
       last_message: {
-        text: lastMsg?.Content ?? '',
-        sent_at: conv.Last_message_date ?? '',
+        text: lastMsg?.content ?? '',
+        sent_at: conv.last_message_date ?? '',
       },
+      search_match: searchMatches?.get(conv._id),
       messages: msgs.map((m) => ({
         id: m._id,
-        text: m.Content ?? '',
-        sent_by: m['Type de message'] === 'Bot' ? 'bot' : 'user',
-        is_manual_response: m['réponse manuelle?'] ?? false,
+        text: m.content ?? '',
+        sent_by: m.message_type === 'Bot' ? 'bot' : 'user',
+        is_manual_response: m.is_manual_response ?? false,
         sent_at: m['Created Date'],
       })),
       messages_pagination: {
         cursor: msgs.length,
-        has_more: ((conv.Messages?.length ?? 0) - msgs.length) > 0,
-        remaining: Math.max(0, (conv.Messages?.length ?? 0) - msgs.length),
+        has_more: ((conv.messages?.length ?? 0) - msgs.length) > 0,
+        remaining: Math.max(0, (conv.messages?.length ?? 0) - msgs.length),
       },
     };
   });

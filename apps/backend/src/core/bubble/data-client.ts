@@ -25,6 +25,9 @@ export interface BubbleConversation {
     text: string;
     sent_at: string;
   };
+  /** When the list came from a message-content search, the matching message
+   *  snippet (so the card can show why this conversation matched). */
+  search_match?: string;
   messages: BubbleMessage[];
   messages_pagination: {
     cursor: number;

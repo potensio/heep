@@ -28,6 +28,8 @@ export interface Conversation {
   channel: Channel;
   property: { id: string; name: string };
   last_message: { text: string; sent_at: string };
+  /** Matching message snippet when the list came from a search. */
+  search_match?: string | null;
   messages: Message[];
   messages_pagination: { cursor: number; has_more: boolean; remaining: number };
 }

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { InteractionManager } from 'react-native';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { fetchConversations } from '../api/conversations.api';
+import { fetchConversations, type ConversationQuery } from '../api/conversations.api';
 
-export function useConversations() {
+export function useConversations(query: ConversationQuery = {}) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -12,8 +12,9 @@ export function useConversations() {
   }, []);
 
   return useInfiniteQuery({
-    queryKey: ['conversations'],
-    queryFn: ({ pageParam }) => fetchConversations(pageParam as number | undefined),
+    // query is part of the key so changing filters/search/location refetches.
+    queryKey: ['conversations', query],
+    queryFn: ({ pageParam }) => fetchConversations(pageParam as number | undefined, query),
     initialPageParam: undefined as number | undefined,
     getNextPageParam: (lastPage) => lastPage.pagination.cursor ?? undefined,
     enabled: ready,

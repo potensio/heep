@@ -4,10 +4,30 @@ import type { ConversationListResponse } from '../types';
 const API_URL = process.env.EXPO_PUBLIC_API_URL;
 const BUBBLE_API_URL = process.env.EXPO_PUBLIC_BUBBLE_API_URL;
 
-export async function fetchConversations(cursor?: number): Promise<ConversationListResponse> {
+export interface ConversationQuery {
+  platform?: string[];
+  priority?: string[];
+  tags?: string[];
+  isSpam?: boolean;
+  isArchived?: boolean;
+  search?: string;
+  restaurantId?: string;
+}
+
+export async function fetchConversations(
+  cursor?: number,
+  query: ConversationQuery = {},
+): Promise<ConversationListResponse> {
   const token = await getAccessToken();
   const params = new URLSearchParams({ limit: '20' });
   if (cursor !== undefined) params.set('cursor', String(cursor));
+  if (query.platform?.length) params.set('platform', query.platform.join(','));
+  if (query.priority?.length) params.set('priority', query.priority.join(','));
+  if (query.tags?.length) params.set('tags', query.tags.join(','));
+  if (query.isSpam) params.set('is_spam', 'true');
+  if (query.isArchived) params.set('is_archived', 'true');
+  if (query.search) params.set('search', query.search);
+  if (query.restaurantId) params.set('restaurant_id', query.restaurantId);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 60000);
